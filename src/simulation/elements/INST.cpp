@@ -3,7 +3,8 @@
 Element_INST::Element_INST()
 {
 	Identifier = "DEFAULT_PT_INST";
-	Name = "INST";
+	Name = "GRPH";
+	FullName = "Graphene";
 	Colour = PIXPACK(0x404039);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
@@ -28,7 +29,7 @@ Element_INST::Element_INST()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
-	Description = "Instantly conducts, PSCN to charge, NSCN to take.";
+	Description = "Graphene superconductor, PSCN to charge, NSCN to take.";
 
 	Properties = TYPE_SOLID|PROP_LIFE_DEC;
 

@@ -4,6 +4,7 @@ Element_FRZW::Element_FRZW()
 {
 	Identifier = "DEFAULT_PT_FRZW";
 	Name = "FRZW";
+	FullName = "Freeze Water";
 	Colour = PIXPACK(0x1020C0);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;

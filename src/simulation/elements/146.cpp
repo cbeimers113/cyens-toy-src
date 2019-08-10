@@ -4,6 +4,7 @@ Element_146::Element_146()
 {
 	Identifier = "DEFAULT_PT_146";
 	Name = "BRAN";
+	FullName = "Raisin Bran";
 	Colour = PIXPACK(0xCCCC00);
 	MenuVisible = 0;
 	MenuSection = SC_LIFE;

@@ -4,6 +4,7 @@ Element_BIZRG::Element_BIZRG()
 {
 	Identifier = "DEFAULT_PT_BIZRG";
 	Name = "BIZG";
+	FullName = "Bizarre Gas";
 	Colour = PIXPACK(0x00FFBB);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;

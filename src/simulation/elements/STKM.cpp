@@ -3,7 +3,8 @@
 Element_STKM::Element_STKM()
 {
 	Identifier = "DEFAULT_PT_STKM";
-	Name = "STKM";
+	Name = "STKM"; 
+	FullName = "Stickman";
 	Colour = PIXPACK(0xFFE0A0);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;
@@ -111,6 +112,7 @@ int Element_STKM::run_stickman(playerst *playerp, UPDATE_FUNC_ARGS) {
 			gvy = 1;
 			break;
 		case 1:
+		case 3:
 			gvy = gvx = 0.0f;
 			break;
 		case 2:

@@ -5,6 +5,7 @@ Element_GOLD::Element_GOLD()
 {
 	Identifier = "DEFAULT_PT_GOLD";
 	Name = "GOLD";
+	FullName = "Gold";
 	Colour = PIXPACK(0xDCAD2C);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

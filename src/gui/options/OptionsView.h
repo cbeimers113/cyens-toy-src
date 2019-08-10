@@ -10,12 +10,15 @@
 
 class OptionsModel;
 class OptionsController;
-class OptionsView: public ui::Window {
+class OptionsView : public ui::Window {
 	OptionsController * c;
 	ui::Checkbox * heatSimulation;
 	ui::Checkbox * ambientHeatSimulation;
 	ui::Checkbox * newtonianGravity;
 	ui::Checkbox * waterEqualisation;
+	ui::Checkbox * infoScreenOption;
+	ui::Checkbox * timeDilationSimulation;
+	ui::Checkbox * compressibleGasesSimulation;
 	ui::DropDown * airMode;
 	ui::DropDown * gravityMode;
 	ui::DropDown * edgeMode;

@@ -4,6 +4,7 @@ Element_NWHL::Element_NWHL()
 {
 	Identifier = "DEFAULT_PT_NWHL";
 	Name = "WHOL";
+	FullName = "White Hole";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

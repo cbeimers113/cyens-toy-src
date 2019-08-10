@@ -4,9 +4,10 @@ Element_ACEL::Element_ACEL()
 {
 	Identifier = "DEFAULT_PT_ACEL";
 	Name = "ACEL";
+	FullName = "Accelerator";
 	Colour = PIXPACK(0x0099CC);
 	MenuVisible = 1;
-	MenuSection = SC_FORCE;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;

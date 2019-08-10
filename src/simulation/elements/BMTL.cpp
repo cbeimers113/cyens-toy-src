@@ -3,7 +3,8 @@
 Element_BMTL::Element_BMTL()
 {
 	Identifier = "DEFAULT_PT_BMTL";
-	Name = "BMTL";
+	Name = "CSTI";
+	FullName = "Cast Iron";
 	Colour = PIXPACK(0x505070);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
@@ -28,7 +29,7 @@ Element_BMTL::Element_BMTL()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
-	Description = "Breakable metal. Common conductive building material, can melt and break under pressure.";
+	Description = "Cast iron. Common conductive building material, can melt and break under pressure.";
 
 	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 

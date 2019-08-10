@@ -4,6 +4,7 @@ Element_POLO::Element_POLO()
 {
 	Identifier = "DEFAULT_PT_POLO";
 	Name = "POLO";
+	FullName = "Polonium";
 	Colour = PIXPACK(0x506030);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;

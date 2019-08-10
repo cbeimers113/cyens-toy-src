@@ -4,6 +4,7 @@ Element_SMKE::Element_SMKE()
 {
 	Identifier = "DEFAULT_PT_SMKE";
 	Name = "SMKE";
+	FullName = "Smoke";
 	Colour = PIXPACK(0x222222);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;

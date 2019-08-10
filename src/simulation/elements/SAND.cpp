@@ -4,6 +4,7 @@ Element_SAND::Element_SAND()
 {
 	Identifier = "DEFAULT_PT_SAND";
 	Name = "SAND";
+	FullName = "Sand";
 	Colour = PIXPACK(0xFFD090);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

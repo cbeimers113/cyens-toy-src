@@ -1,15 +1,15 @@
 #include "QuickOption.h"
 #include "GameModel.h"
 
-class SandEffectOption: public QuickOption
+class SandEffectOption : public QuickOption
 {
 public:
-	SandEffectOption(GameModel * m):
-	QuickOption("P", "Sand effect", m, Toggle)
+	SandEffectOption(GameModel * m) :
+		QuickOption("P", "Sand effect", m, Toggle)
 	{
 
 	}
-	virtual bool GetToggle() 
+	virtual bool GetToggle()
 	{
 		return m->GetSimulation()->pretty_powder;
 	}
@@ -19,15 +19,15 @@ public:
 	}
 };
 
-class DrawGravOption: public QuickOption
+class DrawGravOption : public QuickOption
 {
 public:
-	DrawGravOption(GameModel * m):
-	QuickOption("G", "Draw gravity field \bg(ctrl+g)", m, Toggle)
+	DrawGravOption(GameModel * m) :
+		QuickOption("G", "Draw gravity field \bg(ctrl+g)", m, Toggle)
 	{
 
 	}
-	virtual bool GetToggle() 
+	virtual bool GetToggle()
 	{
 		return m->GetGravityGrid();
 	}
@@ -37,15 +37,15 @@ public:
 	}
 };
 
-class DecorationsOption: public QuickOption
+class DecorationsOption : public QuickOption
 {
 public:
-	DecorationsOption(GameModel * m):
-	QuickOption("D", "Draw decorations \bg(ctrl+b)", m, Toggle)
+	DecorationsOption(GameModel * m) :
+		QuickOption("D", "Draw decorations \bg(ctrl+b)", m, Toggle)
 	{
 
 	}
-	virtual bool GetToggle() 
+	virtual bool GetToggle()
 	{
 		return m->GetDecoration();
 	}
@@ -55,15 +55,15 @@ public:
 	}
 };
 
-class NGravityOption: public QuickOption
+class NGravityOption : public QuickOption
 {
 public:
-	NGravityOption(GameModel * m):
-	QuickOption("N", "Newtonian Gravity \bg(n)", m, Toggle)
+	NGravityOption(GameModel * m) :
+		QuickOption("N", "Newtonian Gravity \bg(n)", m, Toggle)
 	{
 
 	}
-	virtual bool GetToggle() 
+	virtual bool GetToggle()
 	{
 		return m->GetNewtonianGrvity();
 	}
@@ -73,15 +73,15 @@ public:
 	}
 };
 
-class AHeatOption: public QuickOption
+class AHeatOption : public QuickOption
 {
 public:
-	AHeatOption(GameModel * m):
-	QuickOption("A", "Ambient heat \bg(u)", m, Toggle)
+	AHeatOption(GameModel * m) :
+		QuickOption("A", "Ambient heat \bg(u)", m, Toggle)
 	{
 
 	}
-	virtual bool GetToggle() 
+	virtual bool GetToggle()
 	{
 		return m->GetAHeatEnable();
 	}
@@ -91,12 +91,12 @@ public:
 	}
 };
 
-class ConsoleShowOption: public QuickOption
+class ConsoleShowOption : public QuickOption
 {
 	GameController * c;
 public:
-	ConsoleShowOption(GameModel * m, GameController * c_):
-	QuickOption("C", "Show Console \bg(~)", m, Toggle)
+	ConsoleShowOption(GameModel * m, GameController * c_) :
+		QuickOption("C", "Show Console \bg(~)", m, Toggle)
 	{
 		c = c_;
 	}
@@ -107,5 +107,62 @@ public:
 	virtual void perform()
 	{
 		c->ShowConsole();
+	}
+};
+
+class InfoscreenOption : public QuickOption
+{
+	GameController *c;
+public:
+	InfoscreenOption(GameModel *m) :
+		QuickOption("I", "[Not Implemented] Show Info Screen \bg(ctrl+w)", m, Toggle)
+	{
+
+	}
+	virtual bool GetToggle()
+	{
+		return m->GetInfoscreenEnable();
+	}
+	virtual void perform()
+	{
+		m->SetInfoscreenEnable(!m->GetInfoscreenEnable());
+	}
+};
+
+class TimeDilationOption : public QuickOption
+{
+	GameController *c;
+public:
+	TimeDilationOption(GameModel *m) :
+		QuickOption("T", "Toggle Time Dilation \bg(t)", m, Toggle)
+	{
+
+	}
+	virtual bool GetToggle()
+	{
+		return m->GetTimeDilationEnable();
+	}
+	virtual void perform()
+	{
+		m->SetTimeDilationEnable(!m->GetTimeDilationEnable());
+	}
+};
+
+class CompressibleGasesOption : public QuickOption
+{
+	GameController *c;
+public:
+	CompressibleGasesOption(GameModel *m) :
+		QuickOption("O", "Toggle Compressible Gases \bg(o)", m, Toggle)
+	{
+
+	}
+	virtual bool GetToggle()
+	{
+		return m->GetCompressibleGasesEnable();
+	}
+	virtual void perform()
+	{
+		m->SetCompressibleGasesEnable(!m->GetCompressibleGasesEnable());
 	}
 };

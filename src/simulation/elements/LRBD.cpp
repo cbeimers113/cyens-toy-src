@@ -4,6 +4,7 @@ Element_LRBD::Element_LRBD()
 {
 	Identifier = "DEFAULT_PT_LRBD";
 	Name = "LRBD";
+	FullName = "Liquid Rubidium";
 	Colour = PIXPACK(0xAAAAAA);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

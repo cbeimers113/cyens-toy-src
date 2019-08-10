@@ -4,6 +4,7 @@ Element_PLSM::Element_PLSM()
 {
 	Identifier = "DEFAULT_PT_PLSM";
 	Name = "PLSM";
+	FullName = "Plasma";
 	Colour = PIXPACK(0xBB99FF);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;

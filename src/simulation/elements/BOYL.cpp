@@ -4,6 +4,7 @@ Element_BOYL::Element_BOYL()
 {
 	Identifier = "DEFAULT_PT_BOYL";
 	Name = "BOYL";
+	FullName = "Variable Pressure Gas";
 	Colour = PIXPACK(0x0A3200);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;

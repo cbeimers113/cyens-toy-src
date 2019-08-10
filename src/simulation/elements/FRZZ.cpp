@@ -4,6 +4,7 @@ Element_FRZZ::Element_FRZZ()
 {
 	Identifier = "DEFAULT_PT_FRZZ";
 	Name = "FRZZ";
+	FullName = "Freeze Powder";
 	Colour = PIXPACK(0xC0E0FF);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

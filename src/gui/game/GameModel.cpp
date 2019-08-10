@@ -24,7 +24,7 @@
 #include "gui/interface/Point.h"
 
 
-GameModel::GameModel():
+GameModel::GameModel() :
 	clipboard(NULL),
 	placeSave(NULL),
 	activeMenu(-1),
@@ -45,8 +45,8 @@ GameModel::GameModel():
 
 	activeTools = regularToolset;
 
-	std::fill(decoToolset, decoToolset+4, (Tool*)NULL);
-	std::fill(regularToolset, regularToolset+4, (Tool*)NULL);
+	std::fill(decoToolset, decoToolset + 4, (Tool*)NULL);
+	std::fill(regularToolset, regularToolset + 4, (Tool*)NULL);
 
 	//Default render prefs
 	std::vector<unsigned int> tempArray;
@@ -64,14 +64,14 @@ GameModel::GameModel():
 	ren->SetColourMode(Client::Ref().GetPrefUInteger("Renderer.ColourMode", 0));
 
 	tempArray = Client::Ref().GetPrefUIntegerArray("Renderer.DisplayModes");
-	if(tempArray.size())
+	if (tempArray.size())
 	{
 		std::vector<unsigned int> displayModes(tempArray.begin(), tempArray.end());
 		ren->SetDisplayMode(displayModes);
 	}
 
 	tempArray = Client::Ref().GetPrefUIntegerArray("Renderer.RenderModes");
-	if(tempArray.size())
+	if (tempArray.size())
 	{
 		std::vector<unsigned int> renderModes(tempArray.begin(), tempArray.end());
 		ren->SetRenderMode(renderModes);
@@ -86,13 +86,13 @@ GameModel::GameModel():
 	int ngrav_enable = Client::Ref().GetPrefInteger("Simulation.NewtonianGravity", 0);
 	if (ngrav_enable)
 		sim->grav->start_grav_async();
-	sim->aheat_enable =  Client::Ref().GetPrefInteger("Simulation.AmbientHeat", 0);
-	sim->pretty_powder =  Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
+	sim->aheat_enable = Client::Ref().GetPrefInteger("Simulation.AmbientHeat", 0);
+	sim->pretty_powder = Client::Ref().GetPrefInteger("Simulation.PrettyPowder", 0);
 
 	Favorite::Ref().LoadFavoritesFromPrefs();
 
 	//Load last user
-	if(Client::Ref().GetAuthUser().UserID)
+	if (Client::Ref().GetAuthUser().UserID)
 	{
 		currentUser = Client::Ref().GetAuthUser();
 	}
@@ -109,7 +109,7 @@ GameModel::GameModel():
 	for (size_t i = 0; i < brushFiles.size(); i++)
 	{
 		std::vector<unsigned char> brushData = Client::Ref().ReadFile(brushFiles[i]);
-		if(!brushData.size())
+		if (!brushData.size())
 		{
 			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Could not open" << std::endl;
 			continue;
@@ -202,16 +202,16 @@ GameModel::~GameModel()
 
 void GameModel::UpdateQuickOptions()
 {
-	for(std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
+	for (std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
 	{
 		QuickOption * option = *iter;
 		option->Update();
-	}	
+	}
 }
 
 void GameModel::BuildQuickOptionMenu(GameController * controller)
 {
-	for(std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
+	for (std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
 	{
 		delete *iter;
 	}
@@ -223,6 +223,9 @@ void GameModel::BuildQuickOptionMenu(GameController * controller)
 	quickOptions.push_back(new NGravityOption(this));
 	quickOptions.push_back(new AHeatOption(this));
 	quickOptions.push_back(new ConsoleShowOption(this, controller));
+	quickOptions.push_back(new InfoscreenOption(this));
+	quickOptions.push_back(new TimeDilationOption(this));
+	quickOptions.push_back(new CompressibleGasesOption(this));
 
 	notifyQuickOptionsChanged();
 	UpdateQuickOptions();
@@ -231,17 +234,17 @@ void GameModel::BuildQuickOptionMenu(GameController * controller)
 void GameModel::BuildMenus()
 {
 	int lastMenu = -1;
-	if(activeMenu != -1)
+	if (activeMenu != -1)
 		lastMenu = activeMenu;
 
 	std::string activeToolIdentifiers[4];
-	if(regularToolset[0])
+	if (regularToolset[0])
 		activeToolIdentifiers[0] = regularToolset[0]->GetIdentifier();
-	if(regularToolset[1])
+	if (regularToolset[1])
 		activeToolIdentifiers[1] = regularToolset[1]->GetIdentifier();
-	if(regularToolset[2])
+	if (regularToolset[2])
 		activeToolIdentifiers[2] = regularToolset[2]->GetIdentifier();
-	if(regularToolset[3])
+	if (regularToolset[3])
 		activeToolIdentifiers[3] = regularToolset[3]->GetIdentifier();
 
 	//Empty current menus
@@ -254,7 +257,7 @@ void GameModel::BuildMenus()
 	menuList.clear();
 	toolList.clear();
 
-	for(std::vector<Tool*>::iterator iter = extraElementTools.begin(), end = extraElementTools.end(); iter != end; ++iter)
+	for (std::vector<Tool*>::iterator iter = extraElementTools.begin(), end = extraElementTools.end(); iter != end; ++iter)
 	{
 		delete *iter;
 	}
@@ -268,20 +271,20 @@ void GameModel::BuildMenus()
 	}
 
 	//Build menus from Simulation elements
-	for(int i = 0; i < PT_NUM; i++)
+	for (int i = 0; i < PT_NUM; i++)
 	{
-		if(sim->elements[i].Enabled)
+		if (sim->elements[i].Enabled)
 		{
 			Tool * tempTool;
-			if(i == PT_LIGH)
+			if (i == PT_LIGH)
 			{
 				tempTool = new Element_LIGH_Tool(i, sim->elements[i].Name, sim->elements[i].Description, PIXR(sim->elements[i].Colour), PIXG(sim->elements[i].Colour), PIXB(sim->elements[i].Colour), sim->elements[i].Identifier, sim->elements[i].IconGenerator);
 			}
-			else if(i == PT_TESC)
+			else if (i == PT_TESC)
 			{
 				tempTool = new Element_TESC_Tool(i, sim->elements[i].Name, sim->elements[i].Description, PIXR(sim->elements[i].Colour), PIXG(sim->elements[i].Colour), PIXB(sim->elements[i].Colour), sim->elements[i].Identifier, sim->elements[i].IconGenerator);
 			}
-			else if(i == PT_STKM || i == PT_FIGH || i == PT_STKM2)
+			else if (i == PT_STKM || i == PT_FIGH || i == PT_STKM2)
 			{
 				tempTool = new PlopTool(i, sim->elements[i].Name, sim->elements[i].Description, PIXR(sim->elements[i].Colour), PIXG(sim->elements[i].Colour), PIXB(sim->elements[i].Colour), sim->elements[i].Identifier, sim->elements[i].IconGenerator);
 			}
@@ -303,20 +306,20 @@ void GameModel::BuildMenus()
 	}
 
 	//Build menu for GOL types
-	for(int i = 0; i < NGOL; i++)
+	for (int i = 0; i < NGOL; i++)
 	{
-		Tool * tempTool = new ElementTool(PT_LIFE|PMAPID(i), sim->gmenu[i].name, std::string(sim->gmenu[i].description), PIXR(sim->gmenu[i].colour), PIXG(sim->gmenu[i].colour), PIXB(sim->gmenu[i].colour), "DEFAULT_PT_LIFE_"+std::string(sim->gmenu[i].name));
+		Tool * tempTool = new ElementTool(PT_LIFE | PMAPID(i), sim->gmenu[i].name, std::string(sim->gmenu[i].description), PIXR(sim->gmenu[i].colour), PIXG(sim->gmenu[i].colour), PIXB(sim->gmenu[i].colour), "DEFAULT_PT_LIFE_" + std::string(sim->gmenu[i].name));
 		menuList[SC_LIFE]->AddTool(tempTool);
 	}
 
 	//Build other menus from wall data
-	for(int i = 0; i < UI_WALLCOUNT; i++)
+	for (int i = 0; i < UI_WALLCOUNT; i++)
 	{
 		Tool * tempTool = new WallTool(i, "", std::string(sim->wtypes[i].descs), PIXR(sim->wtypes[i].colour), PIXG(sim->wtypes[i].colour), PIXB(sim->wtypes[i].colour), sim->wtypes[i].identifier, sim->wtypes[i].textureGen);
 		menuList[SC_WALL]->AddTool(tempTool);
 		//sim->wtypes[i]
 	}
-	
+
 	//Build menu for tools
 	for (size_t i = 0; i < sim->tools.size(); i++)
 	{
@@ -334,7 +337,7 @@ void GameModel::BuildMenus()
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_ADD, "ADD", "Colour blending: Add.", 0, 0, 0, "DEFAULT_DECOR_ADD"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SUBTRACT, "SUB", "Colour blending: Subtract.", 0, 0, 0, "DEFAULT_DECOR_SUB"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_MULTIPLY, "MUL", "Colour blending: Multiply.", 0, 0, 0, "DEFAULT_DECOR_MUL"));
-	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_DIVIDE, "DIV", "Colour blending: Divide." , 0, 0, 0, "DEFAULT_DECOR_DIV"));
+	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_DIVIDE, "DIV", "Colour blending: Divide.", 0, 0, 0, "DEFAULT_DECOR_DIV"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_SMUDGE, "SMDG", "Smudge tool, blends surrounding deco together.", 0, 0, 0, "DEFAULT_DECOR_SMDG"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_CLEAR, "CLR", "Erase any set decoration.", 0, 0, 0, "DEFAULT_DECOR_CLR"));
 	menuList[SC_DECO]->AddTool(new DecorationTool(ren, DECO_DRAW, "SET", "Draw decoration (No blending).", 0, 0, 0, "DEFAULT_DECOR_SET"));
@@ -351,13 +354,13 @@ void GameModel::BuildMenus()
 	regularToolset[3] = GetToolFromIdentifier("DEFAULT_PT_NONE");
 
 
-	if(activeToolIdentifiers[0].length())
+	if (activeToolIdentifiers[0].length())
 		regularToolset[0] = GetToolFromIdentifier(activeToolIdentifiers[0]);
-	if(activeToolIdentifiers[1].length())
+	if (activeToolIdentifiers[1].length())
 		regularToolset[1] = GetToolFromIdentifier(activeToolIdentifiers[1]);
-	if(activeToolIdentifiers[2].length())
+	if (activeToolIdentifiers[2].length())
 		regularToolset[2] = GetToolFromIdentifier(activeToolIdentifiers[2]);
-	if(activeToolIdentifiers[3].length())
+	if (activeToolIdentifiers[3].length())
 		regularToolset[3] = GetToolFromIdentifier(activeToolIdentifiers[3]);
 
 	lastTool = activeTools[0];
@@ -365,10 +368,10 @@ void GameModel::BuildMenus()
 	//Set default menu
 	activeMenu = SC_POWDERS;
 
-	if(lastMenu != -1)
+	if (lastMenu != -1)
 		activeMenu = lastMenu;
 
-	if(activeMenu != -1)
+	if (activeMenu != -1)
 		toolList = menuList[activeMenu]->GetToolList();
 	else
 		toolList = std::vector<Tool*>();
@@ -385,7 +388,7 @@ void GameModel::BuildMenus()
 void GameModel::BuildFavoritesMenu()
 {
 	menuList[SC_FAVORITES]->ClearTools();
-	
+
 	std::vector<std::string> favList = Favorite::Ref().GetFavoritesList();
 	for (size_t i = 0; i < favList.size(); i++)
 	{
@@ -476,17 +479,17 @@ void GameModel::SetUndoHistoryLimit(unsigned int undoHistoryLimit_)
 
 void GameModel::SetVote(int direction)
 {
-	if(currentSave)
+	if (currentSave)
 	{
 		RequestStatus status = Client::Ref().ExecVote(currentSave->GetID(), direction);
-		if(status == RequestOkay)
+		if (status == RequestOkay)
 		{
 			currentSave->vote = direction;
 			notifySaveChanged();
 		}
 		else
 		{
-			throw GameModelException("Could not vote: "+Client::Ref().GetLastError());
+			throw GameModelException("Could not vote: " + Client::Ref().GetLastError());
 		}
 	}
 }
@@ -508,11 +511,11 @@ int GameModel::GetBrushID()
 
 void GameModel::SetBrushID(int i)
 {
-	currentBrush = i%brushList.size();
+	currentBrush = i % brushList.size();
 	notifyBrushChanged();
 }
 
-void GameModel::AddObserver(GameView * observer){
+void GameModel::AddObserver(GameView * observer) {
 	observers.push_back(observer);
 
 	observer->NotifySimulationChanged(this);
@@ -549,9 +552,9 @@ void GameModel::SetActiveMenu(int menuID)
 	toolList = menuList[menuID]->GetToolList();
 	notifyToolListChanged();
 
-	if(menuID == SC_DECO)
+	if (menuID == SC_DECO)
 	{
-		if(activeTools != decoToolset)
+		if (activeTools != decoToolset)
 		{
 			activeTools = decoToolset;
 			notifyActiveToolsChanged();
@@ -559,7 +562,7 @@ void GameModel::SetActiveMenu(int menuID)
 	}
 	else
 	{
-		if(activeTools != regularToolset)
+		if (activeTools != regularToolset)
 		{
 			activeTools = regularToolset;
 			notifyActiveToolsChanged();
@@ -585,9 +588,9 @@ int GameModel::GetActiveMenu()
 //Get an element tool from an element ID
 Tool * GameModel::GetElementTool(int elementID)
 {
-	for(std::vector<Tool*>::iterator iter = elementTools.begin(), end = elementTools.end(); iter != end; ++iter)
+	for (std::vector<Tool*>::iterator iter = elementTools.begin(), end = elementTools.end(); iter != end; ++iter)
 	{
-		if((*iter)->GetToolID() == elementID)
+		if ((*iter)->GetToolID() == elementID)
 			return *iter;
 	}
 	return NULL;
@@ -621,10 +624,10 @@ SaveInfo * GameModel::GetSave()
 
 void GameModel::SetSave(SaveInfo * newSave)
 {
-	if(currentSave != newSave)
+	if (currentSave != newSave)
 	{
 		delete currentSave;
-		if(newSave == NULL)
+		if (newSave == NULL)
 			currentSave = NULL;
 		else
 			currentSave = new SaveInfo(*newSave);
@@ -632,7 +635,7 @@ void GameModel::SetSave(SaveInfo * newSave)
 	delete currentFile;
 	currentFile = NULL;
 
-	if(currentSave && currentSave->GetGameSave())
+	if (currentSave && currentSave->GetGameSave())
 	{
 		GameSave * saveData = currentSave->GetGameSave();
 		SetPaused(saveData->paused | GetPaused());
@@ -642,7 +645,8 @@ void GameModel::SetSave(SaveInfo * newSave)
 		sim->legacy_enable = saveData->legacyEnable;
 		sim->water_equal_test = saveData->waterEEnabled;
 		sim->aheat_enable = saveData->aheatEnable;
-		if(saveData->gravityEnable)
+
+		if (saveData->gravityEnable)
 			sim->grav->start_grav_async();
 		else
 			sim->grav->stop_grav_async();
@@ -682,10 +686,10 @@ SaveFile * GameModel::GetSaveFile()
 
 void GameModel::SetSaveFile(SaveFile * newSave)
 {
-	if(currentFile != newSave)
+	if (currentFile != newSave)
 	{
 		delete currentFile;
-		if(newSave == NULL)
+		if (newSave == NULL)
 			currentFile = NULL;
 		else
 			currentFile = new SaveFile(*newSave);
@@ -693,7 +697,7 @@ void GameModel::SetSaveFile(SaveFile * newSave)
 	delete currentSave;
 	currentSave = NULL;
 
-	if(newSave && newSave->GetGameSave())
+	if (newSave && newSave->GetGameSave())
 	{
 		GameSave * saveData = newSave->GetGameSave();
 		SetPaused(saveData->paused | GetPaused());
@@ -703,11 +707,11 @@ void GameModel::SetSaveFile(SaveFile * newSave)
 		sim->legacy_enable = saveData->legacyEnable;
 		sim->water_equal_test = saveData->waterEEnabled;
 		sim->aheat_enable = saveData->aheatEnable;
-		if(saveData->gravityEnable && !sim->grav->ngrav_enable)
+		if (saveData->gravityEnable && !sim->grav->ngrav_enable)
 		{
 			sim->grav->start_grav_async();
 		}
-		else if(!saveData->gravityEnable && sim->grav->ngrav_enable)
+		else if (!saveData->gravityEnable && sim->grav->ngrav_enable)
 		{
 			sim->grav->stop_grav_async();
 		}
@@ -718,7 +722,7 @@ void GameModel::SetSaveFile(SaveFile * newSave)
 			Client::Ref().OverwriteAuthorInfo(saveData->authors);
 		}
 	}
-	
+
 	notifySaveChanged();
 	UpdateQuickOptions();
 }
@@ -745,7 +749,7 @@ Tool * GameModel::GetLastTool()
 
 void GameModel::SetLastTool(Tool * newTool)
 {
-	if(lastTool != newTool)
+	if (lastTool != newTool)
 	{
 		lastTool = newTool;
 		notifyLastToolChanged();
@@ -783,7 +787,7 @@ bool GameModel::MouseInZoom(ui::Point position)
 	ui::Point zoomWindowPosition = GetZoomWindowPosition();
 	ui::Point zoomWindowSize = ui::Point(GetZoomSize()*zoomFactor, GetZoomSize()*zoomFactor);
 
-	if (position.X >= zoomWindowPosition.X && position.X >= zoomWindowPosition.Y && position.X <= zoomWindowPosition.X+zoomWindowSize.X && position.Y <= zoomWindowPosition.Y+zoomWindowSize.Y)
+	if (position.X >= zoomWindowPosition.X && position.X >= zoomWindowPosition.Y && position.X <= zoomWindowPosition.X + zoomWindowSize.X && position.Y <= zoomWindowPosition.Y + zoomWindowSize.Y)
 		return true;
 	return false;
 }
@@ -797,8 +801,8 @@ ui::Point GameModel::AdjustZoomCoords(ui::Point position)
 	ui::Point zoomWindowPosition = GetZoomWindowPosition();
 	ui::Point zoomWindowSize = ui::Point(GetZoomSize()*zoomFactor, GetZoomSize()*zoomFactor);
 
-	if (position.X >= zoomWindowPosition.X && position.X >= zoomWindowPosition.Y && position.X <= zoomWindowPosition.X+zoomWindowSize.X && position.Y <= zoomWindowPosition.Y+zoomWindowSize.Y)
-		return ((position-zoomWindowPosition)/GetZoomFactor())+GetZoomPosition();
+	if (position.X >= zoomWindowPosition.X && position.X >= zoomWindowPosition.Y && position.X <= zoomWindowPosition.X + zoomWindowSize.X && position.Y <= zoomWindowPosition.Y + zoomWindowSize.Y)
+		return ((position - zoomWindowPosition) / GetZoomFactor()) + GetZoomPosition();
 	return position;
 }
 
@@ -837,8 +841,8 @@ int GameModel::GetZoomFactor()
 
 void GameModel::SetActiveColourPreset(size_t preset)
 {
-	if (activeColourPreset-1 != preset)
-		activeColourPreset = preset+1;
+	if (activeColourPreset - 1 != preset)
+		activeColourPreset = preset + 1;
 	else
 	{
 		activeTools[0] = GetToolFromIdentifier("DEFAULT_DECOR_SET");
@@ -849,14 +853,14 @@ void GameModel::SetActiveColourPreset(size_t preset)
 
 size_t GameModel::GetActiveColourPreset()
 {
-	return activeColourPreset-1;
+	return activeColourPreset - 1;
 }
 
 void GameModel::SetPresetColour(ui::Colour colour)
 {
 	if (activeColourPreset > 0 && activeColourPreset <= colourPresets.size())
 	{
-		colourPresets[activeColourPreset-1] = colour;
+		colourPresets[activeColourPreset - 1] = colour;
 		notifyColourPresetsChanged();
 	}
 }
@@ -868,7 +872,7 @@ std::vector<ui::Colour> GameModel::GetColourPresets()
 
 void GameModel::SetColourSelectorVisibility(bool visibility)
 {
-	if(colourSelector != visibility)
+	if (colourSelector != visibility)
 	{
 		colourSelector = visibility;
 		notifyColourSelectorVisibilityChanged();
@@ -920,20 +924,20 @@ void GameModel::SetPaused(bool pauseState)
 		Log(logmessage.str(), false);
 	}
 
-	sim->sys_pause = pauseState?1:0;
+	sim->sys_pause = pauseState ? 1 : 0;
 	notifyPausedChanged();
 }
 
 bool GameModel::GetPaused()
 {
-	return sim->sys_pause?true:false;
+	return sim->sys_pause ? true : false;
 }
 
 void GameModel::SetDecoration(bool decorationState)
 {
-	if (ren->decorations_enable != (decorationState?1:0))
+	if (ren->decorations_enable != (decorationState ? 1 : 0))
 	{
-		ren->decorations_enable = decorationState?1:0;
+		ren->decorations_enable = decorationState ? 1 : 0;
 		notifyDecorationChanged();
 		UpdateQuickOptions();
 		if (decorationState)
@@ -945,7 +949,7 @@ void GameModel::SetDecoration(bool decorationState)
 
 bool GameModel::GetDecoration()
 {
-	return ren->decorations_enable?true:false;
+	return ren->decorations_enable ? true : false;
 }
 
 void GameModel::SetAHeatEnable(bool aHeat)
@@ -963,24 +967,68 @@ bool GameModel::GetAHeatEnable()
 	return sim->aheat_enable;
 }
 
+void GameModel::SetInfoscreenEnable(bool infoScreenEnabled)
+{
+	sim->infoScreenEnabled = infoScreenEnabled;
+	UpdateQuickOptions();
+}
+
+bool GameModel::GetInfoscreenEnable()
+{
+	return sim->infoScreenEnabled;
+}
+
+void GameModel::SetTimeDilationEnable(bool timeDilationEnabled)
+{
+	timeDilationEnabled &= sim->grav->ngrav_enable == 1;
+	sim->timeDilationEnabled = timeDilationEnabled;
+	UpdateQuickOptions();
+	if (timeDilationEnabled)
+		SetInfoTip("Time Dilation: On");
+	else
+		SetInfoTip("Time Dilation: Off");
+}
+
+bool GameModel::GetTimeDilationEnable()
+{
+	return sim->timeDilationEnabled;
+}
+
+void GameModel::SetCompressibleGasesEnable(bool compressibleGasesEnabled)
+{
+	sim->compressibleGasesEnabled = compressibleGasesEnabled;
+	UpdateQuickOptions();
+	if (compressibleGasesEnabled)
+		SetInfoTip("Compressible Gases: On");
+	else
+		SetInfoTip("Compressible Gases: Off");
+}
+
+bool GameModel::GetCompressibleGasesEnable()
+{
+	return sim->compressibleGasesEnabled;
+}
+
+
 void GameModel::SetNewtonianGravity(bool newtonainGravity)
 {
-    if (newtonainGravity)
-    {
-        sim->grav->start_grav_async();
-        SetInfoTip("Newtonian Gravity: On");
-    }
-    else
-    {
-        sim->grav->stop_grav_async();
-        SetInfoTip("Newtonian Gravity: Off");
-    }
-    UpdateQuickOptions();
+	if (newtonainGravity)
+	{
+		sim->grav->start_grav_async();
+		SetInfoTip("Newtonian Gravity: On");
+	}
+	else
+	{
+		sim->grav->stop_grav_async();
+		SetInfoTip("Newtonian Gravity: Off");
+		sim->timeDilationEnabled = false;
+	}
+	UpdateQuickOptions();
 }
 
 bool GameModel::GetNewtonianGrvity()
 {
-    return sim->grav->ngrav_enable;
+	return sim->grav->ngrav_enable;
 }
 
 void GameModel::ShowGravityGrid(bool showGrid)
@@ -1021,10 +1069,10 @@ void GameModel::ClearSimulation()
 
 void GameModel::SetPlaceSave(GameSave * save)
 {
-	if(save != placeSave)
+	if (save != placeSave)
 	{
 		delete placeSave;
-		if(save)
+		if (save)
 			placeSave = new GameSave(*save);
 		else
 			placeSave = NULL;
@@ -1051,7 +1099,7 @@ GameSave * GameModel::GetPlaceSave()
 void GameModel::Log(string message, bool printToFile)
 {
 	consoleLog.push_front(message);
-	if(consoleLog.size()>100)
+	if (consoleLog.size() > 100)
 		consoleLog.pop_back();
 	notifyLogChanged(message);
 	if (printToFile)
@@ -1076,9 +1124,9 @@ void GameModel::AddNotification(Notification * notification)
 
 void GameModel::RemoveNotification(Notification * notification)
 {
-	for(std::vector<Notification*>::iterator iter = notifications.begin(); iter != notifications.end(); ++iter)
+	for (std::vector<Notification*>::iterator iter = notifications.begin(); iter != notifications.end(); ++iter)
 	{
-		if(*iter == notification)
+		if (*iter == notification)
 		{
 			delete *iter;
 			notifications.erase(iter);

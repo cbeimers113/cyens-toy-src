@@ -4,6 +4,7 @@ Element_COAL::Element_COAL()
 {
 	Identifier = "DEFAULT_PT_COAL";
 	Name = "COAL";
+	FullName = "Coal";
 	Colour = PIXPACK(0x222222);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
@@ -27,7 +28,7 @@ Element_COAL::Element_COAL()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
+	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 200;
 	Description = "Coal, Burns very slowly. Gets red when hot.";
 
@@ -49,25 +50,26 @@ Element_COAL::Element_COAL()
 //#TPT-Directive ElementHeader Element_COAL static int update(UPDATE_FUNC_ARGS)
 int Element_COAL::update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].life<=0) {
-		sim->create_part(i, x, y, PT_FIRE);
+	if (parts[i].life <= 0) {
+		sim->create_part(i, x, y, rand() % 100 < 10 ? PT_CRBN : (rand() % 100 < 33 ? PT_CO : PT_FIRE));
 		return 1;
-	} else if (parts[i].life < 100) {
+	}
+	else if (parts[i].life < 100) {
 		parts[i].life--;
-		sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
+		sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, PT_FIRE);
 	}
 	if (parts[i].type == PT_COAL)
 	{
-		if ((sim->pv[y/CELL][x/CELL] > 4.3f)&&parts[i].tmp>40)
-			parts[i].tmp=39;
-		else if (parts[i].tmp<40&&parts[i].tmp>0)
+		if ((sim->pv[y / CELL][x / CELL] > 4.3f) && parts[i].tmp > 40)
+			parts[i].tmp = 39;
+		else if (parts[i].tmp < 40 && parts[i].tmp>0)
 			parts[i].tmp--;
-		else if (parts[i].tmp<=0) {
+		else if (parts[i].tmp <= 0) {
 			sim->create_part(i, x, y, PT_BCOL);
 			return 1;
 		}
 	}
-	if(parts[i].temp > parts[i].tmp2)
+	if (parts[i].temp > parts[i].tmp2)
 		parts[i].tmp2 = parts[i].temp;
 	return 0;
 }
@@ -76,15 +78,15 @@ int Element_COAL::update(UPDATE_FUNC_ARGS)
 
 //#TPT-Directive ElementHeader Element_COAL static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_COAL::graphics(GRAPHICS_FUNC_ARGS)
- //Both COAL and Broken Coal
+//Both COAL and Broken Coal
 {
-	*colr += (cpart->tmp2-295.15f)/3;
+	*colr += (cpart->tmp2 - 295.15f) / 3;
 
 	if (*colr > 170)
 		*colr = 170;
 	if (*colr < *colg)
 		*colr = *colg;
-		
+
 	*colg = *colb = *colr;
 
 	// ((cpart->temp-295.15f) > 300.0f-200.0f)

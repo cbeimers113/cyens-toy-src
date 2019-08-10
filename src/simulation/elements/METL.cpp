@@ -3,7 +3,8 @@
 Element_METL::Element_METL()
 {
 	Identifier = "DEFAULT_PT_METL";
-	Name = "METL";
+	Name = "STEL";
+	FullName = "Steel";
 	Colour = PIXPACK(0x404060);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
@@ -28,7 +29,7 @@ Element_METL::Element_METL()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
-	Description = "The basic conductor. Meltable.";
+	Description = "Steel. The basic conductor and building material. Meltable.";
 
 	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 

@@ -4,6 +4,7 @@ Element_SHLD2::Element_SHLD2()
 {
 	Identifier = "DEFAULT_PT_SHLD2";
 	Name = "SHD2";
+	FullName = "Shield - Level 2";
 	Colour = PIXPACK(0x777777);
 	MenuVisible = 0;
 	MenuSection = SC_CRACKER2;

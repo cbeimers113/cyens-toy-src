@@ -4,9 +4,10 @@ Element_GRVT::Element_GRVT()
 {
 	Identifier = "DEFAULT_PT_GRVT";
 	Name = "GRVT";
+	FullName = "Graviton";
 	Colour = PIXPACK(0x00EE76);
 	MenuVisible = 1;
-	MenuSection = SC_NUCLEAR;
+	MenuSection = SC_QUANTUM;
 	Enabled = 1;
 
 	Advection = 0.0f;

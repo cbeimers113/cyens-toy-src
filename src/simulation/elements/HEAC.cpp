@@ -7,6 +7,7 @@ Element_HEAC::Element_HEAC()
 {
 	Identifier = "DEFAULT_PT_HEAC";
 	Name = "HEAC";
+	FullName = "Heat Conductor";
 	Colour = PIXPACK(0xCB6351);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

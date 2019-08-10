@@ -4,6 +4,7 @@ Element_TRON::Element_TRON()
 {
 	Identifier = "DEFAULT_PT_TRON";
 	Name = "TRON";
+	FullName = "Smart Particle";
 	Colour = PIXPACK(0xA9FF00);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

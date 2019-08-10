@@ -4,9 +4,10 @@ Element_VIRS::Element_VIRS()
 {
 	Identifier = "DEFAULT_PT_VIRS";
 	Name = "VIRS";
+	FullName = "Virus";
 	Colour = PIXPACK(0xFE11F6);
 	MenuVisible = 1;
-	MenuSection = SC_LIQUID;
+	MenuSection = SC_BIOLOGY;
 	Enabled = 1;
 
 	Advection = 0.6f;
@@ -26,11 +27,11 @@ Element_VIRS::Element_VIRS()
 
 	Weight = 31;
 
-	Temperature = 72.0f	+ 273.15f;
+	Temperature = 72.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Virus. Turns everything it touches into virus.";
 
-	Properties = TYPE_LIQUID|PROP_DEADLY;
+	Properties = TYPE_LIQUID | PROP_DEADLY;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -53,11 +54,11 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, rndstore = rand();
 	if (parts[i].pavg[0])
 	{
-		parts[i].pavg[0] -= (rndstore & 0x1) ? 0:1;
+		parts[i].pavg[0] -= (rndstore & 0x1) ? 0 : 1;
 		//has been cured, so change back into the original element
 		if (!parts[i].pavg[0])
 		{
-			sim->part_change_type(i,x,y,parts[i].tmp2);
+			sim->part_change_type(i, x, y, parts[i].tmp2);
 			parts[i].tmp2 = 0;
 			parts[i].pavg[0] = 0;
 			parts[i].pavg[1] = 0;
@@ -76,23 +77,23 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 		rndstore >>= 3;
 	}
 
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (rx = -1; rx < 2; rx++)
+		for (ry = -1; ry < 2; ry++)
 		{
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				r = pmap[y + ry][x + rx];
 				if (!r)
 					continue;
 
 				//spread "being cured" state
 				if (parts[ID(r)].pavg[0] && (TYP(r) == PT_VIRS || TYP(r) == PT_VRSS || TYP(r) == PT_VRSG))
 				{
-					parts[i].pavg[0] = parts[ID(r)].pavg[0] + ((rndstore & 0x3) ? 2:1);
+					parts[i].pavg[0] = parts[ID(r)].pavg[0] + ((rndstore & 0x3) ? 2 : 1);
 					return 0;
 				}
-				//soap cures virus
-				else if (TYP(r) == PT_SOAP)
+				//rubbing alcohol cures virus
+				else if (TYP(r) == PT_RBAC)
 				{
 					parts[i].pavg[0] += 10;
 					if (!(rndstore & 0x3))
@@ -101,7 +102,7 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 				}
 				else if (TYP(r) == PT_PLSM)
 				{
-					if (surround_space && 10 + (int)(sim->pv[(y+ry)/CELL][(x+rx)/CELL]) > (rand()%100))
+					if (surround_space && 10 + (int)(sim->pv[(y + ry) / CELL][(x + rx) / CELL]) > (rand() % 100))
 					{
 						sim->create_part(i, x, y, PT_PLSM);
 						return 1;
@@ -119,16 +120,16 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 						else
 							parts[ID(r)].pavg[1] = 0;
 						if (parts[ID(r)].temp < 305.0f)
-							sim->part_change_type(ID(r), x+rx, y+ry, PT_VRSS);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VRSS);
 						else if (parts[ID(r)].temp > 673.0f)
-							sim->part_change_type(ID(r), x+rx, y+ry, PT_VRSG);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VRSG);
 						else
-							sim->part_change_type(ID(r), x+rx, y+ry, PT_VIRS);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_VIRS);
 					}
 					rndstore >>= 3;
 				}
 				//protons make VIRS last forever
-				else if (TYP(sim->photons[y+ry][x+rx]) == PT_PROT)
+				else if (TYP(sim->photons[y + ry][x + rx]) == PT_PROT)
 				{
 					parts[i].pavg[1] = 0;
 				}

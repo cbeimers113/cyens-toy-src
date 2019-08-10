@@ -4,6 +4,7 @@ Element_IGNT::Element_IGNT()
 {
 	Identifier = "DEFAULT_PT_IGNT";
 	Name = "IGNC";
+	FullName = "Ignition Cord";
 	Colour = PIXPACK(0xC0B050);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

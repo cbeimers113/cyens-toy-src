@@ -4,6 +4,7 @@ Element_THDR::Element_THDR()
 {
 	Identifier = "DEFAULT_PT_THDR";
 	Name = "THDR";
+	FullName = "Thunder";
 	Colour = PIXPACK(0xFFFFA0);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

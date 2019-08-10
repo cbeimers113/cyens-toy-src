@@ -4,6 +4,7 @@ Element_ANAR::Element_ANAR()
 {
 	Identifier = "DEFAULT_PT_ANAR";
 	Name = "ANAR";
+	FullName = "Anti-air";
 	Colour = PIXPACK(0xFFFFEE);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

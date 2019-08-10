@@ -4,6 +4,7 @@ Element_SNOW::Element_SNOW()
 {
 	Identifier = "DEFAULT_PT_SNOW";
 	Name = "SNOW";
+	FullName = "Snow";
 	Colour = PIXPACK(0xC0E0FF);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

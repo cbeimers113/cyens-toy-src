@@ -6,6 +6,7 @@ Element_EMP::Element_EMP()
 {
 	Identifier = "DEFAULT_PT_EMP";
 	Name = "EMP";
+	FullName = "Electromagnetic Pulse";
 	Colour = PIXPACK(0x66AAFF);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

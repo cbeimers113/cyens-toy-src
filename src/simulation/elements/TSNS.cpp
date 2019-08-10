@@ -4,9 +4,10 @@ Element_TSNS::Element_TSNS()
 {
 	Identifier = "DEFAULT_PT_TSNS";
 	Name = "TSNS";
+	FullName = "Temperature Sensor";
 	Colour = PIXPACK(0xFD00D5);
 	MenuVisible = 1;
-	MenuSection = SC_SENSOR;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;

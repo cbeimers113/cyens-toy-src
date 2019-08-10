@@ -1,5 +1,5 @@
 static const char *introTextData =
-	"\blThe Powder Toy - Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
+	"\btCyens Toy 2.1.0 \bg- \blOfficial Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - http://powdertoy.co.uk, irc.freenode.net #powder\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
 	"\n"
 	"\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
@@ -12,7 +12,8 @@ static const char *introTextData =
 	"Use the mouse scroll wheel, or '[' and ']', to change the tool size for particles.\n"
 	"Middle click or Alt+Click to \"sample\" the particles.\n"
 	"Ctrl+Z will act as Undo.\n"
-	"\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength.\n"
+	"\n\boUse 'Z' for a zoom tool. Double-'Z': follow cursor, click while holding 'Z': stay put.\n"
+	"Use the wheel to change the zoom strength.\n"
 	"The spacebar can be used to pause physics. Use 'F' to step ahead by one frame.\n"
 	"Use 'S' to save parts of the window as 'stamps'. 'L' loads the most recent stamp, 'K' shows a library of stamps you saved.\n"
 	"Use 'P' to take a screenshot and save it into the current directory.\n"
@@ -21,6 +22,8 @@ static const char *introTextData =
 	"Contributors: \bgStanislaw K Skowronek (Designed the original Powder Toy),\n"
 	"\bgSimon Robertshaw, Skresanov Savely, cracker64, Catelite, Bryan Hoyle, Nathan Cousins, jacksonmj,\n"
 	"\bgFelix Wallin, Lieuwe Mosch, Anthony Boot, Matthew \"me4502\", MaksProg, jacob1, mniip\n"
+	"\bt(Un)Realistic Science Mod Series and Science/Psyence/Cyens Toys by \bgfirefreak11\n"
+	"\bgSpecial thanks to AngrySpam, Michael238\n"
 	"\n"
 #ifndef BETA
 	"\bgTo use online features such as saving, you need to register at: \brhttp://powdertoy.co.uk/Register.html\n"

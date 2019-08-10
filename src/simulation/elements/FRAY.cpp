@@ -4,9 +4,10 @@ Element_FRAY::Element_FRAY()
 {
 	Identifier = "DEFAULT_PT_FRAY";
 	Name = "FRAY";
+	FullName = "Force Ray";
 	Colour = PIXPACK(0x00BBFF);
 	MenuVisible = 1;
-	MenuSection = SC_FORCE;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;
@@ -28,7 +29,7 @@ Element_FRAY::Element_FRAY()
 
 	Temperature = 20.0f+0.0f +273.15f;
 	HeatConduct = 0;
-	Description = "Force Emitter. Pushes or pulls objects based on its temperature. Use like ARAY.";
+	Description = "Force Ray. Pushes or pulls objects based on its temperature. Use like ARAY.";
 
 	Properties = TYPE_SOLID;
 

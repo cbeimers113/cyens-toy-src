@@ -4,6 +4,7 @@ Element_BGLA::Element_BGLA()
 {
 	Identifier = "DEFAULT_PT_BGLA";
 	Name = "BGLA";
+	FullName = "Broken Glass";
 	Colour = PIXPACK(0x606060);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

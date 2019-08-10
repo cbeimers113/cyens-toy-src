@@ -4,9 +4,10 @@ Element_RPEL::Element_RPEL()
 {
 	Identifier = "DEFAULT_PT_RPEL";
 	Name = "RPEL";
+	FullName = "Tractor Ray";
 	Colour = PIXPACK(0x99CC00);
 	MenuVisible = 1;
-	MenuSection = SC_FORCE;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;
@@ -28,7 +29,7 @@ Element_RPEL::Element_RPEL()
 
 	Temperature = 20.0f+0.0f  +273.15f;
 	HeatConduct = 0;
-	Description = "Repels or attracts particles based on its temperature.";
+	Description = "Tractor Ray. Repels or attracts particles based on its temperature.";
 
 	Properties = TYPE_SOLID | PROP_DRAWONCTYPE;
 

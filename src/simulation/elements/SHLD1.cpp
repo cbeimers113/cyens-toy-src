@@ -4,6 +4,7 @@ Element_SHLD1::Element_SHLD1()
 {
 	Identifier = "DEFAULT_PT_SHLD1";
 	Name = "SHLD";
+	FullName = "Shield";
 	Colour = PIXPACK(0xAAAAAA);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

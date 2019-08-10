@@ -4,6 +4,7 @@ Element_GEL::Element_GEL()
 {
 	Identifier = "DEFAULT_PT_GEL";
 	Name = "GEL";
+	FullName = "Gel";
 	Colour = PIXPACK(0xFF9900);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
@@ -66,6 +67,10 @@ int Element_GEL::update(UPDATE_FUNC_ARGS)
 				//Desaturation
 				switch (rt)
 				{
+				case PT_ACET:
+					sim->part_change_type(i, x, y, PT_SOAP);
+					sim->kill_part(ID(r));
+					break;
 				case PT_WATR:
 				case PT_DSTW:
 				case PT_FRZW:

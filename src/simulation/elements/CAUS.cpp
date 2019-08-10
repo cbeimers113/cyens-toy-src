@@ -3,7 +3,8 @@
 Element_CAUS::Element_CAUS()
 {
 	Identifier = "DEFAULT_PT_CAUS";
-	Name = "CAUS";
+	Name = "CL2";
+	FullName = "Chlorine";
 	Colour = PIXPACK(0x80FFA0);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;
@@ -26,11 +27,11 @@ Element_CAUS::Element_CAUS()
 
 	Weight = 1;
 
-	Temperature = R_TEMP+273.15f;
+	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 70;
-	Description = "Caustic Gas, acts like ACID.";
+	Description = "Chlorine Gas.";
 
-	Properties = TYPE_GAS|PROP_DEADLY;
+	Properties = TYPE_GAS | PROP_DEADLY;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -51,23 +52,32 @@ int Element_CAUS::update(UPDATE_FUNC_ARGS)
 		for (int ry = -2; ry <= 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				int r = pmap[y+ry][x+rx];
+				int r = pmap[y + ry][x + rx];
 				if (!r)
 					continue;
 				if (TYP(r) == PT_GAS)
 				{
-					if (sim->pv[(y+ry)/CELL][(x+rx)/CELL] > 3)
+					if (sim->pv[(y + ry) / CELL][(x + rx) / CELL] > 3)
 					{
-						sim->part_change_type(ID(r), x+rx, y+ry, PT_RFRG);
+						sim->part_change_type(ID(r), x + rx, y + ry, PT_RFRG);
 						sim->part_change_type(i, x, y, PT_RFRG);
 					}
 				}
-				else if (TYP(r) != PT_ACID && TYP(r) != PT_CAUS && TYP(r) != PT_RFRG && TYP(r) != PT_RFGL)
+
+				if (TYP(r) == PT_SDUM) {
+					sim->part_change_type(i, x, y, PT_SALT);
+					sim->kill_part(ID(r));
+					sim->pv[y / CELL][x / CELL] += 5;
+					sim->hv[y / CELL][x / CELL] += 15;
+				}
+
+				//This is the official CAUS code to make it like acid, but I want it weaker
+				else if (TYP(r) != PT_ACID && TYP(r) != PT_CAUS && TYP(r) != PT_RFRG && TYP(r) != PT_RFGL && TYP(r) != PT_WATR)
 				{
-					if ((TYP(r) != PT_CLNE && TYP(r) != PT_PCLN && sim->elements[TYP(r)].Hardness > (rand()%1000)) && parts[i].life >= 50)
+					if ((TYP(r) != PT_CLNE && TYP(r) != PT_PCLN && sim->elements[TYP(r)].Hardness > (rand() % 1000)) && parts[i].life >= 50)
 					{
 						// GLAS protects stuff from acid
-						if (sim->parts_avg(i, ID(r),PT_GLAS) != PT_GLAS)
+						if (sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS)
 						{
 							float newtemp = ((60.0f - (float)sim->elements[TYP(r)].Hardness)) * 7.0f;
 							if (newtemp < 0)

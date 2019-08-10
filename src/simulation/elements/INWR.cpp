@@ -4,6 +4,7 @@ Element_INWR::Element_INWR()
 {
 	Identifier = "DEFAULT_PT_INWR";
 	Name = "INWR";
+	FullName = "Insulated Wire";
 	Colour = PIXPACK(0x544141);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

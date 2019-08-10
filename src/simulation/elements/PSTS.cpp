@@ -4,6 +4,7 @@ Element_PSTS::Element_PSTS()
 {
 	Identifier = "DEFAULT_PT_PSTS";
 	Name = "PSTS";
+	FullName = "Solid Paste";
 	Colour = PIXPACK(0x776677);
 	MenuVisible = 0;
 	MenuSection = SC_CRACKER;

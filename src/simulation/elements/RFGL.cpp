@@ -4,6 +4,7 @@ Element_RFGL::Element_RFGL()
 {
 	Identifier = "DEFAULT_PT_RFGL";
 	Name = "RFGL";
+	FullName = "Liquid Refrigerant";
 	Colour = PIXPACK(0x84C2CF);
 	MenuVisible = 0;
 	MenuSection = SC_LIQUID;

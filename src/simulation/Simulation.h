@@ -113,6 +113,9 @@ public:
 	int pretty_powder;
 	int sandcolour;
 	int sandcolour_frame;
+	int infoScreenEnabled;
+	int timeDilationEnabled;
+	int compressibleGasesEnabled;
 
 	int Load(GameSave * save, bool includePressure = true);
 	int Load(int x, int y, GameSave * save, bool includePressure = true);
@@ -196,7 +199,6 @@ public:
 	void CreateLine(int x1, int y1, int x2, int y2, int c);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags = -1);
 	int FloodParts(int x, int y, int c, int cm, int flags = -1);
-
 	
 	void GetGravityField(int x, int y, float particleGrav, float newtonGrav, float & pGravX, float & pGravY);
 

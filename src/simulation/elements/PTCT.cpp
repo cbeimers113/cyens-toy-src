@@ -4,6 +4,7 @@ Element_PTCT::Element_PTCT()
 {
 	Identifier = "DEFAULT_PT_PTCT";
 	Name = "PTCT";
+	FullName = "P-Type Semiconductor";
 	Colour = PIXPACK(0x405050);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

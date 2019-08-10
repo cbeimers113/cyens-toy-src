@@ -5,6 +5,7 @@ Element_TTAN::Element_TTAN()
 {
 	Identifier = "DEFAULT_PT_TTAN";
 	Name = "TTAN";
+	FullName = "Titanium";
 	Colour = PIXPACK(0x909090);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
@@ -27,11 +28,11 @@ Element_TTAN::Element_TTAN()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f +273.15f;
+	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Titanium. Higher melting temperature than most other metals, blocks all air pressure.";
 
-	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_HOT_GLOW|PROP_LIFE_DEC;
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_HOT_GLOW | PROP_LIFE_DEC;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -59,15 +60,15 @@ int Element_TTAN::update(UPDATE_FUNC_ARGS)
 			for (int ry = -1; ry <= 1; ry++)
 				if ((!rx != !ry) && BOUNDS_CHECK)
 				{
-					if (TYP(pmap[y+ry][x+rx]) == PT_TTAN)
+					if (TYP(pmap[y + ry][x + rx]) == PT_TTAN)
 						ttan++;
 				}
 	}
 
 	if (ttan >= 2)
 	{
-		sim->air->bmap_blockair[y/CELL][x/CELL] = 1;
-		sim->air->bmap_blockairh[y/CELL][x/CELL] = 0x8;
+		sim->air->bmap_blockair[y / CELL][x / CELL] = 1;
+		sim->air->bmap_blockairh[y / CELL][x / CELL] = 0x8;
 	}
 	return 0;
 }

@@ -4,6 +4,7 @@ Element_BCLN::Element_BCLN()
 {
 	Identifier = "DEFAULT_PT_BCLN";
 	Name = "BCLN";
+	FullName = "Breakable Clone";
 	Colour = PIXPACK(0xFFD040);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

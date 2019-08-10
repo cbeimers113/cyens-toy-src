@@ -9,6 +9,7 @@ Element_CFLM::Element_CFLM()
 {
 	Identifier = "DEFAULT_PT_HFLM";
 	Name = "CFLM";
+	FullName = "Cold Flame";
 	Colour = PIXPACK(0x8080FF);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

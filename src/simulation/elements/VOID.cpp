@@ -4,6 +4,7 @@ Element_VOID::Element_VOID()
 {
 	Identifier = "DEFAULT_PT_VOID";
 	Name = "VOID";
+	FullName = "Void";
 	Colour = PIXPACK(0x790B0B);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

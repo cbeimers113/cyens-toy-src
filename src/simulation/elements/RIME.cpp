@@ -4,6 +4,7 @@ Element_RIME::Element_RIME()
 {
 	Identifier = "DEFAULT_PT_RIME";
 	Name = "RIME";
+	FullName = "Rime";
 	Colour = PIXPACK(0xCCCCCC);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

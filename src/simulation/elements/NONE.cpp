@@ -4,6 +4,7 @@ Element_NONE::Element_NONE()
 {
 	Identifier = "DEFAULT_PT_NONE";
 	Name = "";
+	FullName = "";
 	Colour = PIXPACK(0x000000);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

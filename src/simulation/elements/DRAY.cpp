@@ -3,7 +3,8 @@
 Element_DRAY::Element_DRAY()
 {
 	Identifier = "DEFAULT_PT_DRAY";
-	Name = "DRAY";
+	Name = "DRAY"; 
+	FullName = "Duplicator Ray";
 	Colour = PIXPACK(0xFFAA22);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

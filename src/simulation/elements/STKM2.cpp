@@ -3,7 +3,8 @@
 Element_STKM2::Element_STKM2()
 {
 	Identifier = "DEFAULT_PT_STKM2";
-	Name = "STK2";
+	Name = "STKG";
+	FullName = "Stickguy";
 	Colour = PIXPACK(0x6464FF);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

@@ -4,9 +4,10 @@ Element_LSNS::Element_LSNS()
 {
 	Identifier = "DEFAULT_PT_LSNS";
  	Name = "LSNS";
+	FullName = "Life Sensor";
  	Colour = PIXPACK(0x336699);
  	MenuVisible = 1;
- 	MenuSection = SC_SENSOR;
+ 	MenuSection = SC_POWERED;
  	Enabled = 1;
 
  	Advection = 0.0f;

@@ -6,6 +6,7 @@ Element_WOOD::Element_WOOD()
 {
 	Identifier = "DEFAULT_PT_WOOD";
 	Name = "WOOD";
+	FullName = "Wood";
 	Colour = PIXPACK(0xC0A040);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;
@@ -28,7 +29,7 @@ Element_WOOD::Element_WOOD()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
+	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 164;
 	Description = "Wood, flammable.";
 
@@ -52,6 +53,10 @@ int Element_WOOD::update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].temp > 450 && parts[i].temp > parts[i].tmp)
 		parts[i].tmp = (int)parts[i].temp;
+	if (rand() % 500 < 1 && parts[i].temp > 473.15f) {
+		sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, PT_FIRE);
+		sim->part_change_type(i, x, y, PT_CRBN);
+	}
 	return 0;
 }
 //#TPT-Directive ElementHeader Element_WOOD static int graphics(GRAPHICS_FUNC_ARGS)
@@ -60,15 +65,15 @@ int Element_WOOD::graphics(GRAPHICS_FUNC_ARGS)
 	float maxtemp = std::max((float)cpart->tmp, cpart->temp);
 	if (maxtemp > 400)
 	{
-		*colr -= (int)restrict_flt((maxtemp-400)/3,0,172);
-		*colg -= (int)restrict_flt((maxtemp-400)/4,0,140);
-		*colb -= (int)restrict_flt((maxtemp-400)/20,0,44);
+		*colr -= (int)restrict_flt((maxtemp - 400) / 3, 0, 172);
+		*colg -= (int)restrict_flt((maxtemp - 400) / 4, 0, 140);
+		*colb -= (int)restrict_flt((maxtemp - 400) / 20, 0, 44);
 	}
 	if (maxtemp < 273)
 	{
-		*colr -= (int)restrict_flt((273-maxtemp)/5,0,40);
-		*colg += (int)restrict_flt((273-maxtemp)/4,0,40);
-		*colb += (int)restrict_flt((273-maxtemp)/1.5,0,150);
+		*colr -= (int)restrict_flt((273 - maxtemp) / 5, 0, 40);
+		*colg += (int)restrict_flt((273 - maxtemp) / 4, 0, 40);
+		*colb += (int)restrict_flt((273 - maxtemp) / 1.5, 0, 150);
 	}
 	return 0;
 }

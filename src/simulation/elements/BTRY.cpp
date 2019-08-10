@@ -4,6 +4,7 @@ Element_BTRY::Element_BTRY()
 {
 	Identifier = "DEFAULT_PT_BTRY";
 	Name = "BTRY";
+	FullName = "Battery";
 	Colour = PIXPACK(0x858505);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

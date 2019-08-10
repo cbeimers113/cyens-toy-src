@@ -4,6 +4,7 @@ Element_DRIC::Element_DRIC()
 {
 	Identifier = "DEFAULT_PT_DRIC";
 	Name = "DRIC";
+	FullName = "Dry Ice";
 	Colour = PIXPACK(0xE0E0E0);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

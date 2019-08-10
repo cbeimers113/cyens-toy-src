@@ -4,6 +4,7 @@ Element_PRTO::Element_PRTO()
 {
 	Identifier = "DEFAULT_PT_PRTO";
 	Name = "PRTO";
+	FullName = "Portal OUT";
 	Colour = PIXPACK(0x0020EB);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

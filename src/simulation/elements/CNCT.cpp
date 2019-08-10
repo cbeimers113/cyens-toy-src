@@ -4,6 +4,7 @@ Element_CNCT::Element_CNCT()
 {
 	Identifier = "DEFAULT_PT_CNCT";
 	Name = "CNCT";
+	FullName = "Concrete";
 	Colour = PIXPACK(0xC0C0C0);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

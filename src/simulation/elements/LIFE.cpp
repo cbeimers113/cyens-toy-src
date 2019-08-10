@@ -8,6 +8,7 @@ Element_LIFE::Element_LIFE()
 {
 	Identifier = "DEFAULT_PT_LIFE";
 	Name = "LIFE";
+	FullName = "Game Of Life";
 	Colour = PIXPACK(0x0CAC00);
 	MenuVisible = 0;
 	MenuSection = SC_LIFE;

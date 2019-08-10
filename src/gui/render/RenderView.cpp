@@ -152,7 +152,7 @@ RenderView::RenderView():
 	tCheckbox->SetActionCallback(new RenderModeAction(this, RENDER_EFFE));
 	AddComponent(tCheckbox);
 
-	tCheckbox = new ui::Checkbox(ui::Point(checkboxOffset, YRES+4+18), ui::Point(30, 16), "Fire", "Fire effect for gasses");
+	tCheckbox = new ui::Checkbox(ui::Point(checkboxOffset, YRES+4+18), ui::Point(30, 16), "Fire", "Fire effect for gases");
 	renderModes.push_back(tCheckbox);
 	tCheckbox->SetIcon(IconFire);
 	tCheckbox->SetActionCallback(new RenderModeAction(this, RENDER_FIRE));

@@ -3,7 +3,8 @@
 Element_INSL::Element_INSL()
 {
 	Identifier = "DEFAULT_PT_INSL";
-	Name = "INSL";
+	Name = "AERO";
+	FullName = "Aerogel";
 	Colour = PIXPACK(0x9EA3B6);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
@@ -28,7 +29,7 @@ Element_INSL::Element_INSL()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 0;
-	Description = "Insulator, does not conduct heat and blocks electricity.";
+	Description = "Aerogel, does not conduct heat and blocks electricity.";
 
 	Properties = TYPE_SOLID;
 

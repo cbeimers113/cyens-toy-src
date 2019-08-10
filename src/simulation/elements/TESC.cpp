@@ -4,6 +4,7 @@ Element_TESC::Element_TESC()
 {
 	Identifier = "DEFAULT_PT_TESC";
 	Name = "TESC";
+	FullName = "Tesla Coil";
 	Colour = PIXPACK(0x707040);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

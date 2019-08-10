@@ -4,6 +4,7 @@ Element_STOR::Element_STOR()
 {
 	Identifier = "DEFAULT_PT_STOR";
 	Name = "STOR";
+	FullName = "Particle Storage";
 	Colour = PIXPACK(0x50DFDF);
 	MenuVisible = 1;
 	MenuSection = SC_POWERED;

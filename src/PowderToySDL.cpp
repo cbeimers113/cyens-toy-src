@@ -494,7 +494,7 @@ int SDLOpen()
 	SDL_FreeSurface(icon);
 #endif
 
-	SDL_WM_SetCaption("The Powder Toy", "Powder Toy");
+	SDL_WM_SetCaption("Cyens Toy", "CyensToy");
 	//SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	atexit(SDL_Quit);
 

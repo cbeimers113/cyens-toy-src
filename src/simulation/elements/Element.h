@@ -15,6 +15,7 @@ class Element
 public:
 	const char *Identifier;
 	const char *Name;
+	const char *FullName;
 	pixel Colour;
 	int MenuVisible;
 	int MenuSection;

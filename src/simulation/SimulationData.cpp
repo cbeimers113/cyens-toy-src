@@ -33,45 +33,45 @@ gol_menu * LoadGOLMenu(int & golMenuCount)
 		{"BRAN",	PIXPACK(0xCCCC00), 23, "Brian 6: B246/S6/3"}
 	};
 	golMenuCount = NGOL;
-	gol_menu * golMenuT = (gol_menu*)malloc(NGOL*sizeof(gol_menu));
-	memcpy(golMenuT, golMenu, NGOL*sizeof(gol_menu));
+	gol_menu * golMenuT = (gol_menu*)malloc(NGOL * sizeof(gol_menu));
+	memcpy(golMenuT, golMenu, NGOL * sizeof(gol_menu));
 	return golMenuT;
 }
 
 int * LoadGOLRules(int & golRuleCount)
 {
-	int golRules[NGOL+1][10] =
+	int golRules[NGOL + 1][10] =
 	{
-	//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
-		{0,0,0,0,0,0,0,0,0,2},//blank
-		{0,0,1,3,0,0,0,0,0,2},//GOL
-		{0,0,1,3,0,0,2,0,0,2},//HLIF
-		{0,0,0,2,3,3,1,1,0,2},//ASIM
-		{0,1,1,2,0,1,2,0,0,2},//2x2
-		{0,0,0,3,1,0,3,3,3,2},//DANI
-		{0,1,0,3,0,3,0,2,1,2},//AMOE
-		{0,0,1,2,1,1,2,0,2,2},//MOVE
-		{0,0,1,3,0,2,0,2,1,2},//PGOL
-		{0,0,0,2,0,3,3,3,3,2},//DMOE
-		{0,0,0,3,3,0,0,0,0,2},//34
-		{0,0,0,2,2,3,0,0,0,2},//LLIF
-		{0,0,1,3,0,1,3,3,3,2},//STAN
-		{0,0,2,0,0,0,0,0,0,2},//SEED
-		{0,1,1,3,1,1,0,0,0,2},//MAZE
-		{0,0,1,3,0,1,1,3,3,2},//COAG
-		{0,0,1,1,3,3,2,2,2,2},//WALL
-		{0,3,0,0,0,0,0,0,0,2},//GNAR
-		{0,3,0,3,0,3,0,3,0,2},//REPL
-		{1,0,0,2,2,3,1,1,3,2},//MYST
-		{0,0,0,3,1,1,0,2,1,4},//LOTE
-		{0,1,1,2,1,0,0,0,0,3},//FRG2
-		{0,0,2,1,1,1,1,2,2,6},//STAR
-		{0,1,1,2,2,0,0,0,0,3},//FROG
-		{0,0,2,0,2,0,3,0,0,3},//BRAN
+		//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
+			{0,0,0,0,0,0,0,0,0,2},//blank
+			{0,0,1,3,0,0,0,0,0,2},//GOL
+			{0,0,1,3,0,0,2,0,0,2},//HLIF
+			{0,0,0,2,3,3,1,1,0,2},//ASIM
+			{0,1,1,2,0,1,2,0,0,2},//2x2
+			{0,0,0,3,1,0,3,3,3,2},//DANI
+			{0,1,0,3,0,3,0,2,1,2},//AMOE
+			{0,0,1,2,1,1,2,0,2,2},//MOVE
+			{0,0,1,3,0,2,0,2,1,2},//PGOL
+			{0,0,0,2,0,3,3,3,3,2},//DMOE
+			{0,0,0,3,3,0,0,0,0,2},//34
+			{0,0,0,2,2,3,0,0,0,2},//LLIF
+			{0,0,1,3,0,1,3,3,3,2},//STAN
+			{0,0,2,0,0,0,0,0,0,2},//SEED
+			{0,1,1,3,1,1,0,0,0,2},//MAZE
+			{0,0,1,3,0,1,1,3,3,2},//COAG
+			{0,0,1,1,3,3,2,2,2,2},//WALL
+			{0,3,0,0,0,0,0,0,0,2},//GNAR
+			{0,3,0,3,0,3,0,3,0,2},//REPL
+			{1,0,0,2,2,3,1,1,3,2},//MYST
+			{0,0,0,3,1,1,0,2,1,4},//LOTE
+			{0,1,1,2,1,0,0,0,0,3},//FRG2
+			{0,0,2,1,1,1,1,2,2,6},//STAR
+			{0,1,1,2,2,0,0,0,0,3},//FROG
+			{0,0,2,0,2,0,3,0,0,3},//BRAN
 	};
-	golRuleCount = NGOL+1;
-	int * golRulesT = (int*)malloc((golRuleCount*10)*sizeof(int));
-	memcpy(golRulesT, golRules, (golRuleCount*10)*sizeof(int));
+	golRuleCount = NGOL + 1;
+	int * golRulesT = (int*)malloc((golRuleCount * 10) * sizeof(int));
+	memcpy(golRulesT, golRules, (golRuleCount * 10) * sizeof(int));
 	return golRulesT;
 }
 
@@ -105,8 +105,8 @@ int * LoadGOLTypes(int & golTypeCount)
 		GT_BRAN,
 	};
 	golTypeCount = NGOL;
-	int * golTypesT = (int*)malloc((golTypeCount)*sizeof(int));
-	memcpy(golTypesT, golTypes, (golTypeCount)*sizeof(int));
+	int * golTypesT = (int*)malloc((golTypeCount) * sizeof(int));
+	memcpy(golTypesT, golTypes, (golTypeCount) * sizeof(int));
 	return golTypesT;
 }
 
@@ -134,8 +134,8 @@ wall_type * LoadWalls(int & wallCount)
 		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, "ERASEALL",		"DEFAULT_WL_ERASEA","Erases walls, particles, and signs."},
 	};
 	wallCount = UI_WALLCOUNT;
-	wall_type * wtypesT = (wall_type*)malloc(UI_WALLCOUNT*sizeof(wall_type));
-	memcpy(wtypesT, wtypes, UI_WALLCOUNT*sizeof(wall_type));
+	wall_type * wtypesT = (wall_type*)malloc(UI_WALLCOUNT * sizeof(wall_type));
+	memcpy(wtypesT, wtypes, UI_WALLCOUNT * sizeof(wall_type));
 	return wtypesT;
 }
 
@@ -145,26 +145,29 @@ menu_section * LoadMenus(int & menuCount)
 	{
 		{"\xC1", "Walls", 0, 1},
 		{"\xC2", "Electronics", 0, 1},
-		{"\xD6", "Powered Materials", 0, 1},
-		{"\x99", "Sensors", 0, 1},
-		{"\xE2", "Force", 0, 1},
+		{"\xD6", "Engineering", 0, 1},
+		{"\x99", "Sensors", 0, 0},
+		{"\xE2", "Force", 0, 0},
 		{"\xC3", "Explosives", 0, 1},
 		{"\xC5", "Gases", 0, 1},
 		{"\xC4", "Liquids", 0, 1},
 		{"\xD0", "Powders", 0, 1},
 		{"\xD1", "Solids", 0, 1},
 		{"\xC6", "Radioactive", 0, 1},
+		{"\xD5", "Organic Chemistry", 0, 1 },
+		{"\xC0", "Biochemistry", 0, 1 },
+		{"\xD4", "Quantum Physics", 0, 1 },
 		{"\xCC", "Special", 0, 1},
 		{"\xD2", "Game Of Life", 0, 1},
 		{"\xD7", "Tools", 0, 1},
-		{"\xE7", "Favorites", 0, 1},
-		{"\xE4", "Decoration tools", 0, 1},
+		{"\xE7", "Favorites", 0, 0},
+		{"\xE4", "Decoration tools", 0, 0},
 		{"\xC8", "Cracker", 0, 0},
 		{"\xC8", "Cracker!", 0, 0},
 	};
 	menuCount = SC_TOTAL;
-	menu_section * msectionsT = (menu_section*)malloc(SC_TOTAL*sizeof(menu_section));
-	memcpy(msectionsT, msections, SC_TOTAL*sizeof(menu_section));
+	menu_section * msectionsT = (menu_section*)malloc(SC_TOTAL * sizeof(menu_section));
+	memcpy(msectionsT, msections, SC_TOTAL * sizeof(menu_section));
 	return msectionsT;
 }
 
@@ -335,7 +338,7 @@ unsigned int * LoadLatent(int & elementCount)
 		/* REPL */ 0,
 	};
 	elementCount = PT_NUM;
-	unsigned int * platentT = (unsigned int*)malloc(PT_NUM*sizeof(unsigned int));
-	memcpy(platentT, platent, PT_NUM*sizeof(unsigned int));
+	unsigned int * platentT = (unsigned int*)malloc(PT_NUM * sizeof(unsigned int));
+	memcpy(platentT, platent, PT_NUM * sizeof(unsigned int));
 	return platentT;
 }

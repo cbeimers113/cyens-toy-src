@@ -22,6 +22,9 @@ public:
 	void SetAmbientHeatSimulation(bool state);
 	void SetNewtonianGravity(bool state);
 	void SetWaterEqualisation(bool state);
+	void SetInfoScreen(bool state);
+	void SetTimeDilation(bool state);
+	void SetCompressibleGases(bool state);
 	void SetGravityMode(int gravityMode);
 	void SetAirMode(int airMode);
 	void SetEdgeMode(int edgeMode);

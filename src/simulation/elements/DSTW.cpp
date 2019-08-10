@@ -4,6 +4,7 @@ Element_DSTW::Element_DSTW()
 {
 	Identifier = "DEFAULT_PT_DSTW";
 	Name = "DSTW";
+	FullName = "Distilled Water";
 	Colour = PIXPACK(0x1020C0);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;

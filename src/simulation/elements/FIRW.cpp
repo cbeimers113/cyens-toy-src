@@ -7,7 +7,8 @@ extern "C"
 Element_FIRW::Element_FIRW()
 {
 	Identifier = "DEFAULT_PT_FIRW";
-	Name = "FIRW";
+	Name = "FCRK";
+	FullName = "Firecrackers";
 	Colour = PIXPACK(0xFFA040);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;
@@ -32,7 +33,7 @@ Element_FIRW::Element_FIRW()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 70;
-	Description = "Fireworks! Colorful, set off by fire.";
+	Description = "Firerackers! Colorful, set off by fire.";
 
 	Properties = TYPE_PART|PROP_LIFE_DEC;
 

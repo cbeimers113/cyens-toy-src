@@ -4,6 +4,7 @@ Element_CONV::Element_CONV()
 {
 	Identifier = "DEFAULT_PT_CONV";
 	Name = "CONV";
+	FullName = "Converter";
 	Colour = PIXPACK(0x0AAB0A);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

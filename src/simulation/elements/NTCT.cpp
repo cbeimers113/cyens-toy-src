@@ -4,6 +4,7 @@ Element_NTCT::Element_NTCT()
 {
 	Identifier = "DEFAULT_PT_NTCT";
 	Name = "NTCT";
+	FullName = "N-Type Semiconductor";
 	Colour = PIXPACK(0x505040);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

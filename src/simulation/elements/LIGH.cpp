@@ -5,6 +5,7 @@ Element_LIGH::Element_LIGH()
 {
 	Identifier = "DEFAULT_PT_LIGH";
 	Name = "LIGH";
+	FullName = "Lightning";
 	Colour = PIXPACK(0xFFFFC0);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

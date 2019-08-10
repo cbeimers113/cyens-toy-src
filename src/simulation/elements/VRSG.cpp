@@ -4,6 +4,7 @@ Element_VRSG::Element_VRSG()
 {
 	Identifier = "DEFAULT_PT_VRSG";
 	Name = "VRSG";
+	FullName = "Gasseous Virus";
 	Colour = PIXPACK(0xFE68FE);
 	MenuVisible = 0;
 	MenuSection = SC_GAS;

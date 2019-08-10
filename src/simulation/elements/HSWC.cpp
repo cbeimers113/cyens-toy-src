@@ -4,6 +4,7 @@ Element_HSWC::Element_HSWC()
 {
 	Identifier = "DEFAULT_PT_HSWC";
 	Name = "HSWC";
+	FullName = "Heat Switch";
 	Colour = PIXPACK(0x3B0A0A);
 	MenuVisible = 1;
 	MenuSection = SC_POWERED;

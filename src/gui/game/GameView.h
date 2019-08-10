@@ -30,7 +30,7 @@ enum SelectMode
 
 class GameController;
 class GameModel;
-class GameView: public ui::Window
+class GameView : public ui::Window
 {
 private:
 	bool isMouseDown;
@@ -113,6 +113,7 @@ private:
 	ui::Point placeSaveOffset;
 
 	SimulationSample sample;
+	Simulation *sim;
 
 	void updateToolButtonScroll();
 
@@ -134,6 +135,7 @@ public:
 
 	//Breaks MVC, but any other way is going to be more of a mess.
 	ui::Point GetMousePosition();
+	void SetSim(Simulation *sim);
 	void SetSample(SimulationSample sample);
 	void SetHudEnable(bool hudState);
 	bool GetHudEnable();
@@ -142,9 +144,9 @@ public:
 	bool GetPlacingSave();
 	bool GetPlacingZoom();
 	void SetActiveMenuDelayed(int activeMenu) { delayedActiveMenu = activeMenu; }
-	bool CtrlBehaviour(){ return ctrlBehaviour; }
-	bool ShiftBehaviour(){ return shiftBehaviour; }
-	bool AltBehaviour(){ return altBehaviour; }
+	bool CtrlBehaviour() { return ctrlBehaviour; }
+	bool ShiftBehaviour() { return shiftBehaviour; }
+	bool AltBehaviour() { return altBehaviour; }
 	void ExitPrompt();
 	SelectMode GetSelectMode() { return selectMode; }
 	void BeginStampSelection();
@@ -161,7 +163,7 @@ public:
 	ui::Point lineSnapCoords(ui::Point point1, ui::Point point2);
 	ui::Point rectSnapCoords(ui::Point point1, ui::Point point2);
 
-	void AttachController(GameController * _c){ c = _c; }
+	void AttachController(GameController * _c) { c = _c; }
 	void NotifyRendererChanged(GameModel * sender);
 	void NotifySimulationChanged(GameModel * sender);
 	void NotifyPausedChanged(GameModel * sender);

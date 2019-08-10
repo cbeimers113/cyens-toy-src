@@ -4,6 +4,7 @@ Element_MORT::Element_MORT()
 {
 	Identifier = "DEFAULT_PT_MORT";
 	Name = "MORT";
+	FullName = "Steam Train";
 	Colour = PIXPACK(0xE0E0E0);
 	MenuVisible = 1;
 	MenuSection = SC_CRACKER2;

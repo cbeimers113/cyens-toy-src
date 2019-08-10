@@ -4,6 +4,7 @@ Element_WARP::Element_WARP()
 {
 	Identifier = "DEFAULT_PT_WARP";
 	Name = "WARP";
+	FullName = "Warp";
 	Colour = PIXPACK(0x101010);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;

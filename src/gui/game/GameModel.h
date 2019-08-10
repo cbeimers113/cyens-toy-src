@@ -172,6 +172,12 @@ public:
 	void SetDecoration(bool decorationState);
 	bool GetAHeatEnable();
 	void SetAHeatEnable(bool aHeat);
+	bool GetInfoscreenEnable();
+	void SetInfoscreenEnable(bool infoScreenEnabled);
+	bool GetTimeDilationEnable();
+	void SetTimeDilationEnable(bool timeDilationEnabled);
+	bool GetCompressibleGasesEnable();
+	void SetCompressibleGasesEnable(bool compressibleGasesEnabled);
 	bool GetNewtonianGrvity();
 	void SetNewtonianGravity(bool newtonainGravity);
 	bool GetGravityGrid();

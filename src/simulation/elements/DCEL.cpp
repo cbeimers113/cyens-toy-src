@@ -4,9 +4,10 @@ Element_DCEL::Element_DCEL()
 {
 	Identifier = "DEFAULT_PT_DCEL";
 	Name = "DCEL";
+	FullName = "Decelerator";
 	Colour = PIXPACK(0x99CC00);
 	MenuVisible = 1;
-	MenuSection = SC_FORCE;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;

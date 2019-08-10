@@ -4,6 +4,7 @@ Element_EMBR::Element_EMBR()
 {
 	Identifier = "DEFAULT_PT_EMBR";
 	Name = "EMBR";
+	FullName = "Ember";
 	Colour = PIXPACK(0xFFF288);
 	MenuVisible = 0;
 	MenuSection = SC_EXPLOSIVE;

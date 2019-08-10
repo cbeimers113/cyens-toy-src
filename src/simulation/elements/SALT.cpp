@@ -4,6 +4,7 @@ Element_SALT::Element_SALT()
 {
 	Identifier = "DEFAULT_PT_SALT";
 	Name = "SALT";
+	FullName = "Sodium Chloride";
 	Colour = PIXPACK(0xFFFFFF);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;
@@ -28,7 +29,7 @@ Element_SALT::Element_SALT()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 110;
-	Description = "Salt, dissolves in water.";
+	Description = "Sodium chloride salt, dissolves in water.";
 
 	Properties = TYPE_PART;
 

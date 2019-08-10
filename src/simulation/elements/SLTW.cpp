@@ -4,6 +4,7 @@ Element_SLTW::Element_SLTW()
 {
 	Identifier = "DEFAULT_PT_SLTW";
 	Name = "SLTW";
+	FullName = "Saltwater";
 	Colour = PIXPACK(0x4050F0);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;

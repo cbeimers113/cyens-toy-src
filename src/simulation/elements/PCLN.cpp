@@ -4,6 +4,7 @@ Element_PCLN::Element_PCLN()
 {
 	Identifier = "DEFAULT_PT_PCLN";
 	Name = "PCLN";
+	FullName = "Powered Clone";
 	Colour = PIXPACK(0x3B3B0A);
 	MenuVisible = 1;
 	MenuSection = SC_POWERED;
@@ -108,8 +109,8 @@ int Element_PCLN::update(UPDATE_FUNC_ARGS)
 						int r = sim->create_part(-1, x + rx, y + ry, PT_PHOT);
 						if (r != -1)
 						{
-							parts[r].vx = rx * 3;
-							parts[r].vy = ry * 3;
+							parts[r].vx = rx * 15;
+							parts[r].vy = ry * 15;
 							if (r>i)
 							{
 								// Make sure movement doesn't happen until next frame, to avoid gaps in the beams of photons produced

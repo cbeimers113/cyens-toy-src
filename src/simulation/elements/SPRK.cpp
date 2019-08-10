@@ -4,6 +4,7 @@ Element_SPRK::Element_SPRK()
 {
 	Identifier = "DEFAULT_PT_SPRK";
 	Name = "SPRK";
+	FullName = "Electricity";
 	Colour = PIXPACK(0xFFFF80);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

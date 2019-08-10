@@ -4,6 +4,7 @@ Element_116::Element_116()
 {
 	Identifier = "DEFAULT_PT_116";
 	Name = "EQVE";
+	FullName = "Failed Test";
 	Colour = PIXPACK(0xFFE0A0);
 	MenuVisible = 0;
 	MenuSection = SC_CRACKER2;

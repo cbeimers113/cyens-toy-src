@@ -4,6 +4,7 @@ Element_PSCN::Element_PSCN()
 {
 	Identifier = "DEFAULT_PT_PSCN";
 	Name = "PSCN";
+	FullName = "P-Type Silicon";
 	Colour = PIXPACK(0x805050);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

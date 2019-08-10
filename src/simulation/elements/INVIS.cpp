@@ -4,9 +4,10 @@ Element_INVIS::Element_INVIS()
 {
 	Identifier = "DEFAULT_PT_INVIS";
 	Name = "INVS";
+	FullName = "Invisible";
 	Colour = PIXPACK(0x00CCCC);
 	MenuVisible = 1;
-	MenuSection = SC_SENSOR;
+	MenuSection = SC_POWERED;
 	Enabled = 1;
 
 	Advection = 0.0f;

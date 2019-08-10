@@ -4,6 +4,7 @@ Element_CRMC::Element_CRMC()
 {
 	Identifier = "DEFAULT_PT_CRMC";
 	Name = "CRMC";
+	FullName = "Ceramic";
 	Colour = PIXPACK(0xD6D1D4);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

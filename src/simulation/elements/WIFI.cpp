@@ -4,6 +4,7 @@ Element_WIFI::Element_WIFI()
 {
 	Identifier = "DEFAULT_PT_WIFI";
 	Name = "WIFI";
+	FullName = "Wifi Transceiver";
 	Colour = PIXPACK(0x40A060);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;
@@ -28,14 +29,14 @@ Element_WIFI::Element_WIFI()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 0;
-	Description = "Wireless transmitter, transfers spark to any other wifi on the same temperature channel.";
+	Description = "Wireless transceiver, transfers spark to any other wifi on the same temperature channel.";
 
 	Properties = TYPE_SOLID;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
-	HighPressure = 15.0f;
-	HighPressureTransition = PT_BRMT;
+	HighPressure = IPH;
+	HighPressureTransition = NT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;

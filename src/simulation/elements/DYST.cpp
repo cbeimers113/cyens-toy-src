@@ -4,6 +4,7 @@ Element_DYST::Element_DYST()
 {
 	Identifier = "DEFAULT_PT_DYST";
 	Name = "DYST";
+	FullName = "Dead Yeast";
 	Colour = PIXPACK(0xBBB0A0);
 	MenuVisible = 0;
 	MenuSection = SC_POWDERS;

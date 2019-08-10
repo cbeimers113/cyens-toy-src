@@ -4,6 +4,7 @@ Element_PLEX::Element_PLEX()
 {
 	Identifier = "DEFAULT_PT_PLEX";
 	Name = "C-4";
+	FullName = "C-4";
 	Colour = PIXPACK(0xD080E0);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

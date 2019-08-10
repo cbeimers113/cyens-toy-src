@@ -15,34 +15,34 @@ void OptionsModel::AddObserver(OptionsView* view)
 
 bool OptionsModel::GetHeatSimulation()
 {
-	return sim->legacy_enable?false:true;
+	return sim->legacy_enable ? false : true;
 }
 
 void OptionsModel::SetHeatSimulation(bool state)
 {
-	sim->legacy_enable = state?0:1;
+	sim->legacy_enable = state ? 0 : 1;
 	notifySettingsChanged();
 }
 
 bool OptionsModel::GetAmbientHeatSimulation()
 {
-	return sim->aheat_enable?true:false;
+	return sim->aheat_enable ? true : false;
 }
 
 void OptionsModel::SetAmbientHeatSimulation(bool state)
 {
-	sim->aheat_enable = state?1:0;
+	sim->aheat_enable = state ? 1 : 0;
 	notifySettingsChanged();
 }
 
 bool OptionsModel::GetNewtonianGravity()
 {
-	return sim->grav->ngrav_enable?true:false;
+	return sim->grav->ngrav_enable ? true : false;
 }
 
 void OptionsModel::SetNewtonianGravity(bool state)
 {
-	if(state)
+	if (state)
 		sim->grav->start_grav_async();
 	else
 		sim->grav->stop_grav_async();
@@ -51,12 +51,39 @@ void OptionsModel::SetNewtonianGravity(bool state)
 
 bool OptionsModel::GetWaterEqualisation()
 {
-	return sim->water_equal_test?true:false;
+	return sim->water_equal_test ? true : false;
 }
 
 void OptionsModel::SetWaterEqualisation(bool state)
 {
-	sim->water_equal_test = state?1:0;
+	sim->water_equal_test = state ? 1 : 0;
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetInfoScreen() {
+	return sim->infoScreenEnabled ? true : false;
+}
+
+void OptionsModel::SetInfoScreen(bool state) {
+	sim->infoScreenEnabled = state ? 1 : 0;
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetTimeDilation() {
+	return sim->timeDilationEnabled ? true : false;
+}
+
+void OptionsModel::SetTimeDilation(bool state) {
+	sim->timeDilationEnabled = (state ? 1 : 0)&(sim->grav->ngrav_enable ? true : false);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetCompressibleGases() {
+	return sim->compressibleGasesEnabled ? true : false;
+}
+
+void OptionsModel::SetCompressibleGases(bool state) {
+	sim->compressibleGasesEnabled = state ? 1 : 0;
 	notifySettingsChanged();
 }
 
@@ -142,6 +169,8 @@ void OptionsModel::notifySettingsChanged()
 		observers[i]->NotifySettingsChanged(this);
 	}
 }
+
+//Cyens Toy Options
 
 OptionsModel::~OptionsModel() {
 }

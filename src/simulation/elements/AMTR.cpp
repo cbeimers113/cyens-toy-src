@@ -3,7 +3,8 @@
 Element_AMTR::Element_AMTR()
 {
 	Identifier = "DEFAULT_PT_AMTR";
-	Name = "AMTR";
+	Name = "ANST";
+	FullName = "Antistuff";
 	Colour = PIXPACK(0x808080);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;
@@ -28,7 +29,7 @@ Element_AMTR::Element_AMTR()
 
 	Temperature = R_TEMP+0.0f +273.15f;
 	HeatConduct = 70;
-	Description = "Anti-Matter, destroys a majority of particles.";
+	Description = "Antistuff, destroys a majority of particles.";
 
 	Properties = TYPE_GAS;
 

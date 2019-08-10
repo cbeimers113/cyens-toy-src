@@ -4,6 +4,7 @@ Element_BREC::Element_BREC()
 {
 	Identifier = "DEFAULT_PT_BREC";
 	Name = "BREL";
+	FullName = "Broken Electronics";
 	Colour = PIXPACK(0x707060);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;

@@ -4,6 +4,7 @@ Element_CO2::Element_CO2()
 {
 	Identifier = "DEFAULT_PT_CO2";
 	Name = "CO2";
+	FullName = "Carbon Dioxide";
 	Colour = PIXPACK(0x666666);
 	MenuVisible = 1;
 	MenuSection = SC_GAS;

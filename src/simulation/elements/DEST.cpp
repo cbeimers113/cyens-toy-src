@@ -4,6 +4,7 @@ Element_DEST::Element_DEST()
 {
 	Identifier = "DEFAULT_PT_DEST";
 	Name = "DEST";
+	FullName = "Destructive Bomb";
 	Colour = PIXPACK(0xFF3311);
 	MenuVisible = 1;
 	MenuSection = SC_EXPLOSIVE;

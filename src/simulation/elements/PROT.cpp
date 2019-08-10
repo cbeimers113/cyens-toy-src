@@ -4,9 +4,10 @@ Element_PROT::Element_PROT()
 {
 	Identifier = "DEFAULT_PT_PROT";
 	Name = "PROT";
+	FullName = "Proton";
 	Colour = PIXPACK(0x990000);
 	MenuVisible = 1;
-	MenuSection = SC_NUCLEAR;
+	MenuSection = SC_QUANTUM;
 	Enabled = 1;
 
 	Advection = 0.0f;
@@ -26,7 +27,7 @@ Element_PROT::Element_PROT()
 
 	Weight = -1;
 
-	Temperature = R_TEMP+273.15f;
+	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 61;
 	Description = "Protons. Transfer heat to materials, and removes sparks.";
 
@@ -48,7 +49,11 @@ Element_PROT::Element_PROT()
 //#TPT-Directive ElementHeader Element_PROT static int update(UPDATE_FUNC_ARGS)
 int Element_PROT::update(UPDATE_FUNC_ARGS)
 {
-	sim->pv[y/CELL][x/CELL] -= .003f;
+	/* Fun stuff
+	parts[i].temp += parts[i].temp;
+	parts[i].life++;
+	*/
+	sim->pv[y / CELL][x / CELL] -= .003f;
 	int under = pmap[y][x];
 	int utype = TYP(under);
 	int uID = ID(under);
@@ -119,8 +124,8 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 	}
 	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
 	if (utype && utype != PT_WIFI)
-		parts[uID].temp = restrict_flt(parts[uID].temp-(parts[uID].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
- 
+		parts[uID].temp = restrict_flt(parts[uID].temp - (parts[uID].temp - parts[i].temp) / 4.0f, MIN_TEMP, MAX_TEMP);
+
 
 	//if this proton has collided with another last frame, change it into a heavier element
 	if (parts[i].tmp)
@@ -142,7 +147,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 			element = PT_CO2;
 		else
 			element = PT_NBLE;
-		newID = sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, element);
+		newID = sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, element);
 		if (newID >= 0)
 			parts[newID].temp = restrict_flt(100.0f*parts[i].tmp, MIN_TEMP, MAX_TEMP);
 		sim->kill_part(i);
@@ -152,8 +157,8 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 	int ahead = sim->photons[y][x];
 	if (ID(ahead) != i && TYP(ahead) == PT_PROT)
 	{
-		float velocity1 = powf(parts[i].vx, 2.0f)+powf(parts[i].vy, 2.0f);
-		float velocity2 = powf(parts[ID(ahead)].vx, 2.0f)+powf(parts[ID(ahead)].vy, 2.0f);
+		float velocity1 = powf(parts[i].vx, 2.0f) + powf(parts[i].vy, 2.0f);
+		float velocity2 = powf(parts[ID(ahead)].vx, 2.0f) + powf(parts[ID(ahead)].vy, 2.0f);
 		float direction1 = atan2f(-parts[i].vy, parts[i].vx);
 		float direction2 = atan2f(-parts[ID(ahead)].vy, parts[ID(ahead)].vx);
 		float difference = direction1 - direction2; if (difference < 0) difference += 6.28319f;
@@ -172,7 +177,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 int Element_PROT::DeutImplosion(Simulation * sim, int n, int x, int y, float temp, int t)
 {
 	int i;
-	n = (n/50);
+	n = (n / 50);
 	if (n < 1)
 		n = 1;
 	else if (n > 340)
@@ -186,7 +191,7 @@ int Element_PROT::DeutImplosion(Simulation * sim, int n, int x, int y, float tem
 		else if (sim->pfree < 0)
 			break;
 	}
-	sim->pv[y/CELL][x/CELL] -= (6.0f * CFDS)*n;
+	sim->pv[y / CELL][x / CELL] -= (6.0f * CFDS)*n;
 	return 0;
 }
 

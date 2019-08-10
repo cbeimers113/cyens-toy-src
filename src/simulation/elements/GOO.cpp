@@ -4,6 +4,7 @@ Element_GOO::Element_GOO()
 {
 	Identifier = "DEFAULT_PT_GOO";
 	Name = "GOO";
+	FullName = "Goo";
 	Colour = PIXPACK(0x804000);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

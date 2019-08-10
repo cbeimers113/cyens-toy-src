@@ -4,6 +4,7 @@ Element_NICE::Element_NICE()
 {
 	Identifier = "DEFAULT_PT_NICE";
 	Name = "NICE";
+	FullName = "Nitrogen Ice";
 	Colour = PIXPACK(0xC0E0FF);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

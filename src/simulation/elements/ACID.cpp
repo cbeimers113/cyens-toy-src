@@ -1,9 +1,11 @@
 #include "simulation/Elements.h"
+#include "simulation/CyensTools.h"
 //#TPT-Directive ElementClass Element_ACID PT_ACID 21
 Element_ACID::Element_ACID()
 {
 	Identifier = "DEFAULT_PT_ACID";
-	Name = "ACID";
+	Name = "HCL";
+	FullName = "Hydrochloric Acid";
 	Colour = PIXPACK(0xED55FF);
 	MenuVisible = 1;
 	MenuSection = SC_LIQUID;
@@ -27,11 +29,11 @@ Element_ACID::Element_ACID()
 
 	Weight = 10;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
+	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 34;
-	Description = "Dissolves almost everything.";
+	Description = "Hydrochloric acid. Dissolves almost everything.";
 
-	Properties = TYPE_LIQUID|PROP_DEADLY;
+	Properties = TYPE_LIQUID | PROP_DEADLY;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -49,39 +51,72 @@ Element_ACID::Element_ACID()
 //#TPT-Directive ElementHeader Element_ACID static int update(UPDATE_FUNC_ARGS)
 int Element_ACID::update(UPDATE_FUNC_ARGS)
 {
+	int dissolve = 1;
+	switch (parts[i].type) {
+	case PT_ACTA:
+		dissolve = 1000;
+		break;
+	case PT_PHAC:
+		dissolve = 500;
+		break;
+	case PT_HNO3:
+		dissolve = 100;
+		break;
+	}
+	bool hasWater = false;
 	int r, rx, ry, trade;
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
+	for (rx = -2; rx < 3; rx++)
+		for (ry = -2; ry < 3; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				r = pmap[y + ry][x + rx];
 				if (!r)
 					continue;
 				int rt = TYP(r);
-				if (rt != PT_ACID && rt != PT_CAUS)
+				if (rt == PT_WATR || rt == PT_DSTW || rt == PT_SLTW || rt == PT_CBNW) hasWater = true;
+				if (rt == PT_SDHX) {
+					int ot = parts[i].type;
+					sim->part_change_type(i, x, y, ot == PT_ACID ? PT_SALT : ot == PT_HNO3 ? PT_SDNT : PT_WSTE);
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_WTRV);
+					if (ot == PT_PHAC)parts[i].tmp2 = WSTE_TRSDM_PHOSPHATE;
+					else if (ot == PT_ACTA)parts[i].tmp2 = WSTE_SDM_ACETATE;
+				}
+				if (parts[i].type == PT_ACID && hasWater && rt == PT_ISCY) {
+					sim->part_change_type(i, x, y, PT_FRMD);
+					sim->kill_part(ID(r));
+				}
+				else if (parts[i].type == PT_ACTA && hasWater)
+					sim->part_change_type(i, x, y, PT_VNGR);
+				if (rt == PT_PLEX || rt == PT_NITR || rt == PT_GUNP || rt == PT_RBDM || rt == PT_LRBD)
 				{
-					if (rt == PT_PLEX || rt == PT_NITR || rt == PT_GUNP || rt == PT_RBDM || rt == PT_LRBD)
+					sim->part_change_type(i, x, y, PT_FIRE);
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_FIRE);
+					parts[i].life = 4;
+					parts[ID(r)].life = 4;
+				}
+				else if (parts[i].type == PT_ACID && (rt == PT_WTRV || rt == PT_WATR || rt == PT_CBNW || rt == PT_SLTW || rt == PT_DSTW))
+				{
+					if (!(rand() % 250))
 					{
-						sim->part_change_type(i,x,y,PT_FIRE);
-						sim->part_change_type(ID(r),x+rx,y+ry,PT_FIRE);
-						parts[i].life = 4;
-						parts[ID(r)].life = 4;
-					}
-					else if (rt == PT_WTRV)
-					{
-						if(!(rand()%250))
-						{
-							sim->part_change_type(i, x, y, PT_CAUS);
-							parts[i].life = (rand()%50)+25;
+						sim->part_change_type(i, x, y, PT_CAUS);
+						parts[i].life = (rand() % 50) + 25;
+						parts[i].temp += 100.0f;
+						if (rt == PT_WTRV || rt == PT_WATR || rt == PT_DSTW)
 							sim->kill_part(ID(r));
-						}
+						else
+							sim->part_change_type(ID(r), x + rx, y + ry, rt == PT_CBNW ? PT_CO2 : PT_SALT);
+
 					}
-					else if ((rt != PT_CLNE && rt != PT_PCLN && sim->elements[rt].Hardness>(rand()%1000))&&parts[i].life>=50)
+				}
+				if ((rand() % dissolve == 0) && (sim->elements[parts[ID(r)].type].Properties&TYPE_SOLID || sim->elements[parts[ID(r)].type].Properties&TYPE_PART))
+				{
+
+					if ((rt != PT_CLNE && rt != PT_PCLN && sim->elements[rt].Hardness > (rand() % 1000)) && parts[i].tmp2)
 					{
-						if (sim->parts_avg(i, ID(r),PT_GLAS)!= PT_GLAS)//GLAS protects stuff from acid
+						if (parts[i].life&&sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS)//GLAS protects stuff from acid
 						{
-							float newtemp = ((60.0f-(float)sim->elements[rt].Hardness))*7.0f;
-							if(newtemp < 0){
+							float newtemp = ((60.0f - (float)sim->elements[rt].Hardness))*7.0f;
+							if (newtemp < 0) {
 								newtemp = 0;
 							}
 							parts[i].temp += newtemp;
@@ -89,23 +124,18 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 							sim->kill_part(ID(r));
 						}
 					}
-					else if (parts[i].life<=50)
-					{
-						sim->kill_part(i);
-						return 1;
-					}
 				}
 			}
-	for (trade = 0; trade<2; trade++)
+	for (trade = 0; trade < 2; trade++)
 	{
-		rx = rand()%5-2;
-		ry = rand()%5-2;
+		rx = rand() % 5 - 2;
+		ry = rand() % 5 - 2;
 		if (BOUNDS_CHECK && (rx || ry))
 		{
-			r = pmap[y+ry][x+rx];
+			r = pmap[y + ry][x + rx];
 			if (!r)
 				continue;
-			if (TYP(r) == PT_ACID && (parts[i].life > parts[ID(r)].life) && parts[i].life>0)//diffusion
+			if ((TYP(r) == PT_ACID || TYP(r) == PT_ACTA || TYP(r) == PT_PHAC || TYP(r) == PT_HNO3) && (parts[i].life > parts[ID(r)].life) && parts[i].life > 0)//diffusion
 			{
 				int temp = parts[i].life - parts[ID(r)].life;
 				if (temp == 1)
@@ -113,10 +143,10 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 					parts[ID(r)].life++;
 					parts[i].life--;
 				}
-				else if (temp>0)
+				else if (temp > 0)
 				{
-					parts[ID(r)].life += temp/2;
-					parts[i].life -= temp/2;
+					parts[ID(r)].life += temp / 2;
+					parts[i].life -= temp / 2;
 				}
 			}
 		}
@@ -129,13 +159,13 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 int Element_ACID::graphics(GRAPHICS_FUNC_ARGS)
 {
 	int s = cpart->life;
-	if (s>75) s = 75; //These two should not be here.
-	if (s<49) s = 49;
-	s = (s-49)*3;
-	if (s==0) s = 1;
-	*colr += s*4;
-	*colg += s*1;
-	*colb += s*2;
+	if (s > 75) s = 75; //These two should not be here.
+	if (s < 49) s = 49;
+	s = (s - 49) * 3;
+	if (s == 0) s = 1;
+	*colr += s * 4;
+	*colg += s * 1;
+	*colb += s * 2;
 	*pixel_mode |= PMODE_BLUR;
 	return 0;
 }

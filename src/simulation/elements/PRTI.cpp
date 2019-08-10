@@ -4,6 +4,7 @@ Element_PRTI::Element_PRTI()
 {
 	Identifier = "DEFAULT_PT_PRTI";
 	Name = "PRTI";
+	FullName = "Portal IN";
 	Colour = PIXPACK(0xEB5917);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

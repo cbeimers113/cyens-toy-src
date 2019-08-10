@@ -4,6 +4,7 @@ Element_SPAWN::Element_SPAWN()
 {
 	Identifier = "DEFAULT_PT_SPAWN";
 	Name = "SPWN";
+	FullName = "Stickman's Spawn";
 	Colour = PIXPACK(0xAAAAAA);
 	MenuVisible = 0;
 	MenuSection = SC_SOLIDS;

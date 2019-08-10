@@ -3,7 +3,8 @@
 Element_DEUT::Element_DEUT()
 {
 	Identifier = "DEFAULT_PT_DEUT";
-	Name = "DEUT";
+	Name = "D2O";
+	FullName = "Deuterium Oxide";
 	Colour = PIXPACK(0x00153F);
 	MenuVisible = 1;
 	MenuSection = SC_NUCLEAR;

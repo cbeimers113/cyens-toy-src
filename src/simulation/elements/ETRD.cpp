@@ -6,6 +6,7 @@ Element_ETRD::Element_ETRD()
 {
 	Identifier = "DEFAULT_PT_ETRD";
 	Name = "ETRD";
+	FullName = "Electrode";
 	Colour = PIXPACK(0x404040);
 	MenuVisible = 1;
 	MenuSection = SC_ELEC;

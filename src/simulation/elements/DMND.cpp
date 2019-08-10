@@ -4,6 +4,7 @@ Element_DMND::Element_DMND()
 {
 	Identifier = "DEFAULT_PT_DMND";
 	Name = "DMND";
+	FullName = "Diamond";
 	Colour = PIXPACK(0xCCFFFF);
 	MenuVisible = 1;
 	MenuSection = SC_SPECIAL;

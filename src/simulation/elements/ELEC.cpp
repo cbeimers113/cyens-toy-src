@@ -4,9 +4,10 @@ Element_ELEC::Element_ELEC()
 {
 	Identifier = "DEFAULT_PT_ELEC";
 	Name = "ELEC";
+	FullName = "Electron";
 	Colour = PIXPACK(0xDFEFFF);
 	MenuVisible = 1;
-	MenuSection = SC_NUCLEAR;
+	MenuSection = SC_QUANTUM;
 	Enabled = 1;
 
 	Advection = 0.0f;

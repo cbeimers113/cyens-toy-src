@@ -3,7 +3,8 @@
 Element_BRMT::Element_BRMT()
 {
 	Identifier = "DEFAULT_PT_BRMT";
-	Name = "BRMT";
+	Name = "RUST";
+	FullName = "Rust";
 	Colour = PIXPACK(0x705060);
 	MenuVisible = 1;
 	MenuSection = SC_POWDERS;
@@ -28,7 +29,7 @@ Element_BRMT::Element_BRMT()
 
 	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 211;
-	Description = "Broken metal. Created when iron rusts or when metals break from pressure.";
+	Description = "Rust. Created when iron oxidizes or when metals break from pressure.";
 
 	Properties = TYPE_PART|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
 
