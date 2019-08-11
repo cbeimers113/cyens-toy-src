@@ -1,12 +1,15 @@
-#include "client/Client.h"
 #include "TagsView.h"
 
-#include "graphics/Graphics.h"
-#include "gui/dialogues/ErrorMessage.h"
 #include "TagsController.h"
 #include "TagsModel.h"
 #include "TagsModelException.h"
 
+#include "client/Client.h"
+#include "client/SaveInfo.h"
+
+#include "graphics/Graphics.h"
+
+#include "gui/dialogues/ErrorMessage.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Textbox.h"
 #include "gui/interface/Label.h"
@@ -21,7 +24,7 @@ TagsView::TagsView():
 		TagsView * v;
 	public:
 		CloseAction(TagsView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->Exit();
 		}
@@ -45,7 +48,7 @@ TagsView::TagsView():
 		TagsView * v;
 	public:
 		AddTagAction(TagsView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->addTag();
 		}
@@ -87,10 +90,10 @@ void TagsView::NotifyTagsChanged(TagsModel * sender)
 	class DeleteTagAction : public ui::ButtonAction
 	{
 		TagsView * v;
-		std::string tag;
+		ByteString tag;
 	public:
-		DeleteTagAction(TagsView * _v, std::string tag) { v = _v; this->tag = tag; }
-		void ActionCallback(ui::Button * sender)
+		DeleteTagAction(TagsView * _v, ByteString tag) { v = _v; this->tag = tag; }
+		void ActionCallback(ui::Button * sender) override
 		{
 			try
 			{
@@ -98,18 +101,18 @@ void TagsView::NotifyTagsChanged(TagsModel * sender)
 			}
 			catch(TagsModelException & ex)
 			{
-				new ErrorMessage("Could not remove tag", ex.what());
+				new ErrorMessage("Could not remove tag", ByteString(ex.what()).FromUtf8());
 			}
 		}
 	};
 
 	if(sender->GetSave())
 	{
-		std::list<std::string> Tags = sender->GetSave()->GetTags();
+		std::list<ByteString> Tags = sender->GetSave()->GetTags();
 		int i = 0;
-		for(std::list<std::string>::const_iterator iter = Tags.begin(), end = Tags.end(); iter != end; iter++)
+		for(std::list<ByteString>::const_iterator iter = Tags.begin(), end = Tags.end(); iter != end; iter++)
 		{
-			ui::Label * tempLabel = new ui::Label(ui::Point(35, 35+(16*i)), ui::Point(120, 16), *iter);
+			ui::Label * tempLabel = new ui::Label(ui::Point(35, 35+(16*i)), ui::Point(120, 16), (*iter).FromUtf8());
 			tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;			tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 			tags.push_back(tempLabel);
 			AddComponent(tempLabel);
@@ -120,7 +123,7 @@ void TagsView::NotifyTagsChanged(TagsModel * sender)
 				tempButton->Appearance.icon = IconDelete;
 				tempButton->Appearance.Border = ui::Border(0);
 				tempButton->Appearance.Margin.Top += 2;
-				tempButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;	
+				tempButton->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
 				tempButton->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
 				tempButton->SetActionCallback(new DeleteTagAction(this, *iter));
 				tags.push_back(tempButton);
@@ -131,8 +134,10 @@ void TagsView::NotifyTagsChanged(TagsModel * sender)
 	}
 }
 
-void TagsView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void TagsView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
+	if (repeat)
+		return;
 	switch(key)
 	{
 	case SDLK_KP_ENTER:
@@ -154,11 +159,11 @@ void TagsView::addTag()
 	}
 	try
 	{
-		c->AddTag(tagInput->GetText());
+		c->AddTag(tagInput->GetText().ToUtf8());
 	}
 	catch(TagsModelException & ex)
 	{
-		new ErrorMessage("Could not add tag", ex.what());
+		new ErrorMessage("Could not add tag", ByteString(ex.what()).FromUtf8());
 	}
 	tagInput->SetText("");
 }

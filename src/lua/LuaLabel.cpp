@@ -1,8 +1,9 @@
 #ifdef LUACONSOLE
 
-#include <iostream>
 #include "LuaScriptInterface.h"
+
 #include "LuaLabel.h"
+
 #include "gui/interface/Label.h"
 
 const char LuaLabel::className[] = "Label";
@@ -24,7 +25,7 @@ LuaLabel::LuaLabel(lua_State * l) :
 	int posY = luaL_optinteger(l, 2, 0);
 	int sizeX = luaL_optinteger(l, 3, 10);
 	int sizeY = luaL_optinteger(l, 4, 10);
-	std::string text = luaL_optstring(l, 5, "");
+	String text = ByteString(luaL_optstring(l, 5, "")).FromUtf8();
 
 	label = new ui::Label(ui::Point(posX, posY), ui::Point(sizeX, sizeY), text);
 	component = label;
@@ -35,12 +36,12 @@ int LuaLabel::text(lua_State * l)
 	int args = lua_gettop(l);
 	if(args)
 	{
-		label->SetText(std::string(lua_tostring(l, 1)));
+		label->SetText(ByteString(lua_tostring(l, 1)).FromUtf8());
 		return 0;
 	}
 	else
 	{
-		lua_pushstring(l, label->GetText().c_str());
+		lua_pushstring(l, label->GetText().ToUtf8().c_str());
 		return 1;
 	}
 }

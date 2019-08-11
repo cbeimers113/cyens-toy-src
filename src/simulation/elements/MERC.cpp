@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_MERC PT_MERC 152
 Element_MERC::Element_MERC()
 {
@@ -49,9 +49,13 @@ Element_MERC::Element_MERC()
 int Element_MERC::update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry, trade, np;
-	const int absorbScale = 10000;// max number of particles that can be condensed into one
-	int maxtmp = ((absorbScale/(parts[i].temp + 1))-1);
-	if ((absorbScale%((int)parts[i].temp+1))>rand()%((int)parts[i].temp+1))
+	// Max number of particles that can be condensed into one
+	const int absorbScale = 10000;
+	// Obscure division by 0 fix
+	if (parts[i].temp + 1 == 0)
+		parts[i].temp = 0;
+	int maxtmp = (absorbScale/(parts[i].temp + 1))-1;
+	if (RNG::Ref().chance(absorbScale%((int)parts[i].temp+1), parts[i].temp+1))
 		maxtmp ++;
 
 	if (parts[i].tmp < 0)
@@ -72,7 +76,7 @@ int Element_MERC::update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r || (parts[i].tmp >=maxtmp))
 						continue;
-					if (TYP(r)==PT_MERC&& !(rand()%3))
+					if (TYP(r)==PT_MERC&& RNG::Ref().chance(1, 3))
 					{
 						if ((parts[i].tmp + parts[ID(r)].tmp + 1) <= maxtmp)
 						{
@@ -102,8 +106,8 @@ int Element_MERC::update(UPDATE_FUNC_ARGS)
 				}
 	for ( trade = 0; trade<4; trade ++)
 	{
-		rx = rand()%5-2;
-		ry = rand()%5-2;
+		rx = RNG::Ref().between(-2, 2);
+		ry = RNG::Ref().between(-2, 2);
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];

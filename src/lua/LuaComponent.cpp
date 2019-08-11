@@ -1,12 +1,23 @@
 #ifdef LUACONSOLE
 
-#include <iostream>
 #include "LuaComponent.h"
+
 #include "LuaScriptInterface.h"
+
 #include "gui/interface/Component.h"
+#include "gui/interface/Window.h"
 
+int LuaComponentCallback::CheckAndAssignArg1()
+{
+	if (lua_type(l, 1) != LUA_TNIL)
+	{
+		luaL_checktype(l, 1, LUA_TFUNCTION);
+	}
+	LuaSmartRef::Assign(1);
+	return 0;
+}
 
-LuaComponent::LuaComponent(lua_State * l)
+LuaComponent::LuaComponent(lua_State * l) : owner_ref(LUA_REFNIL)
 {
 	this->l = l;
 

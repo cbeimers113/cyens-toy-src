@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_PLUT PT_PLUT 19
 Element_PLUT::Element_PLUT()
 {
@@ -49,7 +49,7 @@ Element_PLUT::Element_PLUT()
 //#TPT-Directive ElementHeader Element_PLUT static int update(UPDATE_FUNC_ARGS)
 int Element_PLUT::update(UPDATE_FUNC_ARGS)
 {
-	if (!(rand()%100) && ((int)(5.0f*sim->pv[y/CELL][x/CELL]))>(rand()%1000))
+	if (RNG::Ref().chance(1, 100) && RNG::Ref().chance(5.0f*sim->pv[y/CELL][x/CELL], 1000))
 	{
 		sim->create_part(i, x, y, PT_NEUT);
 	}

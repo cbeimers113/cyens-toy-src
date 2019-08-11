@@ -1,5 +1,5 @@
 #include "common/tpt-minmax.h"
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_PSTN PT_PSTN 168
 Element_PSTN::Element_PSTN()
@@ -46,6 +46,7 @@ Element_PSTN::Element_PSTN()
 
 	Update = &Element_PSTN::update;
 	Graphics = &Element_PSTN::graphics;
+	CtypeDraw = &Element_PSTN::ctypeDraw;
 }
 
 //#TPT-Directive ElementHeader Element_PSTN struct StackData
@@ -53,7 +54,7 @@ struct Element_PSTN::StackData
 {
 	int pushed;
 	int spaces;
-	
+
 	StackData(int pushed, int spaces):
 		pushed(pushed),
 		spaces(spaces)
@@ -105,7 +106,7 @@ int Element_PSTN::update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					if (TYP(r) == PT_PSTN)
+					if (TYP(r) == PT_PSTN && !parts[ID(r)].life)
 					{
 						bool movedPiston = false;
 						bool foundEnd = false;
@@ -347,6 +348,16 @@ int Element_PSTN::graphics(GRAPHICS_FUNC_ARGS)
 		*colg -= 60;
 	}
 	return 0;
+}
+
+//#TPT-Directive ElementHeader Element_PSTN static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+bool Element_PSTN::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (t == PT_FRME)
+	{
+		return false;
+	}
+	return Element::basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS);
 }
 
 Element_PSTN::~Element_PSTN() {}

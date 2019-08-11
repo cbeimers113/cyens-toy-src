@@ -1,22 +1,12 @@
 #include "Graphics.h"
-#include "font.h"
-#include "common/tpt-thread.h"
+#include "FontReader.h"
 #ifdef OGLI
 
-static pthread_mutex_t gMutex = PTHREAD_MUTEX_INITIALIZER;
-//static pthread_mutex_t TMPMUT = PTHREAD_MUTEX_INITIALIZER;
 Graphics::Graphics():
 	sdl_scale(1)
 {
-//	if(gMutex == TMPMUT)
-//		pthread_mutex_init (&gMutex, NULL);
 	LoadDefaults();
 	InitialiseTextures();
-	
-
-	
-	//Texture for main UI
-
 }
 
 void Graphics::LoadDefaults()
@@ -38,44 +28,34 @@ void Graphics::LoadDefaults()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Graphics::InitialiseTextures() 
+void Graphics::InitialiseTextures()
 {
 	glEnable(GL_TEXTURE_2D);
-	
+
 	glGenTextures(1, &vidBuf);
 	glBindTexture(GL_TEXTURE_2D, vidBuf);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOWW, WINDOWH, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-	
+
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	
+
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
 	glGenTextures(1, &textTexture);
 	glBindTexture(GL_TEXTURE_2D, textTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
+
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
 	glDisable(GL_TEXTURE_2D);
 }
 
 void Graphics::DestroyTextures()
 {
 	//Todo...
-}
-
-void Graphics::Acquire()
-{
-	pthread_mutex_lock(&gMutex);
-}
-
-void Graphics::Release()
-{
-	pthread_mutex_unlock(&gMutex);
 }
 
 Graphics::~Graphics()

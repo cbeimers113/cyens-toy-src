@@ -1,7 +1,15 @@
+#include "RenderView.h"
+
 #include "simulation/ElementGraphics.h"
+
 #include "graphics/Graphics.h"
 #include "graphics/Renderer.h"
-#include "RenderView.h"
+
+#include "RenderController.h"
+#include "RenderModel.h"
+
+#include "gui/interface/Checkbox.h"
+#include "gui/interface/Button.h"
 
 class RenderView::RenderModeAction: public ui::CheckboxAction
 {
@@ -13,7 +21,7 @@ public:
 		v = v_;
 		renderMode = renderMode_;
 	}
-	virtual void ActionCallback(ui::Checkbox * sender)
+	void ActionCallback(ui::Checkbox * sender) override
 	{
 		if(sender->GetChecked())
 			v->c->SetRenderMode(renderMode);
@@ -32,7 +40,7 @@ public:
 		v = v_;
 		displayMode = displayMode_;
 	}
-	virtual void ActionCallback(ui::Checkbox * sender)
+	void ActionCallback(ui::Checkbox * sender) override
 	{
 		if(sender->GetChecked())
 			v->c->SetDisplayMode(displayMode);
@@ -51,7 +59,7 @@ public:
 		v = v_;
 		colourMode = colourMode_;
 	}
-	virtual void ActionCallback(ui::Checkbox * sender)
+	void ActionCallback(ui::Checkbox * sender) override
 	{
 		if(sender->GetChecked())
 			v->c->SetColourMode(colourMode);
@@ -70,7 +78,7 @@ public:
 		v = v_;
 		renderPreset = renderPreset_;
 	}
-	virtual void ActionCallback(ui::Button * sender)
+	void ActionCallback(ui::Button * sender) override
 	{
 		v->c->LoadRenderPreset(renderPreset);
 	}
@@ -381,7 +389,7 @@ void RenderView::OnDraw()
 	g->draw_line(XRES, 0, XRES, WINDOWH, 255, 255, 255, 255);
 	if(toolTipPresence && toolTip.length())
 	{
-		g->drawtext(6, Size.Y-MENUSIZE-12, (char*)toolTip.c_str(), 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
+		g->drawtext(6, Size.Y-MENUSIZE-12, toolTip, 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
 	}
 }
 
@@ -405,8 +413,10 @@ void RenderView::OnTick(float dt)
 	}
 }
 
-void RenderView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void RenderView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
+	if (repeat)
+		return;
 	if (shift && key == '1')
 		c->LoadRenderPreset(10);
 	else if(key >= '0' && key <= '9')
@@ -415,7 +425,7 @@ void RenderView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bo
 	}
 }
 
-void RenderView::ToolTip(ui::Point senderPosition, std::string toolTip)
+void RenderView::ToolTip(ui::Point senderPosition, String toolTip)
 {
 	this->toolTip = toolTip;
 	this->isToolTipFadingIn = true;

@@ -1,5 +1,5 @@
-#include "Config.h"
 #include "Task.h"
+
 #include "TaskListener.h"
 
 void Task::AddTaskListener(TaskListener * listener)
@@ -11,14 +11,8 @@ void Task::AddTaskListener(TaskListener * listener)
 
 void Task::Start()
 {
-	thDone = false;
-	done = false;
-	progress = 0;
-	status = "";
-	//taskMutex = PTHREAD_MUTEX_INITIALIZER;
 	before();
-	pthread_mutex_init (&taskMutex, NULL);
-	pthread_create(&doWorkThread, 0, &Task::doWork_helper, this);
+	std::thread([this]() { doWork_wrapper(); }).detach();
 }
 
 int Task::GetProgress()
@@ -26,12 +20,12 @@ int Task::GetProgress()
 	return progress;
 }
 
-std::string Task::GetStatus()
+String Task::GetStatus()
 {
 	return status;
 }
 
-std::string Task::GetError()
+String Task::GetError()
 {
 	return error;
 }
@@ -53,15 +47,16 @@ void Task::Poll()
 		int newProgress;
 		bool newDone = false;
 		bool newSuccess = false;
-		std::string newStatus;
-		std::string newError;
-		pthread_mutex_lock(&taskMutex);
-		newProgress = thProgress;
-		newDone = thDone;
-		newSuccess = thSuccess;
-		newStatus = std::string(thStatus);
-		newError = std::string(thError);
-		pthread_mutex_unlock(&taskMutex);
+		String newStatus;
+		String newError;
+		{
+			std::lock_guard<std::mutex> g(taskMutex);
+			newProgress = thProgress;
+			newDone = thDone;
+			newSuccess = thSuccess;
+			newStatus = thStatus;
+			newError = thError;
+		}
 
 		success = newSuccess;
 
@@ -71,36 +66,35 @@ void Task::Poll()
 		}
 
 		if(newError!=error) {
-			error = std::string(newError);
+			error = newError;
 			notifyErrorMain();
 		}
 
 		if(newStatus!=status) {
-			status = std::string(newStatus);
+			status = newStatus;
 			notifyStatusMain();
 		}
 
 		if(newDone!=done)
 		{
 			done = newDone;
-
-			pthread_join(doWorkThread, NULL);
-			pthread_mutex_destroy(&taskMutex);
-			
 			after();
-			
 			notifyDoneMain();
 		}
 	}
 }
 
+Task::Task() :
+	progress(0),
+	done(false),
+	thProgress(0),
+	thDone(false),
+	listener(NULL)
+{
+}
+
 Task::~Task()
 {
-	if(!done)
-	{
-		pthread_join(doWorkThread, NULL);
-		pthread_mutex_destroy(&taskMutex);
-	}
 }
 
 void Task::before()
@@ -123,35 +117,32 @@ void Task::after()
 
 }
 
-TH_ENTRY_POINT void * Task::doWork_helper(void * ref)
+void Task::doWork_wrapper()
 {
-	bool newSuccess = ((Task*)ref)->doWork();
-	pthread_mutex_lock(&((Task*)ref)->taskMutex);
-	((Task*)ref)->thSuccess = newSuccess;
-	((Task*)ref)->thDone = true;
-	pthread_mutex_unlock(&((Task*)ref)->taskMutex);
-	return NULL;
+	bool newSuccess = doWork();
+	{
+		std::lock_guard<std::mutex> g(taskMutex);
+		thSuccess = newSuccess;
+		thDone = true;
+	}
 }
 
 void Task::notifyProgress(int progress)
 {
-	pthread_mutex_lock(&taskMutex);
+	std::lock_guard<std::mutex> g(taskMutex);
 	thProgress = progress;
-	pthread_mutex_unlock(&taskMutex);
 }
 
-void Task::notifyStatus(std::string status)
+void Task::notifyStatus(String status)
 {
-	pthread_mutex_lock(&taskMutex);
-	thStatus = std::string(status);
-	pthread_mutex_unlock(&taskMutex);
+	std::lock_guard<std::mutex> g(taskMutex);
+	thStatus = status;
 }
 
-void Task::notifyError(std::string error)
+void Task::notifyError(String error)
 {
-	pthread_mutex_lock(&taskMutex);
-	thError = std::string(error);
-	pthread_mutex_unlock(&taskMutex);
+	std::lock_guard<std::mutex> g(taskMutex);
+	thError = error;
 }
 
 void Task::notifyProgressMain()

@@ -1,5 +1,5 @@
-#include "ToolClasses.h"
-#include "simulation/Simulation.h"
+#include "simulation/ToolCommon.h"
+
 //#TPT-Directive ToolClass Tool_NGrv TOOL_NGRV 5
 Tool_NGrv::Tool_NGrv()
 {
@@ -9,7 +9,7 @@ Tool_NGrv::Tool_NGrv()
 	Description = "Creates a short-lasting negative gravity well.";
 }
 
-int Tool_NGrv::Perform(Simulation * sim, Particle * cpart, int x, int y, float strength)
+int Tool_NGrv::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushYy, float strength)
 {
 	sim->gravmap[((y/CELL)*(XRES/CELL))+(x/CELL)] = strength*-5.0f;
 	return 1;

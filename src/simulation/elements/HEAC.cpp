@@ -1,13 +1,12 @@
 #include <algorithm>
 #include <functional>
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 #include "simulation/Air.h"
 //#TPT-Directive ElementClass Element_HEAC PT_HEAC 180
 Element_HEAC::Element_HEAC()
 {
 	Identifier = "DEFAULT_PT_HEAC";
 	Name = "HEAC";
-	FullName = "Heat Conductor";
 	Colour = PIXPACK(0xCB6351);
 	MenuVisible = 1;
 	MenuSection = SC_SOLIDS;

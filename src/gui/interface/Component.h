@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include "common/tpt-compat.h"
+#include "common/String.h"
 #include "Appearance.h"
 #include "Point.h"
 
@@ -49,7 +48,7 @@ namespace ui
 		ui::Appearance Appearance;
 		//virtual void SetAppearance(ui::Appearance);
 		//ui::Appearance GetAppearance();
-		virtual void TextPosition(std::string);
+		virtual void TextPosition(String);
 
 		void Refresh();
 
@@ -65,26 +64,6 @@ namespace ui
 		inline Panel* const GetParent() const { return _parent; }
 
 		virtual void OnContextMenuAction(int item);
-
-		//UI functions:
-		/*
-			void Tick(float dt);
-			void Draw(const Point& screenPos);
-
-			void OnMouseHover(int localx, int localy);
-			void OnMouseMoved(int localx, int localy, int dx, int dy);
-			void OnMouseMovedInside(int localx, int localy, int dx, int dy);
-			void OnMouseEnter(int localx, int localy);
-			void OnMouseLeave(int localx, int localy);
-			void OnMouseDown(int x, int y, unsigned int button);
-			void OnMouseUp(int x, int y, unsigned int button);
-			void OnMouseClick(int localx, int localy, unsigned int button);
-			void OnMouseUnclick(int localx, int localy, unsigned int button);
-			void OnMouseWheel(int localx, int localy, int d);
-			void OnMouseWheelInside(int localx, int localy, int d);
-			void OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-			void OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-		*/
 
 		///
 		// Called: Every tick.
@@ -190,7 +169,7 @@ namespace ui
 		// Params:
 		//	localx: Local mouse X position.
 		//	localy: Local mouse Y position.
-		// 	d: The mouse wheel movement value.
+		// 	d: The vertical scroll offset
 		///
 		virtual void OnMouseWheel(int localx, int localy, int d);
 
@@ -199,7 +178,7 @@ namespace ui
 		// Params:
 		//	localx: Local mouse X position.
 		//	localy: Local mouse Y position.
-		// 	d: The mouse wheel movement value.
+		// 	d: The vertical scroll offset
 		///
 		virtual void OnMouseWheelInside(int localx, int localy, int d);
 
@@ -211,7 +190,7 @@ namespace ui
 		// 	ctrl: Control key is down.
 		// 	alt: Alternate key is down.
 		///
-		virtual void OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
+		virtual void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
 
 		///
 		// Called: When a key is released.
@@ -221,6 +200,8 @@ namespace ui
 		// 	ctrl: Control key is released.
 		// 	alt: Alternate key is released.
 		///
-		virtual void OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt);
+		virtual void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+
+		virtual void OnTextInput(String text);
 	};
 }

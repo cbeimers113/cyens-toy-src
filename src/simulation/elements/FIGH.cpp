@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_FIGH PT_FIGH 158
 Element_FIGH::Element_FIGH()
 {
@@ -88,9 +88,9 @@ int Element_FIGH::update(UPDATE_FUNC_ARGS)
 	case 1:
 		if ((pow(float(tarx - x), 2) + pow(float(tary - y), 2)) < 600)
 		{
-			if (figh->elem == PT_LIGH || figh->elem == PT_NEUT
-				|| sim->elements[figh->elem].Properties&(PROP_DEADLY | PROP_RADIOACTIVE)
-				|| sim->elements[figh->elem].Temperature >= 323 || sim->elements[figh->elem].Temperature <= 243)
+			if(figh->elem == PT_LIGH || figh->elem == PT_NEUT
+			    || sim->elements[figh->elem].Properties&(PROP_DEADLY|PROP_RADIOACTIVE)
+			    || sim->elements[figh->elem].Temperature>=323 || sim->elements[figh->elem].Temperature<=243)
 				figh->comm = (int)figh->comm | 0x08;
 		}
 		else if (tarx < x)
@@ -113,8 +113,8 @@ int Element_FIGH::update(UPDATE_FUNC_ARGS)
 		}
 		else
 		{
-			if (figh->rocketBoots || !(sim->eval_move(PT_FIGH, figh->legs[12] + 10, figh->legs[13] + 6, NULL)
-				&& sim->eval_move(PT_FIGH, figh->legs[12] + 10, figh->legs[13] + 3, NULL)))
+			if (figh->rocketBoots || !(sim->eval_move(PT_FIGH, figh->legs[12]+10, figh->legs[13]+6, NULL)
+			      && sim->eval_move(PT_FIGH, figh->legs[12]+10, figh->legs[13]+3, NULL)))
 				figh->comm = 0x02;
 			else
 				figh->comm = 0x01;

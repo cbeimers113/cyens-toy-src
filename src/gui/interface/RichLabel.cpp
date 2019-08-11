@@ -1,26 +1,32 @@
+#include "RichLabel.h"
+
 #include <vector>
 #include <exception>
 
-#include "RichLabel.h"
 #include "Platform.h"
+
 #include "gui/interface/Point.h"
 #include "gui/interface/Component.h"
+
 #include "graphics/Graphics.h"
+#include "graphics/FontReader.h"
+
+#include "Colour.h"
 
 using namespace ui;
 
 struct RichTextParseException: public std::exception {
-	std::string message;
+	ByteString message;
 public:
-	RichTextParseException(std::string message_ = "Parse error"): message(message_) {}
-	const char * what() const throw()
+	RichTextParseException(String message = String("Parse error")): message(message.ToUtf8()) {}
+	const char * what() const throw() override
 	{
 		return message.c_str();
 	}
 	~RichTextParseException() throw() {};
 };
 
-RichLabel::RichLabel(Point position, Point size, std::string labelText):
+RichLabel::RichLabel(Point position, Point size, String labelText):
 	Component(position, size),
 	textSource(labelText),
 	displayText("")
@@ -45,15 +51,15 @@ void RichLabel::updateRichText()
 		State state = ReadText;
 
 		int currentDataPos = 0;
-		char * currentData = new char[textSource.length()+1];
+		String::value_type * currentData = new String::value_type[textSource.length()+1];
 		std::fill(currentData, currentData+textSource.length()+1, 0);
 
 		int finalTextPos = 0;
-		char * finalText = new char[textSource.length()+1];
+		String::value_type * finalText = new String::value_type[textSource.length()+1];
 		std::fill(finalText, finalText+textSource.length()+1, 0);
 
 		int originalTextPos = 0;
-		char * originalText = new char[textSource.length()+1];
+		String::value_type * originalText = new String::value_type[textSource.length()+1];
 		std::copy(textSource.begin(), textSource.end(), originalText);
 		originalText[textSource.length()] = 0;
 
@@ -82,7 +88,7 @@ void RichLabel::updateRichText()
 						if(stackPos >= 0)
 						{
 							currentData[currentDataPos] = 0;
-							regionsStack[stackPos].actionData = std::string(currentData);
+							regionsStack[stackPos].actionData = String(currentData);
 							regions.push_back(regionsStack[stackPos]);
 							stackPos--;
 						}
@@ -142,11 +148,11 @@ void RichLabel::updateRichText()
 				throw RichTextParseException("Unclosed region");
 
 			finalText[finalTextPos] = 0;
-			displayText = std::string(finalText);
+			displayText = String(finalText);
 		}
 		catch (const RichTextParseException & e)
 		{
-			displayText = "\br[Parse exception: " + std::string(e.what()) + "]";
+			displayText = "\br[Parse exception: " + ByteString(e.what()).FromUtf8() + "]";
 			regions.clear();
 		}
 		delete[] currentData;
@@ -155,20 +161,21 @@ void RichLabel::updateRichText()
 		delete[] regionsStack;
 	}
 	TextPosition(displayText);
+	displayTextWrapper.Update(displayText, false, 0);
 }
 
-void RichLabel::SetText(std::string text)
+void RichLabel::SetText(String text)
 {
 	textSource = text;
 	updateRichText();
 }
 
-std::string RichLabel::GetDisplayText()
+String RichLabel::GetDisplayText()
 {
 	return displayText;
 }
 
-std::string RichLabel::GetText()
+String RichLabel::GetText()
 {
 	return textSource;
 }
@@ -182,15 +189,15 @@ void RichLabel::Draw(const Point& screenPos)
 
 void RichLabel::OnMouseClick(int x, int y, unsigned button)
 {
-	int cursorPosition = Graphics::CharIndexAtPosition((char*)displayText.c_str(), x-textPosition.X, y-textPosition.Y);
-	for(std::vector<RichTextRegion>::iterator iter = regions.begin(), end = regions.end(); iter != end; ++iter)
+	int cursorPosition = displayTextWrapper.Point2Index(x - textPosition.X, y - textPosition.Y).raw_index;
+	for (auto const &region : regions)
 	{
-		if((*iter).start <= cursorPosition && (*iter).finish >= cursorPosition)
+		if (region.start <= cursorPosition && region.finish >= cursorPosition)
 		{
-			switch((*iter).action)
+			switch (region.action)
 			{
-				case 'a':
-					Platform::OpenURI((*iter).actionData);
+			case 'a':
+				Platform::OpenURI(region.actionData.ToUtf8());
 				break;
 			}
 		}

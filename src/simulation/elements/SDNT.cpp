@@ -1,4 +1,4 @@
-#include "simulation/Element.h"
+#include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_SDNT PT_SDNT 223
 Element_SDNT::Element_SDNT() {

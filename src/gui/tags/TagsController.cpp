@@ -1,8 +1,11 @@
 #include "TagsController.h"
-#include "gui/interface/Engine.h"
 
 #include "TagsModel.h"
 #include "TagsView.h"
+
+#include "gui/interface/Engine.h"
+#include "client/SaveInfo.h"
+#include "Controller.h"
 
 TagsController::TagsController(ControllerCallback * callback, SaveInfo * save):
 	HasDone(false)
@@ -22,13 +25,13 @@ SaveInfo * TagsController::GetSave()
 	return tagsModel->GetSave();
 }
 
-void TagsController::RemoveTag(std::string tag)
+void TagsController::RemoveTag(ByteString tag)
 {
 	tagsModel->RemoveTag(tag);
 }
 
 
-void TagsController::AddTag(std::string tag)
+void TagsController::AddTag(ByteString tag)
 {
 	tagsModel->AddTag(tag);
 }

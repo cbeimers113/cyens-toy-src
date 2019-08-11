@@ -6,13 +6,12 @@
 #include "OpenGLHeaders.h"
 #endif
 
-#include "Config.h"
 #include "Graphics.h"
+#include "Config.h"
 #include "gui/interface/Point.h"
 
 class RenderPreset;
 class Simulation;
-class Graphics;
 
 struct gcache_item
 {
@@ -48,7 +47,7 @@ public:
 	unsigned int colour_mode;
 	std::vector<unsigned int> display_modes;
 	unsigned int display_mode;
-	RenderPreset * renderModePresets;
+	std::vector<RenderPreset> renderModePresets;
 	//
 	unsigned char fire_r[YRES/CELL][XRES/CELL];
 	unsigned char fire_g[YRES/CELL][XRES/CELL];
@@ -64,6 +63,7 @@ public:
 	bool debugLines;
 	pixel sampleColor;
 	int findingElement;
+	int foundElements;
 
 	//Mouse position for debug information
 	ui::Point mousePos;
@@ -112,11 +112,10 @@ public:
 
 	void draw_icon(int x, int y, Icon icon);
 
-	int drawtext_outline(int x, int y, const char *s, int r, int g, int b, int a);
-	int drawtext(int x, int y, const char *s, int r, int g, int b, int a);
-	int drawtext(int x, int y, std::string s, int r, int g, int b, int a);
-	int drawchar(int x, int y, int c, int r, int g, int b, int a);
-	int addchar(int x, int y, int c, int r, int g, int b, int a);
+	int drawtext_outline(int x, int y, String s, int r, int g, int b, int a);
+	int drawtext(int x, int y, String s, int r, int g, int b, int a);
+	int drawchar(int x, int y, String::value_type c, int r, int g, int b, int a);
+	int addchar(int x, int y, String::value_type c, int r, int g, int b, int a);
 
 	void xor_pixel(int x, int y);
 	void xor_line(int x, int y, int x2, int y2);
@@ -154,6 +153,8 @@ public:
 	std::vector<unsigned int> GetDisplayMode();
 	void SetColourMode(unsigned int mode);
 	unsigned int GetColourMode();
+
+	void ResetModes();
 
 	int GetGridSize() { return gridSize; }
 	void SetGridSize(int value) { gridSize = value; }

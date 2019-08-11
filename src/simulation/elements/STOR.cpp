@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_STOR PT_STOR 83
 Element_STOR::Element_STOR()
 {
@@ -31,7 +31,7 @@ Element_STOR::Element_STOR()
 	HeatConduct = 0;
 	Description = "Storage. Captures and stores a single particle. Releases when charged with PSCN, also passes to PIPE.";
 
-	Properties = TYPE_SOLID|PROP_NOCTYPEDRAW;
+	Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -44,6 +44,7 @@ Element_STOR::Element_STOR()
 
 	Update = &Element_STOR::update;
 	Graphics = &Element_STOR::graphics;
+	CtypeDraw = &Element_STOR::ctypeDraw;
 }
 
 //#TPT-Directive ElementHeader Element_STOR static int update(UPDATE_FUNC_ARGS)
@@ -112,5 +113,14 @@ int Element_STOR::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+//#TPT-Directive ElementHeader Element_STOR static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+bool Element_STOR::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (sim->elements[t].Properties & TYPE_SOLID)
+	{
+		return false;
+	}
+	return Element::basicCtypeDraw(CTYPEDRAW_FUNC_SUBCALL_ARGS);
+}
 
 Element_STOR::~Element_STOR() {}

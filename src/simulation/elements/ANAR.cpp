@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_ANAR PT_ANAR 113
 Element_ANAR::Element_ANAR()
 {
@@ -49,7 +49,7 @@ Element_ANAR::Element_ANAR()
 int Element_ANAR::update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
-	   
+
 	//if (parts[i].temp >= 0.23)
 	// parts[i].temp --;
 	for (rx=-1; rx<2; rx++)
@@ -59,10 +59,10 @@ int Element_ANAR::update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_CFLM && !(rand()%4))
+				if (TYP(r)==PT_CFLM && RNG::Ref().chance(1, 4))
 				{
 					sim->part_change_type(i,x,y,PT_CFLM);
-					parts[i].life = rand()%150+50;
+					parts[i].life = RNG::Ref().between(50, 199);
 					parts[ID(r)].temp = parts[i].temp = 0;
 					sim->pv[y/CELL][x/CELL] -= 0.5;
 				}

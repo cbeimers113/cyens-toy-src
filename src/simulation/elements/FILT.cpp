@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_FILT PT_FILT 125
 Element_FILT::Element_FILT()
 {
@@ -109,9 +109,9 @@ int Element_FILT::interactWavelengths(Particle* cpart, int origWl)
 			return (~origWl) & mask; // Invert colours
 		case 9:
 		{
-			int t1 = (origWl & 0x0000FF)+(rand()%5)-2;
-			int t2 = ((origWl & 0x00FF00)>>8)+(rand()%5)-2;
-			int t3 = ((origWl & 0xFF0000)>>16)+(rand()%5)-2;
+			int t1 = (origWl & 0x0000FF) + RNG::Ref().between(-2, 2);
+			int t2 = ((origWl & 0x00FF00)>>8) + RNG::Ref().between(-2, 2);
+			int t3 = ((origWl & 0xFF0000)>>16) + RNG::Ref().between(-2, 2);
 			return (origWl & 0xFF000000) | (t3<<16) | (t2<<8) | t1;
 		}
 		case 10:

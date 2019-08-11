@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_POLO PT_POLO 182
 Element_POLO::Element_POLO()
 {
@@ -28,7 +28,7 @@ Element_POLO::Element_POLO()
 
 	Weight = 90;
 
-	Temperature = 388.15f; 
+	Temperature = 388.15f;
 	HeatConduct = 251;
 	Description = "Polonium, highly radioactive. Decays into NEUT and heats up.";
 
@@ -56,7 +56,7 @@ int Element_POLO::update(UPDATE_FUNC_ARGS)
 	int r = sim->photons[y][x];
 	if (parts[i].tmp < LIMIT && !parts[i].life)
 	{
-		if (!(rand()%10000) && !parts[i].tmp)
+		if (RNG::Ref().chance(1, 10000) && !parts[i].tmp)
 		{
 			int s = sim->create_part(-3, x, y, PT_NEUT);
 			if (s >= 0)
@@ -69,7 +69,7 @@ int Element_POLO::update(UPDATE_FUNC_ARGS)
 			}
 		}
 
-		if (r && !(rand()%100))
+		if (r && RNG::Ref().chance(1, 100))
 		{
 			int s = sim->create_part(-3, x, y, PT_NEUT);
 			if (s >= 0)
@@ -92,7 +92,7 @@ int Element_POLO::update(UPDATE_FUNC_ARGS)
 		parts[i].temp = (parts[i].temp+600.0f)/2.0f;
 		return 1;
 	}
-	if (parts[ID(r)].type == PT_PROT)
+	if (TYP(r) == PT_PROT)
 	{
 		parts[i].tmp2++;
 		sim->kill_part(ID(r));

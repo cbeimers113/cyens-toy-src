@@ -1,8 +1,13 @@
 #include "LocalBrowserModel.h"
+
 #include "LocalBrowserView.h"
-#include "LocalBrowserModelException.h"
+
+#include <cmath>
+
 #include "client/Client.h"
 #include "client/SaveFile.h"
+
+#include "common/tpt-minmax.h"
 
 LocalBrowserModel::LocalBrowserModel():
 	stamp(NULL),
@@ -100,7 +105,7 @@ int LocalBrowserModel::GetPageCount()
 	return std::max(1, (int)(std::ceil(float(Client::Ref().GetStampsCount())/20.0f)));
 }
 
-void LocalBrowserModel::SelectSave(std::string stampID)
+void LocalBrowserModel::SelectSave(ByteString stampID)
 {
 	for (size_t i = 0; i < selected.size(); i++)
 	{
@@ -113,7 +118,7 @@ void LocalBrowserModel::SelectSave(std::string stampID)
 	notifySelectedChanged();
 }
 
-void LocalBrowserModel::DeselectSave(std::string stampID)
+void LocalBrowserModel::DeselectSave(ByteString stampID)
 {
 	bool changed = false;
 restart:

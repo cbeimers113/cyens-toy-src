@@ -32,7 +32,7 @@ struct Particle
 	v2i vector2i;
 	/** Returns a list of properties, their type and offset within the structure that can be changed
 	 by higher-level processes referring to them by name such as Lua or the property tool **/
-	static std::vector<StructProperty> GetProperties();
+	static std::vector<StructProperty> const &GetProperties();
 };
 
 #endif

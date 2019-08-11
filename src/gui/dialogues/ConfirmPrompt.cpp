@@ -1,12 +1,17 @@
 #include "ConfirmPrompt.h"
+
 #include "gui/Style.h"
+
 #include "gui/interface/Button.h"
 #include "gui/interface/Engine.h"
 #include "gui/interface/Label.h"
 #include "gui/interface/ScrollPanel.h"
+
 #include "PowderToy.h"
 
-ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, ConfirmDialogueCallback * callback_):
+#include "graphics/Graphics.h"
+
+ConfirmPrompt::ConfirmPrompt(String title, String message, ConfirmDialogueCallback * callback_):
 	ui::Window(ui::Point(-1, -1), ui::Point(250, 35)),
 	callback(callback_)
 {
@@ -39,7 +44,7 @@ ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, ConfirmDial
 		ConfirmPrompt * prompt;
 		DialogueResult result;
 		CloseAction(ConfirmPrompt * prompt_, DialogueResult result_) { prompt = prompt_; result = result_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			prompt->CloseActiveWindow();
 			if(prompt->callback)
@@ -68,7 +73,7 @@ ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, ConfirmDial
 	MakeActiveWindow();
 }
 
-ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, std::string buttonText, ConfirmDialogueCallback * callback_):
+ConfirmPrompt::ConfirmPrompt(String title, String message, String buttonText, ConfirmDialogueCallback * callback_):
 	ui::Window(ui::Point(-1, -1), ui::Point(250, 50)),
 	callback(callback_)
 {
@@ -101,7 +106,7 @@ ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, std::string
 		ConfirmPrompt * prompt;
 		DialogueResult result;
 		CloseAction(ConfirmPrompt * prompt_, DialogueResult result_) { prompt = prompt_; result = result_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			prompt->CloseActiveWindow();
 			if(prompt->callback)
@@ -130,13 +135,13 @@ ConfirmPrompt::ConfirmPrompt(std::string title, std::string message, std::string
 	MakeActiveWindow();
 }
 
-bool ConfirmPrompt::Blocking(std::string title, std::string message, std::string buttonText)
+bool ConfirmPrompt::Blocking(String title, String message, String buttonText)
 {
 	class BlockingPromptCallback: public ConfirmDialogueCallback {
 	public:
 		bool & outputResult;
 		BlockingPromptCallback(bool & output): outputResult(output) {}
-		virtual void ConfirmCallback(ConfirmPrompt::DialogueResult result) {
+		void ConfirmCallback(ConfirmPrompt::DialogueResult result) override {
 			if (result == ConfirmPrompt::ResultOkay)
 				outputResult = true;
 			else

@@ -1,10 +1,10 @@
 #ifndef STAMPSCONTROLLER_H_
 #define STAMPSCONTROLLER_H_
 
-#include "Controller.h"
-#include "LocalBrowserView.h"
-#include "client/SaveInfo.h"
+#include "common/String.h"
 
+class ControllerCallback;
+class SaveFile;
 class LocalBrowserView;
 class LocalBrowserModel;
 class LocalBrowserController {
@@ -19,16 +19,15 @@ public:
 	void RemoveSelected();
 	void removeSelectedC();
 	void ClearSelection();
-	void Selected(std::string stampID, bool selected);
+	void Selected(ByteString stampID, bool selected);
 	void RescanStamps();
 	void rescanStampsC();
 	void RefreshSavesList();
 	void OpenSave(SaveFile * stamp);
 	bool GetMoveToFront();
 	void SetMoveToFront(bool move);
-	void NextPage();
-	void PrevPage();
 	void SetPage(int page);
+	void SetPageRelative(int offset);
 	void Update();
 	void Exit();
 	virtual ~LocalBrowserController();

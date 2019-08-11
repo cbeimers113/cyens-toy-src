@@ -2,24 +2,22 @@
 #define LOGINMODEL_H_
 
 #include <vector>
-#include <string>
-#include "LoginView.h"
-#include "client/Client.h"
-
-using namespace std;
+#include "common/String.h"
+#include "client/User.h"
 
 class LoginView;
-class LoginModel {
-	vector<LoginView*> observers;
-	string statusText;
+class LoginModel
+{
+	std::vector<LoginView*> observers;
+	String statusText;
 	bool loginStatus;
 	void notifyStatusChanged();
 	User currentUser;
 public:
 	LoginModel();
-	void Login(string username, string password);
+	void Login(ByteString username, ByteString password);
 	void AddObserver(LoginView * observer);
-	string GetStatusText();
+	String GetStatusText();
 	bool GetStatus();
 	User GetUser();
 	virtual ~LoginModel();

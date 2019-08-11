@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_RPEL PT_RPEL 160
 Element_RPEL::Element_RPEL()
 {
@@ -31,7 +31,7 @@ Element_RPEL::Element_RPEL()
 	HeatConduct = 0;
 	Description = "Tractor Ray. Repels or attracts particles based on its temperature.";
 
-	Properties = TYPE_SOLID | PROP_DRAWONCTYPE;
+	Properties = TYPE_SOLID;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -43,6 +43,7 @@ Element_RPEL::Element_RPEL()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_RPEL::update;
+	CtypeDraw = &Element::basicCtypeDraw;
 }
 
 //#TPT-Directive ElementHeader Element_RPEL static int update(UPDATE_FUNC_ARGS)
@@ -51,8 +52,8 @@ int Element_RPEL::update(UPDATE_FUNC_ARGS)
 	int r, rx, ry, ri;
 	for(ri = 0; ri <= 10; ri++)
 	{
-		rx = (rand()%21)-10;
-		ry = (rand()%21)-10;
+		rx = RNG::Ref().between(-10, 10);
+		ry = RNG::Ref().between(-10, 10);
 		if (x+rx >= 0 && x+rx < XRES && y+ry >= 0 && y+ry < YRES && (rx || ry))
 		{
 			r = pmap[y+ry][x+rx];

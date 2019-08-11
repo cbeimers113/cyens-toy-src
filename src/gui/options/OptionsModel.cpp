@@ -1,6 +1,15 @@
-#include "simulation/Air.h"
-#include "gui/game/GameModel.h"
 #include "OptionsModel.h"
+
+#include "OptionsView.h"
+
+#include "simulation/Simulation.h"
+#include "simulation/Air.h"
+#include "simulation/Gravity.h"
+
+#include "client/Client.h"
+
+#include "gui/interface/Engine.h"
+#include "gui/game/GameModel.h"
 
 OptionsModel::OptionsModel(GameModel * gModel_) {
 	gModel = gModel_;
@@ -37,7 +46,7 @@ void OptionsModel::SetAmbientHeatSimulation(bool state)
 
 bool OptionsModel::GetNewtonianGravity()
 {
-	return sim->grav->ngrav_enable ? true : false;
+	return sim->grav->IsEnabled();
 }
 
 void OptionsModel::SetNewtonianGravity(bool state)
@@ -74,7 +83,7 @@ bool OptionsModel::GetTimeDilation() {
 }
 
 void OptionsModel::SetTimeDilation(bool state) {
-	sim->timeDilationEnabled = (state ? 1 : 0)&(sim->grav->ngrav_enable ? true : false);
+	sim->timeDilationEnabled = (state ? 1 : 0)&(sim->grav->IsEnabled() ? true : false);
 	notifySettingsChanged();
 }
 
@@ -129,6 +138,18 @@ void OptionsModel::SetScale(int scale)
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetResizable()
+{
+	return ui::Engine::Ref().GetResizable();
+}
+
+void OptionsModel::SetResizable(bool resizable)
+{
+	ui::Engine::Ref().SetResizable(resizable);
+	Client::Ref().SetPref("Resizable", resizable);
+	notifySettingsChanged();
+}
+
 bool OptionsModel::GetFullscreen()
 {
 	return ui::Engine::Ref().GetFullscreen();
@@ -136,7 +157,31 @@ bool OptionsModel::GetFullscreen()
 void OptionsModel::SetFullscreen(bool fullscreen)
 {
 	ui::Engine::Ref().SetFullscreen(fullscreen);
-	Client::Ref().SetPref("Fullscreen", bool(fullscreen));
+	Client::Ref().SetPref("Fullscreen", fullscreen);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetAltFullscreen()
+{
+	return ui::Engine::Ref().GetAltFullscreen();
+}
+
+void OptionsModel::SetAltFullscreen(bool altFullscreen)
+{
+	ui::Engine::Ref().SetAltFullscreen(altFullscreen);
+	Client::Ref().SetPref("AltFullscreen", altFullscreen);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetForceIntegerScaling()
+{
+	return ui::Engine::Ref().GetForceIntegerScaling();
+}
+
+void OptionsModel::SetForceIntegerScaling(bool forceIntegerScaling)
+{
+	ui::Engine::Ref().SetForceIntegerScaling(forceIntegerScaling);
+	Client::Ref().SetPref("ForceIntegerScaling", forceIntegerScaling);
 	notifySettingsChanged();
 }
 
@@ -159,6 +204,30 @@ bool OptionsModel::GetShowAvatars()
 void OptionsModel::SetShowAvatars(bool state)
 {
 	Client::Ref().SetPref("ShowAvatars", state);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetMouseClickRequired()
+{
+	return Client::Ref().GetPrefBool("MouseClickRequired", false);
+}
+
+void OptionsModel::SetMouseClickRequired(bool mouseClickRequired)
+{
+	Client::Ref().SetPref("MouseClickRequired", mouseClickRequired);
+	gModel->SetMouseClickRequired(mouseClickRequired);
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetIncludePressure()
+{
+	return Client::Ref().GetPrefBool("Simulation.IncludePressure", true);
+}
+
+void OptionsModel::SetIncludePressure(bool includePressure)
+{
+	Client::Ref().SetPref("Simulation.IncludePressure", includePressure);
+	gModel->SetIncludePressure(includePressure);
 	notifySettingsChanged();
 }
 

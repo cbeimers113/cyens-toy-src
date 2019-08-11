@@ -1,11 +1,14 @@
-#include "gui/Style.h"
 #include "InformationMessage.h"
+
+#include "gui/Style.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Engine.h"
 #include "gui/interface/Label.h"
 #include "gui/interface/ScrollPanel.h"
 
-InformationMessage::InformationMessage(std::string title, std::string message, bool large):
+#include "graphics/Graphics.h"
+
+InformationMessage::InformationMessage(String title, String message, bool large):
 	ui::Window(ui::Point(-1, -1), ui::Point(200, 35))
 {
 	if (large) //Maybe also use this large mode for changelogs eventually, or have it as a customizable size?
@@ -57,7 +60,7 @@ InformationMessage::InformationMessage(std::string title, std::string message, b
 		InformationMessage * message;
 	public:
 		DismissAction(InformationMessage * message_) { message = message_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			message->CloseActiveWindow();
 			message->SelfDestruct(); //TODO: Fix component disposal
@@ -72,7 +75,7 @@ InformationMessage::InformationMessage(std::string title, std::string message, b
 	AddComponent(okayButton);
 	SetOkayButton(okayButton);
 	SetCancelButton(okayButton);
-	
+
 	MakeActiveWindow();
 }
 

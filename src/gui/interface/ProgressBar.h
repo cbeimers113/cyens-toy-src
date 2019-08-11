@@ -8,14 +8,14 @@ namespace ui
 	{
 		int progress;
 		float intermediatePos;
-		std::string progressStatus;
+		String progressStatus;
 	public:
-	ProgressBar(Point position, Point size, int startProgress = 0, std::string startStatus = "");
-		virtual void SetProgress(int progress);
-		virtual int GetProgress();
-		virtual void SetStatus(std::string status);
-		virtual std::string GetStatus();
-		virtual void Draw(const Point & screenPos);
-		virtual void Tick(float dt);
-	};	
+	ProgressBar(Point position, Point size, int startProgress = 0, String startStatus = String());
+		void SetProgress(int progress);
+		int GetProgress();
+		void SetStatus(String status);
+		String GetStatus();
+		void Draw(const Point & screenPos) override;
+		void Tick(float dt) override;
+	};
 }

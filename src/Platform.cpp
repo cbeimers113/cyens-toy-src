@@ -1,8 +1,11 @@
+#include "Platform.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <cassert>
 #ifdef WIN
+#define NOMINMAX
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
@@ -14,14 +17,15 @@
 #ifdef MACOSX
 #include <mach-o/dyld.h>
 #endif
-#include "Platform.h"
+
 #include "Misc.h"
 
 namespace Platform
 {
 
-char *ExecutableName(void)
+ByteString ExecutableName()
 {
+	ByteString ret;
 #if defined(WIN)
 	char *name = (char *)malloc(64);
 	DWORD max = 64, res;
@@ -41,7 +45,7 @@ char *ExecutableName(void)
 	{
 		free(fn);
 		free(name);
-		return NULL;
+		return "";
 	}
 	res = 1;
 #else
@@ -63,27 +67,28 @@ char *ExecutableName(void)
 	if (res <= 0)
 	{
 		free(name);
-		return NULL;
+		return "";
 	}
-	return name;
+	ret = name;
+	free(name);
+	return ret;
 }
 
 void DoRestart()
 {
-	char *exename = ExecutableName();
-	if (exename)
+	ByteString exename = ExecutableName();
+	if (exename.length())
 	{
 #ifdef WIN
-		ShellExecute(NULL, "open", exename, NULL, NULL, SW_SHOWNORMAL);
+		ShellExecute(NULL, "open", exename.c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(LIN) || defined(MACOSX)
-		execl(exename, "powder", NULL);
+		execl(exename.c_str(), "powder", NULL);
 #endif
-		free(exename);
 	}
 	exit(-1);
 }
 
-void OpenURI(std::string uri)
+void OpenURI(ByteString uri)
 {
 #if defined(WIN)
 	ShellExecute(0, "OPEN", uri.c_str(), NULL, NULL, 0);
@@ -126,6 +131,18 @@ long unsigned int GetTime()
 	struct timespec s;
 	clock_gettime(CLOCK_MONOTONIC, &s);
 	return s.tv_sec * 1000 + s.tv_nsec / 1000000;
+#endif
+}
+
+
+void LoadFileInResource(int name, int type, unsigned int& size, const char*& data)
+{
+#ifdef _MSC_VER
+	HMODULE handle = ::GetModuleHandle(NULL);
+	HRSRC rc = ::FindResource(handle, MAKEINTRESOURCE(name), MAKEINTRESOURCE(type));
+	HGLOBAL rcData = ::LoadResource(handle, rc);
+	size = ::SizeofResource(handle, rc);
+	data = static_cast<const char*>(::LockResource(rcData));
 #endif
 }
 

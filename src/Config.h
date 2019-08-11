@@ -12,22 +12,22 @@
 
 //VersionInfoStart
 #ifndef SAVE_VERSION
-#define SAVE_VERSION 92
+#define SAVE_VERSION 94
 #endif
 
 #ifndef MINOR_VERSION
-#define MINOR_VERSION 5
+#define MINOR_VERSION 1
 #endif
 
 #ifndef BUILD_NUM
-#define BUILD_NUM 336
+#define BUILD_NUM 343
 #endif
 
 #ifndef SNAPSHOT_ID
 #define SNAPSHOT_ID 0
 #endif
 
-// Mod ID, used on the http://starcatcher.us/TPT build server
+// Mod ID, used on the https://starcatcher.us/TPT build server
 // The build server will compile for all platforms for you, and send updates in game
 // See jacob1 to get a mod ID
 #ifndef MOD_ID
@@ -35,8 +35,8 @@
 #endif
 
 #if defined(SNAPSHOT) || defined(DEBUG)
-#define FUTURE_SAVE_VERSION 93
-#define FUTURE_MINOR_VERSION 0
+#define FUTURE_SAVE_VERSION 94
+#define FUTURE_MINOR_VERSION 1
 #endif
 //VersionInfoEnd
 
@@ -85,8 +85,11 @@
 #define MTOS_EXPAND(str) #str
 #define MTOS(str) MTOS_EXPAND(str)
 
+#define SCHEME "https://"
 #define SERVER "powdertoy.co.uk"
+#define STATICSCHEME "https://"
 #define STATICSERVER "static.powdertoy.co.uk"
+#define ENFORCE_HTTPS
 
 #define LOCAL_SAVE_DIR "Saves"
 
@@ -94,18 +97,9 @@
 
 #define BRUSH_DIR "Brushes"
 
-//Number of unique thumbnails to have in cache at one time
-#define THUMB_CACHE_SIZE 256
-
-#ifndef M_PI
-#define M_PI 3.14159265f
-#endif
 #ifndef M_GRAV
 #define M_GRAV 6.67300e-1
 #endif
-
-//Number of asynchronous connections used to retrieve thumbnails
-#define IMGCONNS 5
 
 #ifdef RENDERER
 #define MENUSIZE 0

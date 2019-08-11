@@ -20,6 +20,8 @@
     slouken@libsdl.org
 */
 
+#include "SDLCompat.h"
+#define _SDL_keysym_h
 #ifndef _SDL_keysym_h
 #define _SDL_keysym_h
 
@@ -73,7 +75,7 @@ typedef enum {
 	SDLK_GREATER		= 62,
 	SDLK_QUESTION		= 63,
 	SDLK_AT			= 64,
-	/* 
+	/*
 	   Skip uppercase letters
 	 */
 	SDLK_LEFTBRACKET	= 91,

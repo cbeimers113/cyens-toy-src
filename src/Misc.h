@@ -2,25 +2,7 @@
 #define UTILS_H
 #include <cstdio>
 #include <cstdlib>
-#include <string>
-#include <sstream>
 #include <vector>
-
-#if defined(WIN) && !defined(__GNUC__)
-#define x86_cpuid(func,af,bf,cf,df) \
-	do {\
-	__asm mov	eax, func\
-	__asm cpuid\
-	__asm mov	af, eax\
-	__asm mov	bf, ebx\
-	__asm mov	cf, ecx\
-	__asm mov	df, edx\
-	} while(0)
-#else
-#define x86_cpuid(func,af,bf,cf,df) \
-__asm__ __volatile ("cpuid":\
-	"=a" (af), "=b" (bf), "=c" (cf), "=d" (df) : "a" (func));
-#endif
 
 //Linear interpolation
 template <typename T> inline T LinearInterpolate(T val1, T val2, T lowerCoord, T upperCoord, T coord)
@@ -35,20 +17,6 @@ int isign(float i);
 unsigned clamp_flt(float f, float min, float max);
 
 float restrict_flt(float f, float min, float max);
-
-char *mystrdup(const char *s);
-
-struct strlist
-{
-	char *str;
-	struct strlist *next;
-};
-
-void strlist_add(struct strlist **list, char *str);
-
-int strlist_find(struct strlist **list, char *str);
-
-void strlist_free(struct strlist **list);
 
 void save_presets(int do_update);
 

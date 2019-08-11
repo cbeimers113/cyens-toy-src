@@ -1,10 +1,7 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
 
-#include <string>
-
 #include "Label.h"
-#include "PowderToy.h"
 
 namespace ui
 {
@@ -19,16 +16,19 @@ public:
 class Textbox : public Label
 {
 	friend class TextboxAction;
+
+	void AfterTextChange(bool changed);
+
 public:
 	bool ReadOnly;
 	enum ValidInput { All, Multiline, Numeric, Number }; // Numeric doesn't delete trailing 0's
-	Textbox(Point position, Point size, std::string textboxText = "", std::string textboxPlaceholder = "");
+	Textbox(Point position, Point size, String textboxText = String(), String textboxPlaceholder = String());
 	virtual ~Textbox();
 
-	virtual void SetText(std::string text);
-	virtual std::string GetText();
+	void SetText(String text) override;
+	String GetText() override;
 
-	virtual void SetPlaceholder(std::string text);
+	virtual void SetPlaceholder(String text);
 
 	void SetBorder(bool border) { this->border = border; }
 	void SetHidden(bool hidden);
@@ -44,30 +44,32 @@ public:
 	void resetCursorPosition();
 	void TabFocus();
 	//Determines if the given character is valid given the input type
-	bool CharacterValid(Uint16 character);
+	bool CharacterValid(int character);
+	bool StringValid(String text);
 
-	virtual void Tick(float dt);
-	virtual void OnContextMenuAction(int item);
-	virtual void OnMouseClick(int x, int y, unsigned button);
-	virtual void OnMouseUp(int x, int y, unsigned button);
-	virtual void OnMouseMoved(int localx, int localy, int dx, int dy);
-	virtual void OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-	virtual void OnVKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-	virtual void OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-	virtual void Draw(const Point& screenPos);
+	void Tick(float dt) override;
+	void OnContextMenuAction(int item) override;
+	void OnMouseClick(int x, int y, unsigned button) override;
+	void OnMouseUp(int x, int y, unsigned button) override;
+	void OnMouseMoved(int localx, int localy, int dx, int dy) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnVKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt);
+	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnTextInput(String text) override;
+	void Draw(const Point& screenPos) override;
 
 protected:
 	ValidInput inputType;
 	size_t limit;
 	unsigned long repeatTime;
 	int keyDown;
-	Uint16 characterDown;
+	unsigned short characterDown;
 	bool mouseDown;
 	bool masked, border;
 	int cursor, cursorPositionX, cursorPositionY;
 	TextboxAction *actionCallback;
-	std::string backingText;
-	std::string placeHolder;
+	String backingText;
+	String placeHolder;
 
 	virtual void cutSelection();
 	virtual void pasteIntoSelection();

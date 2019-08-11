@@ -1,19 +1,19 @@
 #ifndef PREVIEWMODELEXCEPTION_H_
 #define PREVIEWMODELEXCEPTION_H_
 
-#include <string>
+#include "common/String.h"
 #include <exception>
-using namespace std;
 
-struct PreviewModelException: public exception {
-	string message;
+struct PreviewModelException: public std::exception
+{
+	String message;
 public:
-	PreviewModelException(string message_): message(message_) {}
-	const char * what() const throw()
+	PreviewModelException(String message_): message(message_) {}
+	const char * what() const throw() override
 	{
-		return message.c_str();
+		return message.ToUtf8().c_str();
 	}
-	~PreviewModelException() throw() {};
+	~PreviewModelException() throw() {}
 };
 
 #endif /* PREVIEWMODELEXCEPTION_H_ */

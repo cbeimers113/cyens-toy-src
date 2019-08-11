@@ -13,9 +13,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Probability.h"
+
 #include <numeric>
 #include <cstdlib>
-#include "Probability.h"
+#include "common/tpt-rand.h"
 
 namespace Probability
 {
@@ -23,11 +25,6 @@ namespace Probability
 float binomial_gte1(int n, float p)
 {
 	return 1.0f - std::pow(1.0f-p, n);
-}
-
-float randFloat()
-{
-	return static_cast<float>(rand())/RAND_MAX;
 }
 
 SmallKBinomialGenerator::SmallKBinomialGenerator(unsigned int n, float p, unsigned int maxK_)

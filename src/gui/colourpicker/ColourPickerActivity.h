@@ -1,10 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <string>
+#include "common/String.h"
 #include "Activity.h"
-#include "gui/interface/Window.h"
-#include "gui/interface/Textbox.h"
+#include "gui/interface/Colour.h"
+
+namespace ui
+{
+	class Textbox;
+	class Label;
+}
 
 class ColourPickedCallback
 {
@@ -33,12 +37,12 @@ class ColourPickerActivity: public WindowActivity {
 
 	void UpdateTextboxes(int r, int g, int b, int a);
 public:
-	virtual void OnMouseMove(int x, int y, int dx, int dy);
-	virtual void OnMouseDown(int x, int y, unsigned button);
-	virtual void OnMouseUp(int x, int y, unsigned button);
-	virtual void OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-	virtual void OnTryExit(ExitMethod method);
+	void OnMouseMove(int x, int y, int dx, int dy) override;
+	void OnMouseDown(int x, int y, unsigned button) override;
+	void OnMouseUp(int x, int y, unsigned button) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnTryExit(ExitMethod method) override;
 	ColourPickerActivity(ui::Colour initialColour, ColourPickedCallback * callback = NULL);
 	virtual ~ColourPickerActivity();
-	virtual void OnDraw();
+	void OnDraw() override;
 };

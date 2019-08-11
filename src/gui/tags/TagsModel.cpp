@@ -1,7 +1,9 @@
 #include "TagsModel.h"
+
 #include "TagsView.h"
-#include "client/Client.h"
 #include "TagsModelException.h"
+
+#include "client/Client.h"
 #include "client/SaveInfo.h"
 
 TagsModel::TagsModel():
@@ -21,14 +23,14 @@ SaveInfo * TagsModel::GetSave()
 	return save;
 }
 
-void TagsModel::RemoveTag(std::string tag)
+void TagsModel::RemoveTag(ByteString tag)
 {
 	if(save)
 	{
-		std::list<std::string> * tags = Client::Ref().RemoveTag(save->GetID(), tag);
+		std::list<ByteString> * tags = Client::Ref().RemoveTag(save->GetID(), tag);
 		if(tags)
 		{
-			save->SetTags(std::list<std::string>(*tags));
+			save->SetTags(std::list<ByteString>(*tags));
 			notifyTagsChanged();
 			delete tags;
 		}
@@ -39,14 +41,14 @@ void TagsModel::RemoveTag(std::string tag)
 	}
 }
 
-void TagsModel::AddTag(std::string tag)
+void TagsModel::AddTag(ByteString tag)
 {
 	if(save)
 	{
-		std::list<std::string> * tags = Client::Ref().AddTag(save->GetID(), tag);
+		std::list<ByteString> * tags = Client::Ref().AddTag(save->GetID(), tag);
 		if(tags)
 		{
-			save->SetTags(std::list<std::string>(*tags));
+			save->SetTags(std::list<ByteString>(*tags));
 			notifyTagsChanged();
 			delete tags;
 		}

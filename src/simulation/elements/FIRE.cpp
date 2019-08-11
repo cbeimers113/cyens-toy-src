@@ -1,5 +1,5 @@
 #include "common/tpt-minmax.h"
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_FIRE PT_FIRE 4
 Element_FIRE::Element_FIRE()
@@ -80,7 +80,7 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 			else if (parts[i].temp<625)
 			{
 				sim->part_change_type(i,x,y,PT_SMKE);
-				parts[i].life = rand()%20+250;
+				parts[i].life = RNG::Ref().between(250, 269);
 			}
 		}
 		break;
@@ -95,11 +95,11 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 				if (!r)
 					continue;
 				rt = TYP(r);
-				
+
 				//THRM burning
 				if (rt==PT_THRM && (t==PT_FIRE || t==PT_PLSM || t==PT_LAVA))
 				{
-					if (!(rand()%500)) {
+					if (RNG::Ref().chance(1, 500)) {
 						sim->part_change_type(ID(r),x+rx,y+ry,PT_LAVA);
 						parts[ID(r)].ctype = PT_BMTL;
 						parts[ID(r)].temp = 3500.0f;
@@ -118,13 +118,13 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 				{
 					if ((t==PT_FIRE || t==PT_PLSM))
 					{
-						if (parts[ID(r)].life>100 && !(rand()%500)) {
+						if (parts[ID(r)].life>100 && RNG::Ref().chance(1, 500)) {
 							parts[ID(r)].life = 99;
 						}
 					}
 					else if (t==PT_LAVA)
 					{
-						if (parts[i].ctype == PT_IRON && !(rand()%500)) {
+						if (parts[i].ctype == PT_IRON && RNG::Ref().chance(1, 500)) {
 							parts[i].ctype = PT_METL;
 							sim->kill_part(ID(r));
 						}
@@ -145,7 +145,7 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 					}
 					else if (rt == PT_HEAC && parts[i].ctype == PT_HEAC)
 					{
-						if (parts[ID(r)].temp > sim->elements[PT_HEAC].HighTemperature && rand()%200)
+						if (parts[ID(r)].temp > sim->elements[PT_HEAC].HighTemperature)
 						{
 							sim->part_change_type(ID(r), x+rx, y+ry, PT_LAVA);
 							parts[ID(r)].ctype = PT_HEAC;
@@ -154,7 +154,7 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 				}
 
 				if ((surround_space || sim->elements[rt].Explosive) &&
-				    sim->elements[rt].Flammable && (sim->elements[rt].Flammable + (int)(sim->pv[(y+ry)/CELL][(x+rx)/CELL] * 10.0f)) > (rand()%1000) &&
+				    sim->elements[rt].Flammable && RNG::Ref().chance(sim->elements[rt].Flammable + (sim->pv[(y+ry)/CELL][(x+rx)/CELL] * 10.0f), 1000) &&
 				    //exceptions, t is the thing causing the spark and rt is what's burning
 				    (t != PT_SPRK || (rt != PT_RBDM && rt != PT_LRBD && rt != PT_INSL)) &&
 				    (t != PT_PHOT || rt != PT_INSL) &&
@@ -162,7 +162,7 @@ int Element_FIRE::update(UPDATE_FUNC_ARGS)
 				{
 					sim->part_change_type(ID(r), x+rx, y+ry, PT_FIRE);
 					parts[ID(r)].temp = restrict_flt(sim->elements[PT_FIRE].Temperature + (sim->elements[rt].Flammable/2), MIN_TEMP, MAX_TEMP);
-					parts[ID(r)].life = rand()%80+180;
+					parts[ID(r)].life = RNG::Ref().between(180, 259);
 					parts[ID(r)].tmp = parts[ID(r)].ctype = 0;
 					if (sim->elements[rt].Explosive)
 						sim->pv[y/CELL][x/CELL] += 0.25f * CFDS;
@@ -189,7 +189,10 @@ int Element_FIRE::updateLegacy(UPDATE_FUNC_ARGS) {
 
 				lpv = (int)sim->pv[(y+ry)/CELL][(x+rx)/CELL];
 				if (lpv < 1) lpv = 1;
-				if (sim->elements[rt].Meltable  && ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK) && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR)) &&sim->elements[rt].Meltable*lpv>(rand()%1000))
+				if (sim->elements[rt].Meltable &&
+				        ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK)
+				        && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR))
+				        && RNG::Ref().chance(sim->elements[rt].Meltable*lpv, 1000))
 				{
 					if (t!=PT_LAVA || parts[i].life>0)
 					{
@@ -200,7 +203,7 @@ int Element_FIRE::updateLegacy(UPDATE_FUNC_ARGS) {
 						else
 							parts[ID(r)].ctype = rt;
 						sim->part_change_type(ID(r),x+rx,y+ry,PT_LAVA);
-						parts[ID(r)].life = rand()%120+240;
+						parts[ID(r)].life = RNG::Ref().between(240, 359);
 					}
 					else
 					{

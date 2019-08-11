@@ -1,4 +1,8 @@
+#ifndef SIMULATIONDATA_H
+#define SIMULATIONDATA_H
+
 #include <vector>
+#include <array>
 
 #define SC_WALL 0
 #define SC_ELEC 1
@@ -60,9 +64,10 @@
 #define WL_ALLOWENERGY	15
 #define WL_BLOCKAIR		16
 #define WL_ERASEALL		17
+#define WL_STASIS		18
 #define WL_FLOODHELPER	255
 
-#define UI_WALLCOUNT 18
+#define UI_WALLCOUNT 19
 
 #define OLD_SPC_AIR 236
 #define SPC_AIR 256
@@ -131,9 +136,6 @@
 #define REPLACE_MODE 0x1
 #define SPECIFIC_DELETE 0x2
 
-#ifndef SIMULATIONDATA_H
-#define SIMULATIONDATA_H
-
 struct part_type;
 struct part_transition;
 
@@ -144,16 +146,16 @@ struct menu_section;
 class SimTool;
 class Element;
 
-gol_menu * LoadGOLMenu(int & golMenuCount);
+std::vector<gol_menu> LoadGOLMenu();
 
-int * LoadGOLTypes(int & golTypeCount);
+std::vector<int> LoadGOLTypes();
 
-int * LoadGOLRules(int & golRuleCount);
+std::vector<std::array<int, 10> > LoadGOLRules();
 
-wall_type * LoadWalls(int & wallCount);
+std::vector<wall_type> LoadWalls();
 
-menu_section * LoadMenus(int & menuCount);
+std::vector<menu_section> LoadMenus();
 
-unsigned int * LoadLatent(int & elementCount);
+std::vector<unsigned int> LoadLatent();
 
 #endif /* SIMULATIONDATA_H */

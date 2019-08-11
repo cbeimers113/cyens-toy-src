@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_FRZZ PT_FRZZ 100
 Element_FRZZ::Element_FRZZ()
 {
@@ -56,7 +56,7 @@ int Element_FRZZ::update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_WATR && !(rand()%20))
+				if (TYP(r)==PT_WATR && RNG::Ref().chance(1, 20))
 				{
 					sim->part_change_type(ID(r),x+rx,y+ry,PT_FRZW);
 					parts[ID(r)].life = 100;

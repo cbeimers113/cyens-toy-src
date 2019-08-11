@@ -1,21 +1,23 @@
 #ifndef CONSOLECOMMAND_H_
 #define CONSOLECOMMAND_H_
 
+#include "common/String.h"
+
 class ConsoleCommand
 {
 public:
-	ConsoleCommand(std::string command, int returnStatus, std::string returnValue):
+	ConsoleCommand(String command, int returnStatus, String returnValue):
 		Command(command), ReturnStatus(returnStatus), ReturnValue(returnValue)
 	{
 
 	}
-	std::string Command;
+	String Command;
 	int ReturnStatus;
-	std::string ReturnValue;
+	String ReturnValue;
 
-	operator std::string() const
+	operator ByteString() const
 	{
-		return Command;
+		return Command.ToUtf8();
 	}
 };
 

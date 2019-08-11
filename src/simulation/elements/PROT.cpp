@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_PROT PT_PROT 173
 Element_PROT::Element_PROT()
 {
@@ -63,16 +63,17 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 	{
 		//remove active sparks
 		int sparked = parts[uID].ctype;
-		if (sparked > 0 && sparked < PT_NUM && sim->elements[sparked].Enabled)
+		if (!sim->part_change_type(uID, x, y, sparked))
 		{
-			sim->part_change_type(uID, x, y, sparked);
 			parts[uID].life = 44 + parts[uID].life;
 			parts[uID].ctype = 0;
 		}
+		else
+			utype = 0;
 		break;
 	}
 	case PT_DEUT:
-		if ((-((int)sim->pv[y / CELL][x / CELL] - 4) + (parts[uID].life / 100)) > rand() % 200)
+		if (RNG::Ref().chance(-((int)sim->pv[y / CELL][x / CELL] - 4) + (parts[uID].life / 100), 200))
 		{
 			DeutImplosion(sim, parts[uID].life, x, y, restrict_flt(parts[uID].temp + parts[uID].life * 500, MIN_TEMP, MAX_TEMP), PT_PROT);
 			sim->kill_part(uID);
@@ -80,7 +81,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 		break;
 	case PT_LCRY:
 		//Powered LCRY reaction: PROT->PHOT
-		if (parts[uID].life > 5 && !(rand() % 10))
+		if (parts[uID].life > 5 && RNG::Ref().chance(1, 10))
 		{
 			sim->part_change_type(i, x, y, PT_PHOT);
 			parts[i].life *= 2;
@@ -124,8 +125,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 	}
 	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
 	if (utype && utype != PT_WIFI)
-		parts[uID].temp = restrict_flt(parts[uID].temp - (parts[uID].temp - parts[i].temp) / 4.0f, MIN_TEMP, MAX_TEMP);
-
+		parts[uID].temp = restrict_flt(parts[uID].temp-(parts[uID].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
 
 	//if this proton has collided with another last frame, change it into a heavier element
 	if (parts[i].tmp)
@@ -147,7 +147,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 			element = PT_CO2;
 		else
 			element = PT_NBLE;
-		newID = sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, element);
+		newID = sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), element);
 		if (newID >= 0)
 			parts[newID].temp = restrict_flt(100.0f*parts[i].tmp, MIN_TEMP, MAX_TEMP);
 		sim->kill_part(i);

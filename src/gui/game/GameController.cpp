@@ -1,64 +1,103 @@
-#include <iostream>
-#include <queue>
+#include "GameController.h"
+
+#include "GameView.h"
+#include "GameModel.h"
+
+#include "RenderPreset.h"
+#include "Menu.h"
+#include "Tool.h"
+#include "Brush.h"
+#include "QuickOptions.h"
+#include "GameModelException.h"
+
 #include "Config.h"
 #include "Format.h"
 #include "Platform.h"
-#include "GameController.h"
-#include "GameModel.h"
-#include "client/SaveInfo.h"
+#include "Controller.h"
+#include "Notification.h"
+
 #include "client/GameSave.h"
+#include "client/Client.h"
+
 #include "gui/search/SearchController.h"
 #include "gui/render/RenderController.h"
 #include "gui/login/LoginController.h"
-#include "gui/interface/Point.h"
+#include "gui/preview/PreviewController.h"
+#include "gui/tags/TagsController.h"
+#include "gui/console/ConsoleController.h"
+#include "gui/localbrowser/LocalBrowserController.h"
+#include "gui/options/OptionsController.h"
+
 #include "gui/dialogues/ErrorMessage.h"
 #include "gui/dialogues/InformationMessage.h"
 #include "gui/dialogues/ConfirmPrompt.h"
-#include "GameModelException.h"
-#include "simulation/Air.h"
+
 #include "gui/elementsearch/ElementSearchActivity.h"
 #include "gui/profile/ProfileActivity.h"
 #include "gui/colourpicker/ColourPickerActivity.h"
 #include "gui/update/UpdateActivity.h"
-#include "Notification.h"
 #include "gui/filebrowser/FileBrowserActivity.h"
 #include "gui/save/LocalSaveActivity.h"
 #include "gui/save/ServerSaveActivity.h"
+
+#include "gui/tags/TagsView.h"
+#include "gui/search/SearchView.h"
+#include "gui/render/RenderView.h"
+#include "gui/preview/PreviewView.h"
+#include "gui/options/OptionsView.h"
+#include "gui/login/LoginView.h"
+#include "gui/localbrowser/LocalBrowserView.h"
+#include "gui/console/ConsoleView.h"
+
 #include "gui/interface/Keys.h"
 #include "gui/interface/Mouse.h"
-#include "simulation/Snapshot.h"
+#include "gui/interface/Engine.h"
+
 #include "debug/DebugInfo.h"
 #include "debug/DebugParts.h"
 #include "debug/ElementPopulation.h"
 #include "debug/DebugLines.h"
 #include "debug/ParticleDebug.h"
 #include "simulation/CyensTools.h"
+
 #ifdef LUACONSOLE
 #include "lua/LuaScriptInterface.h"
 #else
 #include "lua/TPTScriptInterface.h"
 #endif
+#include "lua/LuaEvents.h"
 
-using namespace std;
+#include "graphics/Renderer.h"
+
+#include "simulation/Simulation.h"
+#include "simulation/SimulationData.h"
+#include "simulation/Air.h"
+#include "simulation/Snapshot.h"
+#include "ElementClasses.h"
+
+#ifdef GetUserName
+# undef GetUserName // dammit windows
+#endif
 
 class GameController::SearchCallback : public ControllerCallback
 {
 	GameController * cc;
 public:
 	SearchCallback(GameController * cc_) { cc = cc_; }
-	virtual void ControllerExit()
+
+	void ControllerExit() override
 	{
 		if (cc->search->GetLoadedSave())
 		{
 			try
 			{
 				cc->HistorySnapshot();
-				cc->gameModel->SetSave(cc->search->GetLoadedSave());
+				cc->gameModel->SetSave(cc->search->GetLoadedSave(), cc->gameView->ShiftBehaviour());
 				cc->search->ReleaseLoadedSave();
 			}
 			catch (GameModelException & ex)
 			{
-				new ErrorMessage("Cannot open save", ex.what());
+				new ErrorMessage("Cannot open save", ByteString(ex.what()).FromUtf8());
 			}
 		}
 	}
@@ -69,7 +108,7 @@ class GameController::SaveOpenCallback : public ControllerCallback
 	GameController * cc;
 public:
 	SaveOpenCallback(GameController * cc_) { cc = cc_; }
-	virtual void ControllerExit()
+	void ControllerExit() override
 	{
 		if (cc->activePreview->GetDoOpen() && cc->activePreview->GetSaveInfo())
 		{
@@ -80,7 +119,7 @@ public:
 			}
 			catch (GameModelException & ex)
 			{
-				new ErrorMessage("Cannot open save", ex.what());
+				new ErrorMessage("Cannot open save", ByteString(ex.what()).FromUtf8());
 			}
 		}
 	}
@@ -91,9 +130,10 @@ class GameController::OptionsCallback : public ControllerCallback
 	GameController * cc;
 public:
 	OptionsCallback(GameController * cc_) { cc = cc_; }
-	virtual void ControllerExit()
+	void ControllerExit() override
 	{
 		cc->gameModel->UpdateQuickOptions();
+		Client::Ref().WritePrefs();
 	}
 };
 
@@ -102,7 +142,7 @@ class GameController::TagsCallback : public ControllerCallback
 	GameController * cc;
 public:
 	TagsCallback(GameController * cc_) { cc = cc_; }
-	virtual void ControllerExit()
+	void ControllerExit() override
 	{
 		cc->gameView->NotifySaveChanged(cc->gameModel);
 	}
@@ -113,7 +153,7 @@ class GameController::StampsCallback : public ControllerCallback
 	GameController * cc;
 public:
 	StampsCallback(GameController * cc_) { cc = cc_; }
-	virtual void ControllerExit()
+	void ControllerExit() override
 	{
 		SaveFile *file = cc->localBrowser->GetSave();
 		if (file)
@@ -121,7 +161,7 @@ public:
 			if (file->GetError().length())
 				new ErrorMessage("Error loading stamp", file->GetError());
 			else if (cc->localBrowser->GetMoveToFront())
-				Client::Ref().MoveStampToFront(file->GetName());
+				Client::Ref().MoveStampToFront(file->GetDisplayName().ToUtf8());
 			cc->LoadStamp(file->GetGameSave());
 		}
 	}
@@ -156,11 +196,6 @@ GameController::GameController() :
 #else
 	commandInterface = new TPTScriptInterface(this, gameModel);
 #endif
-
-	ActiveToolChanged(0, gameModel->GetActiveTool(0));
-	ActiveToolChanged(1, gameModel->GetActiveTool(1));
-	ActiveToolChanged(2, gameModel->GetActiveTool(2));
-	ActiveToolChanged(3, gameModel->GetActiveTool(3));
 
 	Client::Ref().AddListener(this);
 
@@ -315,26 +350,31 @@ int GameController::GetSignAt(int x, int y)
 	for (int i = sim->signs.size() - 1; i >= 0; i--)
 	{
 		int signx, signy, signw, signh;
-		sim->signs[i].pos(sim->signs[i].getText(sim), signx, signy, signw, signh);
-		if (x >= signx && x <= signx + signw && y >= signy && y <= signy + signh)
+		sim->signs[i].getDisplayText(sim, signx, signy, signw, signh);
+		if (x>=signx && x<=signx+signw && y>=signy && y<=signy+signh)
 			return i;
 	}
 	return -1;
 }
 
 // assumed to already be a valid sign
-std::string GameController::GetSignText(int signID)
+String GameController::GetSignText(int signID)
 {
 	return gameModel->GetSimulation()->signs[signID].text;
 }
 
-void GameController::PlaceSave(ui::Point position, bool includePressure)
+std::pair<int, sign::Type> GameController::GetSignSplit(int signID)
+{
+	return gameModel->GetSimulation()->signs[signID].split();
+}
+
+void GameController::PlaceSave(ui::Point position)
 {
 	GameSave *placeSave = gameModel->GetPlaceSave();
 	if (placeSave)
 	{
 		HistorySnapshot();
-		if (!gameModel->GetSimulation()->Load(position.X, position.Y, placeSave, includePressure))
+		if (!gameModel->GetSimulation()->Load(placeSave, !gameView->ShiftBehaviour(), position.X, position.Y))
 		{
 			gameModel->SetPaused(placeSave->paused | gameModel->GetPaused());
 			Client::Ref().MergeStampAuthorInfo(placeSave->authors);
@@ -350,8 +390,8 @@ void GameController::Install()
 	class InstallConfirmation : public ConfirmDialogueCallback {
 	public:
 		GameController * c;
-		InstallConfirmation(GameController * c_) { c = c_; }
-		virtual void ConfirmCallback(ConfirmPrompt::DialogueResult result) {
+		InstallConfirmation(GameController * c_) {	c = c_;	}
+		void ConfirmCallback(ConfirmPrompt::DialogueResult result) override {
 			if (result == ConfirmPrompt::ResultOkay)
 			{
 				if (Client::Ref().DoInstallation())
@@ -386,18 +426,18 @@ void GameController::InvertAirSim()
 }
 
 
-void GameController::AdjustBrushSize(int direction, bool logarithmic, bool xAxis, bool yAxis)
+void GameController::AdjustBrushSize(int delta, bool logarithmic, bool xAxis, bool yAxis)
 {
 	if (xAxis && yAxis)
 		return;
 
 	ui::Point newSize(0, 0);
 	ui::Point oldSize = gameModel->GetBrush()->GetRadius();
-	if (logarithmic)
-		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(direction * ((gameModel->GetBrush()->GetRadius().X / 5) > 0 ? gameModel->GetBrush()->GetRadius().X / 5 : 1), direction * ((gameModel->GetBrush()->GetRadius().Y / 5) > 0 ? gameModel->GetBrush()->GetRadius().Y / 5 : 1));
+	if(logarithmic)
+		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(delta * std::max(gameModel->GetBrush()->GetRadius().X / 5, 1), delta * std::max(gameModel->GetBrush()->GetRadius().Y / 5, 1));
 	else
-		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(direction, direction);
-	if (newSize.X < 0)
+		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(delta, delta);
+	if(newSize.X < 0)
 		newSize.X = 0;
 	if (newSize.Y < 0)
 		newSize.Y = 0;
@@ -419,17 +459,17 @@ void GameController::SetBrushSize(ui::Point newSize)
 	gameModel->GetBrush()->SetRadius(newSize);
 }
 
-void GameController::AdjustZoomSize(int direction, bool logarithmic)
+void GameController::AdjustZoomSize(int delta, bool logarithmic)
 {
 	int newSize;
-	if (logarithmic)
-		newSize = gameModel->GetZoomSize() + (((gameModel->GetZoomSize() / 10) > 0 ? (gameModel->GetZoomSize() / 10) : 1)*direction);
+	if(logarithmic)
+		newSize = gameModel->GetZoomSize() + std::max(gameModel->GetZoomSize() / 10, 1) * delta;
 	else
-		newSize = gameModel->GetZoomSize() + direction;
-	if (newSize < 5)
-		newSize = 5;
-	if (newSize > 64)
-		newSize = 64;
+		newSize = gameModel->GetZoomSize() + delta;
+	if(newSize<5)
+			newSize = 5;
+	if(newSize>64)
+			newSize = 64;
 	gameModel->SetZoomSize(newSize);
 
 	int newZoomFactor = 256 / newSize;
@@ -570,14 +610,14 @@ void GameController::ToolClick(int toolSelection, ui::Point point)
 	activeTool->Click(sim, cBrush, point);
 }
 
-std::string GameController::StampRegion(ui::Point point1, ui::Point point2, bool includePressure)
+ByteString GameController::StampRegion(ui::Point point1, ui::Point point2)
 {
-	GameSave * newSave;
-	newSave = gameModel->GetSimulation()->Save(point1.X, point1.Y, point2.X, point2.Y, includePressure);
-	if (newSave)
+	GameSave * newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
+	if(newSave)
 	{
 		newSave->paused = gameModel->GetPaused();
-		std::string stampName = Client::Ref().AddStamp(newSave);
+		ByteString stampName = Client::Ref().AddStamp(newSave);
+		delete newSave;
 		if (stampName.length() == 0)
 			new ErrorMessage("Could not create stamp", "Error serializing save file");
 		return stampName;
@@ -589,11 +629,10 @@ std::string GameController::StampRegion(ui::Point point1, ui::Point point2, bool
 	}
 }
 
-void GameController::CopyRegion(ui::Point point1, ui::Point point2, bool includePressure)
+void GameController::CopyRegion(ui::Point point1, ui::Point point2)
 {
-	GameSave * newSave;
-	newSave = gameModel->GetSimulation()->Save(point1.X, point1.Y, point2.X, point2.Y, includePressure);
-	if (newSave)
+	GameSave * newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
+	if(newSave)
 	{
 		Json::Value clipboardInfo;
 		clipboardInfo["type"] = "clipboard";
@@ -607,21 +646,23 @@ void GameController::CopyRegion(ui::Point point1, ui::Point point2, bool include
 	}
 }
 
-void GameController::CutRegion(ui::Point point1, ui::Point point2, bool includePressure)
+void GameController::CutRegion(ui::Point point1, ui::Point point2)
 {
-	CopyRegion(point1, point2, includePressure);
-	gameModel->GetSimulation()->clear_area(point1.X, point1.Y, point2.X - point1.X, point2.Y - point1.Y);
+	CopyRegion(point1, point2);
+	gameModel->GetSimulation()->clear_area(point1.X, point1.Y, point2.X-point1.X, point2.Y-point1.Y);
 }
 
 bool GameController::MouseMove(int x, int y, int dx, int dy)
 {
-	return commandInterface->OnMouseMove(x, y, dx, dy);
+	MouseMoveEvent ev(x, y, dx, dy);
+	return commandInterface->HandleEvent(LuaEvents::mousemove, &ev);
 }
 
 bool GameController::MouseDown(int x, int y, unsigned button)
 {
-	bool ret = commandInterface->OnMouseDown(x, y, button);
-	if (ret && y < YRES && x < XRES && !gameView->GetPlacingSave() && !gameView->GetPlacingZoom())
+	MouseDownEvent ev(x, y, button);
+	bool ret = commandInterface->HandleEvent(LuaEvents::mousedown, &ev);
+	if (ret && y<YRES && x<XRES && !gameView->GetPlacingSave() && !gameView->GetPlacingZoom())
 	{
 		ui::Point point = gameModel->AdjustZoomCoords(ui::Point(x, y));
 		x = point.X;
@@ -631,9 +672,10 @@ bool GameController::MouseDown(int x, int y, unsigned button)
 			foundSignID = GetSignAt(x, y);
 			if (foundSignID != -1)
 			{
-				sign foundSign = gameModel->GetSimulation()->signs[foundSignID];
-				if (sign::splitsign(foundSign.text.c_str()))
+				if (gameModel->GetSimulation()->signs[foundSignID].split().first)
+				{
 					return false;
+				}
 			}
 		}
 	}
@@ -642,7 +684,8 @@ bool GameController::MouseDown(int x, int y, unsigned button)
 
 bool GameController::MouseUp(int x, int y, unsigned button, char type)
 {
-	bool ret = commandInterface->OnMouseUp(x, y, button, type);
+	MouseUpEvent ev(x, y, button, type);
+	bool ret = commandInterface->HandleEvent(LuaEvents::mouseup, &ev);
 	if (type)
 		return ret;
 	if (ret && foundSignID != -1 && y < YRES && x < XRES && !gameView->GetPlacingSave())
@@ -655,44 +698,31 @@ bool GameController::MouseUp(int x, int y, unsigned button, char type)
 			int foundSignID = GetSignAt(x, y);
 			if (foundSignID != -1)
 			{
-				sign foundSign = gameModel->GetSimulation()->signs[foundSignID];
-				const char* str = foundSign.text.c_str();
-				char type;
-				int pos = sign::splitsign(str, &type);
-				if (pos)
+				sign &foundSign = gameModel->GetSimulation()->signs[foundSignID];
+				String str = foundSign.text;
+				auto si = gameModel->GetSimulation()->signs[foundSignID].split();
+				if (si.first)
 				{
 					ret = false;
-					if (type == 'c' || type == 't' || type == 's')
+					switch (si.second)
 					{
-						char buff[256];
-						strcpy(buff, str + 3);
-						buff[pos - 3] = 0;
-						switch (type)
+					case sign::Type::Save:
 						{
-						case 'c':
-						{
-							int saveID = format::StringToNumber<int>(std::string(buff));
+							int saveID = str.Substr(3, si.first - 3).ToNumber<int>(true);
 							if (saveID)
 								OpenSavePreview(saveID, 0, false);
-							break;
 						}
-						case 't':
-						{
-							// buff is already confirmed to be a number by sign::splitsign
-							std::stringstream uri;
-							uri << "http://powdertoy.co.uk/Discussions/Thread/View.html?Thread=" << buff;
-							Platform::OpenURI(uri.str());
-							break;
-						}
-						case 's':
-							OpenSearch(buff);
-							break;
-						}
-					}
-					else if (type == 'b')
-					{
-						Simulation * sim = gameModel->GetSimulation();
-						sim->create_part(-1, foundSign.x, foundSign.y, PT_SPRK);
+						break;
+					case sign::Type::Thread:
+						Platform::OpenURI(ByteString::Build(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=", str.Substr(3, si.first - 3).ToUtf8()));
+						break;
+					case sign::Type::Search:
+						OpenSearch(str.Substr(3, si.first - 3));
+						break;
+					case sign::Type::Button:
+						gameModel->GetSimulation()->create_part(-1, foundSign.x, foundSign.y, PT_SPRK);
+						break;
+					default: break;
 					}
 				}
 			}
@@ -704,12 +734,22 @@ bool GameController::MouseUp(int x, int y, unsigned button, char type)
 
 bool GameController::MouseWheel(int x, int y, int d)
 {
-	return commandInterface->OnMouseWheel(x, y, d);
+	MouseWheelEvent ev(x, y, d);
+	return commandInterface->HandleEvent(LuaEvents::mousewheel, &ev);
 }
 
-bool GameController::KeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+bool GameController::TextInput(String text)
 {
-	bool ret = commandInterface->OnKeyPress(key, character, shift, ctrl, alt);
+	TextInputEvent ev(text);
+	return commandInterface->HandleEvent(LuaEvents::textinput, &ev);
+}
+
+bool GameController::KeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
+{
+	KeyEvent ev(key, scan, repeat, shift, ctrl, alt);
+	bool ret = commandInterface->HandleEvent(LuaEvents::keypress, &ev);
+	if (repeat)
+		return ret;
 	if (ret)
 	{
 		Simulation * sim = gameModel->GetSimulation();
@@ -721,57 +761,55 @@ bool GameController::KeyPress(int key, Uint16 character, bool shift, bool ctrl, 
 				sim->player.comm = (int)(sim->player.comm) | 0x02;
 			}
 			// Go left command
-			if (key == SDLK_LEFT)
+			else if (key == SDLK_LEFT)
 			{
 				sim->player.comm = (int)(sim->player.comm) | 0x01;
 			}
 			// Use element command
-			if (key == SDLK_DOWN && ((int)(sim->player.comm) & 0x08) != 0x08)
+			else if (key == SDLK_DOWN && ((int)(sim->player.comm)&0x08)!=0x08)
 			{
 				sim->player.comm = (int)(sim->player.comm) | 0x08;
 			}
 			// Jump command
-			if (key == SDLK_UP && ((int)(sim->player.comm) & 0x04) != 0x04)
+			else if (key == SDLK_UP && ((int)(sim->player.comm)&0x04)!=0x04)
 			{
 				sim->player.comm = (int)(sim->player.comm) | 0x04;
 			}
 		}
 
 		// Go right command
-		if (key == SDLK_d)
+		if (scan == SDL_SCANCODE_D)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x02;
 		}
 		// Go left command
-		if (key == SDLK_a)
+		else if (scan == SDL_SCANCODE_A)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x01;
 		}
 		// Use element command
-		if (key == SDLK_s && ((int)(sim->player2.comm) & 0x08) != 0x08)
+		else if (scan == SDL_SCANCODE_S && ((int)(sim->player2.comm)&0x08)!=0x08)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x08;
 		}
 		// Jump command
-		if (key == SDLK_w && ((int)(sim->player2.comm) & 0x04) != 0x04)
+		else if (scan == SDL_SCANCODE_W && ((int)(sim->player2.comm)&0x04)!=0x04)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x04;
 		}
 
 		if (!sim->elementCount[PT_STKM2] || ctrl)
 		{
-			switch (key)
+			switch(scan)
 			{
-			case 'w':
-				if (ctrl)
-					ToggleInfoscreen();
-				else
-					SwitchGravity();
+			case SDL_SCANCODE_W:
+				if(ctrl)ToggleInfoscreen();
+				else SwitchGravity();
 				break;
-			case 'd':
+			case SDL_SCANCODE_D:
 				gameView->SetDebugHUD(!gameView->GetDebugHUD());
 				break;
-			case 's':
+			case SDL_SCANCODE_S:
 				gameView->BeginStampSelection();
 				break;
 			}
@@ -780,16 +818,19 @@ bool GameController::KeyPress(int key, Uint16 character, bool shift, bool ctrl, 
 		for (std::vector<DebugInfo*>::iterator iter = debugInfo.begin(), end = debugInfo.end(); iter != end; iter++)
 		{
 			if ((*iter)->debugID & debugFlags)
-				if (!(*iter)->KeyPress(key, character, shift, ctrl, alt, gameView->GetMousePosition()))
+				if (!(*iter)->KeyPress(key, scan, shift, ctrl, alt, gameView->GetMousePosition()))
 					ret = false;
 		}
 	}
 	return ret;
 }
 
-bool GameController::KeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+bool GameController::KeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	bool ret = commandInterface->OnKeyRelease(key, character, shift, ctrl, alt);
+	KeyEvent ev(key, scan, repeat, shift, ctrl, alt);
+	bool ret = commandInterface->HandleEvent(LuaEvents::keyrelease, &ev);
+	if (repeat)
+		return ret;
 	if (ret)
 	{
 		Simulation * sim = gameModel->GetSimulation();
@@ -798,35 +839,30 @@ bool GameController::KeyRelease(int key, Uint16 character, bool shift, bool ctrl
 			sim->player.pcomm = sim->player.comm;  //Saving last movement
 			sim->player.comm = (int)(sim->player.comm) & 12;  //Stop command
 		}
-		if (key == SDLK_UP)
+		else if (key == SDLK_UP)
 		{
 			sim->player.comm = (int)(sim->player.comm) & 11;
 		}
-		if (key == SDLK_DOWN)
+		else if (key == SDLK_DOWN)
 		{
 			sim->player.comm = (int)(sim->player.comm) & 7;
 		}
 
-		if (key == SDLK_d || key == SDLK_a)
+		if (scan == SDL_SCANCODE_D || scan == SDL_SCANCODE_A)
 		{
 			sim->player2.pcomm = sim->player2.comm;  //Saving last movement
 			sim->player2.comm = (int)(sim->player2.comm) & 12;  //Stop command
 		}
-		if (key == SDLK_w)
+		else if (scan == SDL_SCANCODE_W)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) & 11;
 		}
-		if (key == SDLK_s)
+		else if (scan == SDL_SCANCODE_S)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) & 7;
 		}
 	}
 	return ret;
-}
-
-bool GameController::MouseTick()
-{
-	return commandInterface->OnMouseTick();
 }
 
 void GameController::Tick()
@@ -852,8 +888,18 @@ void GameController::Tick()
 	commandInterface->OnTick();
 }
 
+void GameController::Blur()
+{
+	// Tell lua that mouse is up (even if it really isn't)
+	MouseUp(0, 0, 0, 1);
+	BlurEvent ev;
+	commandInterface->HandleEvent(LuaEvents::blur, &ev);
+}
+
 void GameController::Exit()
 {
+	CloseEvent ev;
+	commandInterface->HandleEvent(LuaEvents::close, &ev);
 	gameView->CloseActiveWindow();
 	HasDone = true;
 }
@@ -994,7 +1040,7 @@ void GameController::Update()
 	{
 		int rightSelected = PT_DUST;
 		Tool * activeTool = gameModel->GetActiveTool(1);
-		if (activeTool->GetIdentifier().find("DEFAULT_PT_") != activeTool->GetIdentifier().npos)
+		if (activeTool->GetIdentifier().BeginsWith("DEFAULT_PT_"))
 		{
 			int sr = activeTool->GetToolID();
 			if (sr && sim->IsValidElement(sr))
@@ -1158,11 +1204,6 @@ void GameController::RebuildFavoritesMenu()
 	gameModel->BuildFavoritesMenu();
 }
 
-void GameController::ActiveToolChanged(int toolSelection, Tool *tool)
-{
-	commandInterface->OnActiveToolChanged(toolSelection, tool);
-}
-
 Tool * GameController::GetActiveTool(int selection)
 {
 	return gameModel->GetActiveTool(selection);
@@ -1186,6 +1227,14 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool)
 		((PropertyTool *)tool)->OpenWindow(gameModel->GetSimulation());
 }
 
+void GameController::SetActiveTool(int toolSelection, ByteString identifier)
+{
+	Tool *tool = gameModel->GetToolFromIdentifier(identifier);
+	if (!tool)
+		return;
+	SetActiveTool(toolSelection, tool);
+}
+
 void GameController::SetLastTool(Tool * tool)
 {
 	gameModel->SetLastTool(tool);
@@ -1198,10 +1247,26 @@ int GameController::GetReplaceModeFlags()
 
 void GameController::SetReplaceModeFlags(int flags)
 {
+	int old_flags = gameModel->GetSimulation()->replaceModeFlags;
+	if (!(old_flags & REPLACE_MODE) && (flags & REPLACE_MODE))
+	{
+		// if replace mode has just been enabled, disable specific delete
+		flags &= ~SPECIFIC_DELETE;
+	}
+	if (!(old_flags & SPECIFIC_DELETE) && (flags & SPECIFIC_DELETE))
+	{
+		// if specific delete has just been enabled, disable replace mode
+		flags &= ~REPLACE_MODE;
+	}
+	if ((flags & SPECIFIC_DELETE) && (flags & REPLACE_MODE))
+	{
+		// if both have just been enabled, arbitrarily disable one of them
+		flags &= ~SPECIFIC_DELETE;
+	}
 	gameModel->GetSimulation()->replaceModeFlags = flags;
 }
 
-void GameController::OpenSearch(std::string searchText)
+void GameController::OpenSearch(String searchText)
 {
 	if (!search)
 		search = new SearchController(new SearchCallback(this));
@@ -1213,8 +1278,8 @@ void GameController::OpenSearch(std::string searchText)
 void GameController::OpenLocalSaveWindow(bool asCurrent)
 {
 	Simulation * sim = gameModel->GetSimulation();
-	GameSave * gameSave = sim->Save();
-	if (!gameSave)
+	GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+	if(!gameSave)
 	{
 		new ErrorMessage("Error", "Unable to build save.");
 	}
@@ -1238,9 +1303,9 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 			public:
 				LocalSaveCallback(GameController * _c) : c(_c) {}
 				virtual  ~LocalSaveCallback() {}
-				virtual void FileSaved(SaveFile* file)
+				void FileSaved(SaveFile* file) override
 				{
-					c->gameModel->SetSaveFile(file);
+					c->gameModel->SetSaveFile(file, c->gameView->ShiftBehaviour());
 				}
 			};
 
@@ -1255,8 +1320,7 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 			localSaveInfo["date"] = (Json::Value::UInt64)time(NULL);
 			Client::Ref().SaveAuthorInfo(&localSaveInfo);
 			gameSave->authors = localSaveInfo;
-
-			gameModel->SetSaveFile(&tempSave);
+			gameModel->SetSaveFile(&tempSave, gameView->ShiftBehaviour());
 			Client::Ref().MakeDirectory(LOCAL_SAVE_DIR);
 			std::vector<char> saveData = gameSave->Serialise();
 			if (saveData.size() == 0)
@@ -1271,13 +1335,13 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 
 void GameController::LoadSaveFile(SaveFile * file)
 {
-	gameModel->SetSaveFile(file);
+	gameModel->SetSaveFile(file, gameView->ShiftBehaviour());
 }
 
 
 void GameController::LoadSave(SaveInfo * save)
 {
-	gameModel->SetSave(save);
+	gameModel->SetSave(save, gameView->ShiftBehaviour());
 }
 
 void GameController::OpenSavePreview(int saveID, int saveDate, bool instant)
@@ -1303,7 +1367,7 @@ void GameController::OpenLocalBrowse()
 	public:
 		LocalSaveOpenCallback(GameController * _c) : c(_c) {}
 		virtual  ~LocalSaveOpenCallback() {};
-		virtual void FileSelected(SaveFile* file)
+		void FileSelected(SaveFile* file) override
 		{
 			c->HistorySnapshot();
 			c->LoadSaveFile(file);
@@ -1334,17 +1398,18 @@ void GameController::OpenProfile()
 
 void GameController::OpenElementSearch()
 {
-	vector<Tool*> toolList;
-	vector<Menu*> menuList = gameModel->GetMenuList();
-	for (std::vector<Menu*>::iterator iter = menuList.begin(), end = menuList.end(); iter != end; ++iter) {
-		if (!(*iter))
+	std::vector<Tool*> toolList;
+	std::vector<Menu*> menuList = gameModel->GetMenuList();
+	for(auto *mm : menuList)
+	{
+		if(!mm)
 			continue;
-		vector<Tool*> menuToolList = (*iter)->GetToolList();
-		if (!menuToolList.size())
+		std::vector<Tool*> menuToolList = mm->GetToolList();
+		if(!menuToolList.size())
 			continue;
 		toolList.insert(toolList.end(), menuToolList.begin(), menuToolList.end());
 	}
-	vector<Tool*> hiddenTools = gameModel->GetUnlistedTools();
+	std::vector<Tool*> hiddenTools = gameModel->GetUnlistedTools();
 	toolList.insert(toolList.end(), hiddenTools.begin(), hiddenTools.end());
 	new ElementSearchActivity(this, toolList);
 }
@@ -1355,9 +1420,9 @@ void GameController::OpenColourPicker()
 	{
 		GameController * c;
 	public:
-		ColourPickerCallback(GameController * _c) : c(_c) {}
-		virtual  ~ColourPickerCallback() {};
-		virtual void ColourPicked(ui::Colour colour)
+		ColourPickerCallback(GameController * _c): c(_c) {}
+		virtual  ~ColourPickerCallback() {}
+		void ColourPicked(ui::Colour colour) override
 		{
 			c->SetColour(colour);
 		}
@@ -1421,7 +1486,7 @@ void GameController::OpenSaveWindow()
 	public:
 		SaveUploadedCallback(GameController * _c) : c(_c) {}
 		virtual  ~SaveUploadedCallback() {}
-		virtual void SaveUploaded(SaveInfo save)
+		void SaveUploaded(SaveInfo save) override
 		{
 			save.SetVote(1);
 			save.SetVotesUp(1);
@@ -1431,8 +1496,8 @@ void GameController::OpenSaveWindow()
 	if (gameModel->GetUser().UserID)
 	{
 		Simulation * sim = gameModel->GetSimulation();
-		GameSave * gameSave = sim->Save();
-		if (!gameSave)
+		GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+		if(!gameSave)
 		{
 			new ErrorMessage("Error", "Unable to build save.");
 		}
@@ -1469,7 +1534,7 @@ void GameController::SaveAsCurrent()
 	public:
 		SaveUploadedCallback(GameController * _c) : c(_c) {}
 		virtual  ~SaveUploadedCallback() {}
-		virtual void SaveUploaded(SaveInfo save)
+		void SaveUploaded(SaveInfo save) override
 		{
 			c->LoadSave(&save);
 		}
@@ -1478,8 +1543,8 @@ void GameController::SaveAsCurrent()
 	if (gameModel->GetSave() && gameModel->GetUser().UserID && gameModel->GetUser().Username == gameModel->GetSave()->GetUserName())
 	{
 		Simulation * sim = gameModel->GetSimulation();
-		GameSave * gameSave = sim->Save();
-		if (!gameSave)
+		GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+		if(!gameSave)
 		{
 			new ErrorMessage("Error", "Unable to build save.");
 		}
@@ -1527,7 +1592,7 @@ void GameController::Vote(int direction)
 		}
 		catch (GameModelException & ex)
 		{
-			new ErrorMessage("Error while voting", ex.what());
+			new ErrorMessage("Error while voting", ByteString(ex.what()).FromUtf8());
 		}
 	}
 }
@@ -1540,39 +1605,45 @@ void GameController::ChangeBrush()
 void GameController::ClearSim()
 {
 	HistorySnapshot();
-	gameModel->SetSave(NULL);
+	gameModel->SetSave(NULL, false);
 	gameModel->ClearSimulation();
 }
 
-void GameController::ReloadSim()
-{
-	if (gameModel->GetSave() && gameModel->GetSave()->GetGameSave())
-	{
-		HistorySnapshot();
-		gameModel->SetSave(gameModel->GetSave());
-	}
-	else if (gameModel->GetSaveFile() && gameModel->GetSaveFile()->GetGameSave())
-	{
-		HistorySnapshot();
-		gameModel->SetSaveFile(gameModel->GetSaveFile());
-	}
-}
-
-std::string GameController::ElementResolve(int type, int ctype, int debug)
+String GameController::ElementResolve(int type, int ctype)
 {
 	if (gameModel && gameModel->GetSimulation())
 	{
-		if (type == PT_LIFE && ctype >= 0 && ctype < NGOL)
-			return gameModel->GetSimulation()->gmenu[ctype].name;
-		else if (type >= 0 && type < PT_NUM)
-			return std::string(debug ? gameModel->GetSimulation()->elements[type].FullName : gameModel->GetSimulation()->elements[type].Name);
+		return gameModel->GetSimulation()->ElementResolve(type, ctype);
 	}
 	return "";
 }
 
+String GameController::BasicParticleInfo(Particle const &sample_part)
+{
+	if (gameModel && gameModel->GetSimulation())
+	{
+		return gameModel->GetSimulation()->BasicParticleInfo(sample_part);
+	}
+	return "";
+}
+
+void GameController::ReloadSim()
+{
+	if(gameModel->GetSave() && gameModel->GetSave()->GetGameSave())
+	{
+		HistorySnapshot();
+		gameModel->SetSave(gameModel->GetSave(), gameView->ShiftBehaviour());
+	}
+	else if(gameModel->GetSaveFile() && gameModel->GetSaveFile()->GetGameSave())
+	{
+		HistorySnapshot();
+		gameModel->SetSaveFile(gameModel->GetSaveFile(), gameView->ShiftBehaviour());
+	}
+}
+
 //type, carbons, hydrogens, bond location, alcohol bond location
-std::string GameController::hydrocarbonName(int t, int c, int h, int b, int a) {
-	std::stringstream ss;
+String GameController::hydrocarbonName(int t, int c, int h, int b, int a) {
+	StringBuilder ss;
 	//What state is it
 	switch (t) {
 	case PT_GAS:
@@ -1675,7 +1746,9 @@ std::string GameController::hydrocarbonName(int t, int c, int h, int b, int a) {
 		ss << "Hexacont";
 		break;
 	default:
-		return t == PT_ALCL ? "Alcohol" : "Kerosene";
+		if(t == PT_ALCL)
+			return "Alcohol";
+		return "Kerosene";
 	}
 
 	if (isAlkane(c, h))ss << "an";
@@ -1694,32 +1767,39 @@ std::string GameController::hydrocarbonName(int t, int c, int h, int b, int a) {
 	if (t == PT_ALCL)ss << "OH]";
 	else ss << "]";
 
-	return ss.str();
+	return ss.Build();
 }
 
-std::string GameController::nucleotideName(int l, int t) {
-	std::stringstream name;
+String GameController::nucleotideName(int l, int t) {
+	StringBuilder name;
 	switch (l) {
 	case ADENINE:
 		name << "Adenine";
-		name << (t == NCTD_BONDED_AU ? " bonded to Uracil" : t == NCTD_BONDED_TA ? " bonded to Thyamine" : "");
-		return name.str();
+		if(t == NCTD_BONDED_AU)
+			name << " bonded to Uracil";
+		else if(t == NCTD_BONDED_TA)
+			name << " bonded to Thyamine";
+		return name.Build();
 	case GUANINE:
 		name << "Guanine";
-		name << (t == NCTD_BONDED_GC ? " bonded to Cytosine" : "");
-		return name.str();
+		if(t == NCTD_BONDED_GC)
+			name << " bonded to Cytosine";
+		return name.Build();
 	case CYTOSINE:
 		name << "Cytosine";
-		name << (t == NCTD_BONDED_GC ? " bonded to Guanine" : "");
-		return name.str();
+		if(t == NCTD_BONDED_GC)
+			name << " bonded to Guanine";
+		return name.Build();
 	case THYMINE:
 		name << "Thymine";
-		name << (t == NCTD_BONDED_TA ? " bonded to Adenine" : "");
-		return name.str();
+		if(t == NCTD_BONDED_TA)
+			name << " bonded to Adenine";
+		return name.Build();
 	case URACIL:
 		name << "Uracil";
-		name << (t == NCTD_BONDED_AU ? " bonded to Adenine" : "");
-		return name.str();
+		if(t == NCTD_BONDED_AU)
+			name << " bonded to Adenine";
+		return name.Build();
 	}
 	return "null";
 }
@@ -1734,12 +1814,12 @@ bool GameController::IsValidElement(int type)
 		return false;
 }
 
-std::string GameController::WallName(int type)
+String GameController::WallName(int type)
 {
-	if (gameModel && gameModel->GetSimulation() && type >= 0 && type < UI_WALLCOUNT)
-		return std::string(gameModel->GetSimulation()->wtypes[type].name);
+	if(gameModel && gameModel->GetSimulation() && type >= 0 && type < UI_WALLCOUNT)
+		return gameModel->GetSimulation()->wtypes[type].name;
 	else
-		return "";
+		return String();
 }
 
 int GameController::Record(bool record)
@@ -1753,16 +1833,16 @@ void GameController::NotifyAuthUserChanged(Client * sender)
 	gameModel->SetUser(newUser);
 }
 
-void GameController::NotifyNewNotification(Client * sender, std::pair<std::string, std::string> notification)
+void GameController::NotifyNewNotification(Client * sender, std::pair<String, ByteString> notification)
 {
 	class LinkNotification : public Notification
 	{
-		std::string link;
+		ByteString link;
 	public:
-		LinkNotification(std::string link_, std::string message) : Notification(message), link(link_) {}
+		LinkNotification(ByteString link_, String message) : Notification(message), link(link_) {}
 		virtual ~LinkNotification() {}
 
-		virtual void Action()
+		void Action() override
 		{
 			Platform::OpenURI(link);
 		}
@@ -1775,8 +1855,8 @@ void GameController::NotifyUpdateAvailable(Client * sender)
 	class UpdateConfirmation : public ConfirmDialogueCallback {
 	public:
 		GameController * c;
-		UpdateConfirmation(GameController * c_) { c = c_; }
-		virtual void ConfirmCallback(ConfirmPrompt::DialogueResult result) {
+		UpdateConfirmation(GameController * c_) {	c = c_;	}
+		void ConfirmCallback(ConfirmPrompt::DialogueResult result) override {
 			if (result == ConfirmPrompt::ResultOkay)
 			{
 				c->RunUpdater();
@@ -1789,14 +1869,18 @@ void GameController::NotifyUpdateAvailable(Client * sender)
 	{
 		GameController * c;
 	public:
-		UpdateNotification(GameController * c, std::string message) : Notification(message), c(c) {}
+		UpdateNotification(GameController * c, String message) : Notification(message), c(c) {}
 		virtual ~UpdateNotification() {}
 
-		virtual void Action()
+		void Action() override
 		{
 			UpdateInfo info = Client::Ref().GetUpdateInfo();
-			std::stringstream updateMessage;
+			StringBuilder updateMessage;
+#ifndef MACOSX
 			updateMessage << "Are you sure you want to run the updater? Please save any changes before updating.\n\nCurrent version:\n ";
+#else
+			updateMessage << "Click \"Continue\" to download the latest version from our website.\n\nCurrent version:\n ";
+#endif
 
 #ifdef SNAPSHOT
 			updateMessage << "Snapshot " << SNAPSHOT_ID;
@@ -1823,25 +1907,25 @@ void GameController::NotifyUpdateAvailable(Client * sender)
 			if (info.Changelog.length())
 				updateMessage << "\n\nChangelog:\n" << info.Changelog;
 
-			new ConfirmPrompt("Run Updater", updateMessage.str(), new UpdateConfirmation(c));
-	}
-};
+			new ConfirmPrompt("Run Updater", updateMessage.Build(), new UpdateConfirmation(c));
+		}
+	};
 
 	switch (sender->GetUpdateInfo().Type)
 	{
 	case UpdateInfo::Snapshot:
 #if MOD_ID > 0
-		//gameModel->AddNotification(new UpdateNotification(this, std::string("A new mod update is available - click here to update")));
+		gameModel->AddNotification(new UpdateNotification(this, "A new mod update is available - click here to update"));
 #else
-		//gameModel->AddNotification(new UpdateNotification(this, std::string("A new snapshot is available - click here to update")));
+		gameModel->AddNotification(new UpdateNotification(this, "A new snapshot is available - click here to update"));
 #endif
-		break;
-	case UpdateInfo::Stable:
-		//gameModel->AddNotification(new UpdateNotification(this, std::string("A new version is available - click here to update")));
-		break;
-	case UpdateInfo::Beta:
-		//gameModel->AddNotification(new UpdateNotification(this, std::string("A new beta is available - click here to update")));
-		break;
+			break;
+		case UpdateInfo::Stable:
+			gameModel->AddNotification(new UpdateNotification(this, "A new version is available - click here to update"));
+			break;
+		case UpdateInfo::Beta:
+			gameModel->AddNotification(new UpdateNotification(this, "A new beta is available - click here to update"));
+			break;
 	}
 }
 
@@ -1852,6 +1936,22 @@ void GameController::RemoveNotification(Notification * notification)
 
 void GameController::RunUpdater()
 {
+#ifndef MACOSX
 	Exit();
 	new UpdateActivity();
+#else
+
+#ifdef UPDATESERVER
+	ByteString file = ByteString::Build(SCHEME, UPDATESERVER, Client::Ref().GetUpdateInfo().File);
+#else
+	ByteString file = ByteString::Build(SCHEME, SERVER, Client::Ref().GetUpdateInfo().File);
+#endif
+
+	Platform::OpenURI(file);
+#endif // MACOSX
+}
+
+bool GameController::GetMouseClickRequired()
+{
+	return gameModel->GetMouseClickRequired();
 }

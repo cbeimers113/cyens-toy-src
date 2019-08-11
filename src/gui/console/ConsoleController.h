@@ -1,16 +1,14 @@
 #ifndef CONSOLECONTROLLER_H_
 #define CONSOLECONTROLLER_H_
 
-#include <string>
-#include "Controller.h"
-#include "ConsoleView.h"
-#include "ConsoleModel.h"
-#include "ConsoleCommand.h"
-#include "lua/CommandInterface.h"
+#include "common/String.h"
 
+class CommandInterface;
 class ConsoleModel;
 class ConsoleView;
-class ConsoleController {
+class ControllerCallback;
+class ConsoleController
+{
 	ControllerCallback * callback;
 	ConsoleView * consoleView;
 	ConsoleModel * consoleModel;
@@ -18,8 +16,8 @@ class ConsoleController {
 public:
 	bool HasDone;
 	ConsoleController(ControllerCallback * callback, CommandInterface * commandInterface);
-	std::string FormatCommand(std::string command);
-	void EvaluateCommand(std::string command);
+	String FormatCommand(String command);
+	void EvaluateCommand(String command);
 	void NextCommand();
 	void PreviousCommand();
 	void Exit();

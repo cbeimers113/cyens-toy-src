@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_BREC PT_BREC 135
 Element_BREC::Element_BREC()
 {
@@ -50,16 +50,16 @@ int Element_BREC::update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].life)
 	{
-		if (sim->pv[y/CELL][x/CELL]>10.0f) 
+		if (sim->pv[y/CELL][x/CELL]>10.0f)
 		{
-			if (parts[i].temp>9000 && sim->pv[y/CELL][x/CELL]>30.0f && !(rand()%200))
+			if (parts[i].temp>9000 && sim->pv[y/CELL][x/CELL]>30.0f && RNG::Ref().chance(1, 200))
 			{
 				sim->part_change_type(i, x ,y ,PT_EXOT);
 				parts[i].life = 1000;
 			}
 			parts[i].temp += (sim->pv[y/CELL][x/CELL])/8;
 		}
-		
+
 	}
 	return 0;
 }

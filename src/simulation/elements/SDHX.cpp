@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_SDHX PT_SDHX 204
 Element_SDHX::Element_SDHX()
 {

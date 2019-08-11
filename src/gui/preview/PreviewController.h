@@ -1,12 +1,10 @@
 #ifndef PREVIEWCONTROLLER_H_
 #define PREVIEWCONTROLLER_H_
 
-#include "gui/preview/PreviewModel.h"
-#include "gui/preview/PreviewView.h"
-#include "Controller.h"
-#include "client/SaveInfo.h"
 #include "client/ClientListener.h"
 
+class SaveInfo;
+class ControllerCallback;
 class LoginController;
 class PreviewModel;
 class PreviewView;
@@ -18,7 +16,7 @@ class PreviewController: public ClientListener {
 	LoginController * loginWindow;
 	ControllerCallback * callback;
 public:
-	virtual void NotifyAuthUserChanged(Client * sender);
+	void NotifyAuthUserChanged(Client * sender) override;
 	inline int SaveID() { return saveId; }
 
 	bool HasExited;
@@ -27,14 +25,14 @@ public:
 	void Exit();
 	void DoOpen();
 	void OpenInBrowser();
-	void Report(std::string message);
+	void Report(String message);
 	void ShowLogin();
 	bool GetDoOpen();
 	SaveInfo * GetSaveInfo();
 	PreviewView * GetView() { return previewView; }
 	void Update();
 	void FavouriteSave();
-	bool SubmitComment(std::string comment);
+	bool SubmitComment(String comment);
 
 	bool NextCommentPage();
 	bool PrevCommentPage();

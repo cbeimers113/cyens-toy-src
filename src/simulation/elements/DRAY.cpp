@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_DRAY PT_DRAY 178
 Element_DRAY::Element_DRAY()
 {
@@ -31,7 +31,7 @@ Element_DRAY::Element_DRAY()
 	HeatConduct = 0;
 	Description = "Duplicator ray. Replicates a line of particles in front of it.";
 
-	Properties = TYPE_SOLID|PROP_LIFE_DEC;
+	Properties = TYPE_SOLID | PROP_LIFE_DEC;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -43,7 +43,8 @@ Element_DRAY::Element_DRAY()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_DRAY::update;
-	Graphics = NULL;
+	Graphics = nullptr;
+	CtypeDraw = &Element::ctypeDrawVInCtype;
 }
 
 //should probably be in Simulation.h
@@ -73,6 +74,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 					{
 						bool overwrite = parts[ID(r)].ctype == PT_PSCN;
 						int partsRemaining = copyLength, xCopyTo, yCopyTo; //positions where the line will start being copied at
+						int localCopyLength = copyLength;
 
 						if (parts[ID(r)].ctype == PT_INWR && rx && ry) // INWR doesn't spark from diagonals
 							continue;
@@ -107,10 +109,10 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 							//  1: if .tmp isn't set, and the element in this spot is the ctype, then stop
 							//  2: if .tmp is set, stop when the length limit reaches 0
 							//  3. Stop when we are out of bounds
-							if ((!copyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
+							if ((!localCopyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
 									|| !(--partsRemaining && InBounds(xCurrent+xStep, yCurrent+yStep)))
 							{
-								copyLength -= partsRemaining;
+								localCopyLength -= partsRemaining;
 								xCopyTo = xCurrent + xStep*copySpaces;
 								yCopyTo = yCurrent + yStep*copySpaces;
 								break;
@@ -118,7 +120,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 						}
 
 						// now, actually copy the particles
-						partsRemaining = copyLength + 1;
+						partsRemaining = localCopyLength + 1;
 						int type, p;
 						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
 						{

@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_PCLN PT_PCLN 74
 Element_PCLN::Element_PCLN()
 {
@@ -31,7 +31,7 @@ Element_PCLN::Element_PCLN()
 	HeatConduct = 251;
 	Description = "Powered clone. When activated, duplicates any particles it touches.";
 
-	Properties = TYPE_SOLID|PROP_NOCTYPEDRAW;
+	Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -44,6 +44,7 @@ Element_PCLN::Element_PCLN()
 
 	Update = &Element_PCLN::update;
 	Graphics = &Element_PCLN::graphics;
+	CtypeDraw = &Element_PCLN::ctypeDraw;
 }
 
 //#TPT-Directive ElementHeader Element_PCLN static int update(UPDATE_FUNC_ARGS)
@@ -124,9 +125,9 @@ int Element_PCLN::update(UPDATE_FUNC_ARGS)
 				for (ry=-1; ry<2; ry++)
 					sim->create_part(-1, x+rx, y+ry, PT_LIFE, parts[i].tmp);
 
-		else if (parts[i].ctype!=PT_LIGH || (rand()%30)==0)
+		else if (parts[i].ctype != PT_LIGH || RNG::Ref().chance(1, 30))
 		{
-			int np = sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, TYP(parts[i].ctype));
+			int np = sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), TYP(parts[i].ctype));
 			if (np>=0)
 			{
 				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransition==PT_LAVA)
@@ -148,5 +149,14 @@ int Element_PCLN::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
+//#TPT-Directive ElementHeader Element_PCLN static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+bool Element_PCLN::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (t == PT_PSCN || t == PT_NSCN)
+	{
+		return false;
+	}
+	return Element::ctypeDrawVInTmp(CTYPEDRAW_FUNC_SUBCALL_ARGS);
+}
 
 Element_PCLN::~Element_PCLN() {}

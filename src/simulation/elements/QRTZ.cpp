@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_QRTZ PT_QRTZ 132
 Element_QRTZ::Element_QRTZ()
 {
@@ -71,7 +71,7 @@ int Element_QRTZ::update(UPDATE_FUNC_ARGS)
 					r = pmap[y+ry][x+rx];
 					if (!r)
 						continue;
-					else if (TYP(r)==PT_SLTW && !(rand()%500))
+					else if (TYP(r)==PT_SLTW && RNG::Ref().chance(1, 500))
 					{
 						sim->kill_part(ID(r));
 						parts[i].tmp++;
@@ -84,7 +84,7 @@ int Element_QRTZ::update(UPDATE_FUNC_ARGS)
 		int rnd, sry, srx;
 		for (trade = 0; trade < 9; trade++)
 		{
-			rnd = rand()%0x3FF;
+			rnd = RNG::Ref().gen() % 0x3FF;
 			rx = (rnd%5)-2;
 			srx = (rnd%3)-1;
 			rnd >>= 3;
@@ -107,11 +107,11 @@ int Element_QRTZ::update(UPDATE_FUNC_ARGS)
 								// If PQRT is stationary and has started growing particles of QRTZ, the PQRT is basically part of a new QRTZ crystal. So turn it back into QRTZ so that it behaves more like part of the crystal.
 								sim->part_change_type(i,x,y,PT_QRTZ);
 							}
-							if (rand()%2)
+							if (RNG::Ref().chance(1, 2))
 							{
 								parts[np].tmp=-1;//dead qrtz
 							}
-							else if (!parts[i].tmp && !(rand()%15))
+							else if (!parts[i].tmp && RNG::Ref().chance(1, 15))
 							{
 								parts[i].tmp=-1;
 							}

@@ -1,31 +1,49 @@
-#include <sstream>
-#include <iomanip>
-#include <algorithm>
+#include "GameView.h"
+
+#include "GameController.h"
+#include "GameModel.h"
 
 #include "Config.h"
-#include "gui/Style.h"
-#include "GameView.h"
+#include "Misc.h"
+#include "Favorite.h"
+#include "Format.h"
+
+#include "Notification.h"
+#include "Brush.h"
+#include "IntroText.h"
+#include "QuickOptions.h"
+#include "DecorationTool.h"
+#include "ToolButton.h"
+#include "Menu.h"
+
+#include "client/SaveInfo.h"
+#include "client/SaveFile.h"
+#include "client/Client.h"
+
 #include "graphics/Graphics.h"
-#include "gui/interface/Window.h"
+#include "graphics/Renderer.h"
+
+#include "gui/Style.h"
+#include "gui/dialogues/ConfirmPrompt.h"
+#include "gui/dialogues/ErrorMessage.h"
+#include "gui/dialogues/InformationMessage.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Colour.h"
 #include "gui/interface/Keys.h"
-#include "gui/interface/Mouse.h"
-#include "gui/interface/Slider.h"
-#include "gui/search/Thumbnail.h"
+#include "gui/interface/Engine.h"
+
+#include "simulation/Simulation.h"
 #include "simulation/SaveRenderer.h"
 #include "simulation/SimulationData.h"
-#include "gui/dialogues/InformationMessage.h"
-#include "gui/dialogues/ConfirmPrompt.h"
-#include "client/SaveFile.h"
-#include "Format.h"
-#include "QuickOptions.h"
-#include "IntroText.h"
-#include "DecorationTool.h"
-#include "Favorite.h"
+#include "simulation/ElementDefs.h"
+#include "ElementClasses.h"
 
 bool persistentZoom;
 int doubleClickTimer;
+
+#ifdef GetUserName
+# undef GetUserName // dammit windows
+#endif
 
 class SplitButton;
 class SplitButtonAction
@@ -42,10 +60,10 @@ private:
 	bool leftDown;
 	bool showSplit;
 	int splitPosition;
-	std::string toolTip2;
+	String toolTip2;
 	SplitButtonAction * splitActionCallback;
 public:
-	SplitButton(ui::Point position, ui::Point size, std::string buttonText, std::string toolTip, std::string toolTip2, int split) :
+	SplitButton(ui::Point position, ui::Point size, String buttonText, String toolTip, String toolTip2, int split) :
 		Button(position, size, buttonText, toolTip),
 		showSplit(true),
 		splitPosition(split),
@@ -54,7 +72,7 @@ public:
 	{
 
 	}
-	void SetRightToolTip(std::string tooltip) { toolTip2 = tooltip; }
+	void SetRightToolTip(String tooltip) { toolTip2 = tooltip; }
 	bool GetShowSplit() { return showSplit; }
 	void SetShowSplit(bool split) { showSplit = split; }
 	SplitButtonAction * GetSplitActionCallback() { return splitActionCallback; }
@@ -76,7 +94,7 @@ public:
 			}
 		}
 	}
-	virtual void OnMouseUnclick(int x, int y, unsigned int button)
+	void OnMouseUnclick(int x, int y, unsigned int button) override
 	{
 		if (isButtonDown)
 		{
@@ -88,32 +106,28 @@ public:
 		ui::Button::OnMouseUnclick(x, y, button);
 
 	}
-	virtual void OnMouseHover(int x, int y, int dx, int dy)
+	void OnMouseHover(int x, int y) override
 	{
 		SetToolTip(x, y);
 	}
-	virtual void OnMouseHover(int x, int y)
-	{
-		SetToolTip(x, y);
-	}
-	virtual void OnMouseEnter(int x, int y)
+	void OnMouseEnter(int x, int y) override
 	{
 		isMouseInside = true;
 		if (!Enabled)
 			return;
 		SetToolTip(x, y);
 	}
-	virtual void TextPosition(std::string ButtonText)
+	void TextPosition(String ButtonText) override
 	{
 		ui::Button::TextPosition(ButtonText);
 		textPosition.X += 3;
 	}
-	void SetToolTips(std::string newToolTip1, std::string newToolTip2)
+	void SetToolTips(String newToolTip1, String newToolTip2)
 	{
 		toolTip = newToolTip1;
 		toolTip2 = newToolTip2;
 	}
-	virtual void OnMouseClick(int x, int y, unsigned int button)
+	void OnMouseClick(int x, int y, unsigned int button) override
 	{
 		ui::Button::OnMouseClick(x, y, button);
 		rightDown = false;
@@ -137,7 +151,7 @@ public:
 		if (splitActionCallback)
 			splitActionCallback->ActionCallbackLeft(this);
 	}
-	void Draw(const ui::Point& screenPos)
+	void Draw(const ui::Point& screenPos) override
 	{
 		ui::Button::Draw(screenPos);
 		Graphics * g = GetGraphics();
@@ -185,7 +199,7 @@ GameView::GameView() :
 	buttonTip(""),
 	isButtonTipFadingIn(false),
 	introText(2048),
-	introTextMessage(introTextData),
+	introTextMessage(ByteString(introTextData).FromAscii()),
 
 	doScreenshot(false),
 	screenshotIndex(0),
@@ -197,6 +211,7 @@ GameView::GameView() :
 	ren(NULL),
 	activeBrush(NULL),
 	saveSimulationButtonEnabled(false),
+	saveReuploadAllowed(true),
 	drawMode(DrawPoints),
 	drawPoint1(0, 0),
 	drawPoint2(0, 0),
@@ -216,7 +231,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		SearchAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			if (v->CtrlBehaviour())
 				v->c->OpenLocalBrowse();
@@ -244,11 +259,11 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		ReloadAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->ReloadSim();
 		}
-		void AltActionCallback(ui::Button * sender)
+		void AltActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenSavePreview();
 		}
@@ -265,14 +280,14 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		SaveSimulationAction(GameView * _v) { v = _v; }
-		void ActionCallbackRight(ui::Button * sender)
+		void ActionCallbackRight(ui::Button * sender) override
 		{
 			if (v->CtrlBehaviour() || !Client::Ref().GetAuthUser().UserID)
 				v->c->OpenLocalSaveWindow(false);
 			else
 				v->c->OpenSaveWindow();
 		}
-		void ActionCallbackLeft(ui::Button * sender)
+		void ActionCallbackLeft(ui::Button * sender) override
 		{
 			if (v->CtrlBehaviour() || !Client::Ref().GetAuthUser().UserID)
 				v->c->OpenLocalSaveWindow(true);
@@ -293,7 +308,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		UpVoteAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->Vote(1);
 		}
@@ -311,7 +326,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		DownVoteAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->Vote(-1);
 		}
@@ -329,7 +344,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		TagSimulationAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenTags();
 		}
@@ -346,7 +361,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		ClearSimAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->ClearSim();
 		}
@@ -362,11 +377,11 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		LoginAction(GameView * _v) { v = _v; }
-		void ActionCallbackLeft(ui::Button * sender)
+		void ActionCallbackLeft(ui::Button * sender) override
 		{
 			v->c->OpenLogin();
 		}
-		void ActionCallbackRight(ui::Button * sender)
+		void ActionCallbackRight(ui::Button * sender) override
 		{
 			v->c->OpenProfile();
 		}
@@ -382,7 +397,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		SimulationOptionAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenOptions();
 		}
@@ -398,7 +413,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		DisplayModeAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenRenderOptions();
 		}
@@ -414,7 +429,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		PauseAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->SetPaused(sender->GetToggleState());
 		}
@@ -430,12 +445,12 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		ElementSearchAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenElementSearch();
 		}
 	};
-	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW - 16, WINDOWH - 32), ui::Point(15, 15), "\xE5", "Search for elements");
+	ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, WINDOWH-32), ui::Point(15, 15), 0xE065, "Search for elements");
 	tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 	tempButton->SetActionCallback(new ElementSearchAction(this));
 	//AddComponent(tempButton);
@@ -445,7 +460,7 @@ GameView::GameView() :
 		GameView * v;
 	public:
 		ColourPickerAction(GameView * _v) { v = _v; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->OpenColourPicker();
 		}
@@ -482,22 +497,22 @@ public:
 	{
 		v = _v;
 		menuID = menuID_;
-		if (menuID == SC_DECO)
+		 if (menuID == SC_DECO)
 			needsClick = true;
 		else
 			needsClick = false;
 	}
-	void MouseEnterCallback(ui::Button * sender)
+	void MouseEnterCallback(ui::Button * sender) override
 	{
 		// don't immediately change the active menu, the actual set is done inside GameView::OnMouseMove
 		// if we change it here it causes components to be removed, which causes the window to stop sending events
 		// and then the previous menusection button never gets sent the OnMouseLeave event and is never unhighlighted
-		if (!needsClick && !v->GetMouseDown())
+		if(!(needsClick || v->c->GetMouseClickRequired()) && !v->GetMouseDown())
 			v->SetActiveMenuDelayed(menuID);
 	}
-	void ActionCallback(ui::Button * sender)
+	void ActionCallback(ui::Button * sender) override
 	{
-		if (needsClick)
+		if (needsClick || v->c->GetMouseClickRequired())
 			v->c->SetActiveMenu(menuID);
 		else
 			MouseEnterCallback(sender);
@@ -509,7 +524,7 @@ class GameView::OptionAction : public ui::ButtonAction
 	QuickOption * option;
 public:
 	OptionAction(QuickOption * _option) { option = _option; }
-	void ActionCallback(ui::Button * sender)
+	void ActionCallback(ui::Button * sender) override
 	{
 		option->Perform();
 	}
@@ -520,7 +535,7 @@ class GameView::OptionListener : public QuickOptionListener
 	ui::Button * button;
 public:
 	OptionListener(ui::Button * _button) { button = _button; }
-	virtual void OnValueChanged(QuickOption * option)
+	void OnValueChanged(QuickOption * option) override
 	{
 		switch (option->GetType())
 		{
@@ -540,25 +555,38 @@ class GameView::ToolAction : public ui::ButtonAction
 public:
 	Tool * tool;
 	ToolAction(GameView * _v, Tool * tool_) { v = _v; tool = tool_; }
-	void ActionCallback(ui::Button * sender_)
+	void ActionCallback(ui::Button * sender_) override
 	{
 		ToolButton *sender = (ToolButton*)sender_;
 		if (v->ShiftBehaviour() && v->CtrlBehaviour() && !v->AltBehaviour())
 		{
-			if (Favorite::Ref().IsFavorite(tool->GetIdentifier()) && sender->GetSelectionState() == 1)
+			if (sender->GetSelectionState() == 0)
+			{
+				if (Favorite::Ref().IsFavorite(tool->GetIdentifier()))
+				{
+					Favorite::Ref().RemoveFavorite(tool->GetIdentifier());
+				}
+				else
+				{
+					Favorite::Ref().AddFavorite(tool->GetIdentifier());
+				}
+				v->c->RebuildFavoritesMenu();
+			}
+			else if (sender->GetSelectionState() == 1)
+			{
 				Favorite::Ref().RemoveFavorite(tool->GetIdentifier());
-			else if (sender->GetSelectionState() == 0)
-				Favorite::Ref().AddFavorite(tool->GetIdentifier());
-			else if (sender->GetSelectionState() == 2)
-				v->c->SetActiveMenu(SC_FAVORITES);
-
-			v->c->RebuildFavoritesMenu();
+				v->c->RebuildFavoritesMenu();
+			}
 		}
 		else
 		{
 			if (v->CtrlBehaviour() && v->AltBehaviour() && !v->ShiftBehaviour())
-				if (tool->GetIdentifier().find("DEFAULT_PT_") != tool->GetIdentifier().npos)
+			{
+				if (tool->GetIdentifier().Contains("_PT_"))
+				{
 					sender->SetSelectionState(3);
+				}
+			}
 
 			if (sender->GetSelectionState() >= 0 && sender->GetSelectionState() <= 3)
 				v->c->SetActiveTool(sender->GetSelectionState(), tool);
@@ -575,11 +603,10 @@ void GameView::NotifyQuickOptionsChanged(GameModel * sender)
 	}
 
 	int currentY = 1;
-	vector<QuickOption*> optionList = sender->GetQuickOptions();
-	for (vector<QuickOption*>::iterator iter = optionList.begin(), end = optionList.end(); iter != end; ++iter)
+	std::vector<QuickOption*> optionList = sender->GetQuickOptions();
+	for(auto *option : optionList)
 	{
-		QuickOption * option = *iter;
-		ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW - 16, currentY), ui::Point(15, 15), option->GetIcon(), option->GetDescription());
+		ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, currentY), ui::Point(15, 15), option->GetIcon(), option->GetDescription());
 		//tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 		tempButton->SetTogglable(true);
 		tempButton->SetActionCallback(new OptionAction(option));
@@ -606,17 +633,17 @@ void GameView::NotifyMenuListChanged(GameModel * sender)
 		delete toolButtons[i];
 	}
 	toolButtons.clear();
-	vector<Menu*> menuList = sender->GetMenuList();
-	for (int i = (int)menuList.size() - 1; i >= 0; i--)
+	std::vector<Menu*> menuList = sender->GetMenuList();
+	for (int i = (int)menuList.size()-1; i >= 0; i--)
 	{
 		if (menuList[i]->GetVisible())
 		{
-			std::string tempString = "";
+			String tempString = "";
 			tempString += menuList[i]->GetIcon();
-			std::string description = menuList[i]->GetDescription();
-			if (i == SC_FAVORITES && Favorite::Ref().AnyFavorites())
-				description += " (Use ctrl+shift+click to favorite an element)";
-			ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW - 16, currentY + 16), ui::Point(15, 15), tempString, description);
+			String description = menuList[i]->GetDescription();
+			if (i == SC_FAVORITES && !Favorite::Ref().AnyFavorites())
+				description += " (Use ctrl+shift+click to toggle the favorite status of an element)";
+			ui::Button * tempButton = new ui::Button(ui::Point(WINDOWW-16, currentY), ui::Point(15, 15), tempString, description);
 			tempButton->Appearance.Margin = ui::Border(0, 2, 3, 2);
 			tempButton->SetTogglable(true);
 			tempButton->SetActionCallback(new MenuAction(this, i));
@@ -682,18 +709,15 @@ void GameView::NotifyActiveToolsChanged(GameModel * sender)
 		if (sender->GetActiveTool(0) == tool)
 		{
 			toolButtons[i]->SetSelectionState(0);	//Primary
-			if (tool->GetIdentifier().find("DEFAULT_UI_WIND") != tool->GetIdentifier().npos)
-				windTool = true;
-			else
-				windTool = false;
+			windTool = tool->GetIdentifier() == "DEFAULT_UI_WIND";
 
-			if (sender->GetActiveTool(0)->GetIdentifier().find("DEFAULT_DECOR_") != sender->GetActiveTool(0)->GetIdentifier().npos)
+			if (sender->GetActiveTool(0)->GetIdentifier().BeginsWith("DEFAULT_DECOR_"))
 				decoBrush = true;
 		}
 		else if (sender->GetActiveTool(1) == tool)
 		{
 			toolButtons[i]->SetSelectionState(1);	//Secondary
-			if (sender->GetActiveTool(1)->GetIdentifier().find("DEFAULT_DECOR_") != sender->GetActiveTool(1)->GetIdentifier().npos)
+			if (sender->GetActiveTool(1)->GetIdentifier().BeginsWith("DEFAULT_DECOR_"))
 				decoBrush = true;
 		}
 		else if (sender->GetActiveTool(2) == tool)
@@ -709,19 +733,15 @@ void GameView::NotifyActiveToolsChanged(GameModel * sender)
 			toolButtons[i]->SetSelectionState(-1);
 		}
 	}
-	//need to do this for all tools every time just in case it wasn't caught if you weren't in the menu a tool was changed to
-	c->ActiveToolChanged(0, sender->GetActiveTool(0));
+
 	if (sender->GetRenderer()->findingElement)
 	{
 		Tool *active = sender->GetActiveTool(0);
-		if (active->GetIdentifier().find("_PT_") == active->GetIdentifier().npos)
+		if (!active->GetIdentifier().Contains("_PT_"))
 			ren->findingElement = 0;
 		else
-			ren->findingElement = sender->GetActiveTool(0)->GetToolID() % 256;
+			ren->findingElement = sender->GetActiveTool(0)->GetToolID();
 	}
-	c->ActiveToolChanged(1, sender->GetActiveTool(1));
-	c->ActiveToolChanged(2, sender->GetActiveTool(2));
-	c->ActiveToolChanged(3, sender->GetActiveTool(3));
 }
 
 void GameView::NotifyLastToolChanged(GameModel * sender)
@@ -729,10 +749,7 @@ void GameView::NotifyLastToolChanged(GameModel * sender)
 	if (sender->GetLastTool())
 	{
 		wallBrush = sender->GetLastTool()->GetBlocky();
-		if (sender->GetLastTool()->GetIdentifier().find("DEFAULT_TOOL_") != sender->GetLastTool()->GetIdentifier().npos)
-			toolBrush = true;
-		else
-			toolBrush = false;
+		toolBrush = sender->GetLastTool()->GetIdentifier().BeginsWith("DEFAULT_TOOL_");
 	}
 }
 
@@ -755,7 +772,7 @@ void GameView::NotifyToolListChanged(GameModel * sender)
 		delete toolButtons[i];
 	}
 	toolButtons.clear();
-	vector<Tool*> toolList = sender->GetToolList();
+	std::vector<Tool*> toolList = sender->GetToolList();
 	int currentX = 0;
 	for (size_t i = 0; i < toolList.size(); i++)
 	{
@@ -840,7 +857,7 @@ void GameView::NotifyColourPresetsChanged(GameModel * sender)
 	public:
 		int preset;
 		ColourPresetAction(GameView * _v, int preset) : preset(preset) { v = _v; }
-		void ActionCallback(ui::Button * sender_)
+		void ActionCallback(ui::Button * sender_) override
 		{
 			v->c->SetActiveColourPreset(preset);
 			v->c->SetColour(sender_->Appearance.BackgroundInactive);
@@ -917,7 +934,7 @@ void GameView::NotifyUserChanged(GameModel * sender)
 	}
 	else
 	{
-		loginButton->SetText(sender->GetUser().Username);
+		loginButton->SetText(sender->GetUser().Username.FromUtf8());
 		((SplitButton*)loginButton)->SetShowSplit(true);
 		((SplitButton*)loginButton)->SetRightToolTip("Edit profile");
 	}
@@ -945,6 +962,7 @@ void GameView::NotifyInfoTipChanged(GameModel * sender)
 
 void GameView::NotifySaveChanged(GameModel * sender)
 {
+	saveReuploadAllowed = true;
 	if (sender->GetSave())
 	{
 		if (introText > 50)
@@ -963,7 +981,7 @@ void GameView::NotifySaveChanged(GameModel * sender)
 			upVoteButton->Appearance.BackgroundDisabled = (ui::Colour(0, 0, 0));
 
 		downVoteButton->Enabled = upVoteButton->Enabled;
-		if (sender->GetSave()->GetID() && sender->GetUser().UserID && sender->GetSave()->GetVote() == -1)
+		if (sender->GetSave()->GetID() && sender->GetUser().UserID && sender->GetSave()->GetVote()==-1)
 			downVoteButton->Appearance.BackgroundDisabled = (ui::Colour(108, 0, 10, 255));
 		else
 			downVoteButton->Appearance.BackgroundDisabled = (ui::Colour(0, 0, 0));
@@ -982,17 +1000,17 @@ void GameView::NotifySaveChanged(GameModel * sender)
 		tagSimulationButton->Enabled = sender->GetSave()->GetID();
 		if (sender->GetSave()->GetID())
 		{
-			std::stringstream tagsStream;
-			std::list<string> tags = sender->GetSave()->GetTags();
+			StringBuilder tagsStream;
+			std::list<ByteString> tags = sender->GetSave()->GetTags();
 			if (tags.size())
 			{
-				for (std::list<std::string>::const_iterator iter = tags.begin(), begin = tags.begin(), end = tags.end(); iter != end; iter++)
+				for (std::list<ByteString>::const_iterator iter = tags.begin(), begin = tags.begin(), end = tags.end(); iter != end; iter++)
 				{
 					if (iter != begin)
 						tagsStream << " ";
-					tagsStream << *iter;
+					tagsStream << iter->FromUtf8();
 				}
-				tagSimulationButton->SetText(tagsStream.str());
+				tagSimulationButton->SetText(tagsStream.Build());
 			}
 			else
 			{
@@ -1004,6 +1022,9 @@ void GameView::NotifySaveChanged(GameModel * sender)
 			tagSimulationButton->SetText("[no tags set]");
 		}
 		currentSaveType = 1;
+		int saveID = sender->GetSave()->GetID();
+		if (saveID == 404 || saveID == 2157797)
+			saveReuploadAllowed = false;
 	}
 	else if (sender->GetSaveFile())
 	{
@@ -1038,7 +1059,7 @@ void GameView::NotifySaveChanged(GameModel * sender)
 		tagSimulationButton->SetText("[no tags set]");
 		currentSaveType = 0;
 	}
-	saveSimulationButton->Enabled = (saveSimulationButtonEnabled || ctrlBehaviour);
+	saveSimulationButton->Enabled = (saveSimulationButtonEnabled && saveReuploadAllowed) || ctrlBehaviour;
 	SetSaveButtonTooltips();
 }
 
@@ -1068,10 +1089,8 @@ int GameView::Record(bool record)
 		{
 			time_t startTime = time(NULL);
 			recordingFolder = startTime;
-			std::stringstream recordingDir;
-			recordingDir << "recordings" << PATH_SEP << recordingFolder;
 			Client::Ref().MakeDirectory("recordings");
-			Client::Ref().MakeDirectory(recordingDir.str().c_str());
+			Client::Ref().MakeDirectory(ByteString::Build("recordings", PATH_SEP, recordingFolder).c_str());
 			recording = true;
 			recordingIndex = 0;
 		}
@@ -1109,9 +1128,8 @@ void GameView::updateToolButtonScroll()
 		}
 		scrollBar->Size.X = scrollSize;
 		int offsetDelta = toolButtons[0]->Position.X - newInitialX;
-		for (vector<ToolButton*>::iterator iter = toolButtons.begin(), end = toolButtons.end(); iter != end; ++iter)
+		for(auto *button : toolButtons)
 		{
-			ToolButton * button = *iter;
 			button->Position.X -= offsetDelta;
 			if (button->Position.X + button->Size.X <= 0 || (button->Position.X + button->Size.X) > XRES - 2)
 				button->Visible = false;
@@ -1122,10 +1140,9 @@ void GameView::updateToolButtonScroll()
 		//Ensure that mouseLeave events are make their way to the buttons should they move from underneath the mouse pointer
 		if (toolButtons[0]->Position.Y < y && toolButtons[0]->Position.Y + toolButtons[0]->Size.Y > y)
 		{
-			for (vector<ToolButton*>::iterator iter = toolButtons.begin(), end = toolButtons.end(); iter != end; ++iter)
+			for(auto *button : toolButtons)
 			{
-				ToolButton * button = *iter;
-				if (button->Position.X < x && button->Position.X + button->Size.X > x)
+				if(button->Position.X < x && button->Position.X+button->Size.X > x)
 					button->OnMouseEnter(x, y);
 				else
 					button->OnMouseLeave(x, y);
@@ -1204,10 +1221,12 @@ void GameView::OnMouseDown(int x, int y, unsigned button)
 			// update tool index, set new "last" tool so GameView can detect certain tools properly
 			if (button == SDL_BUTTON_LEFT)
 				toolIndex = 0;
-			if (button == SDL_BUTTON_RIGHT)
+			else if (button == SDL_BUTTON_RIGHT)
 				toolIndex = 1;
-			if (button == SDL_BUTTON_MIDDLE)
+			else if (button == SDL_BUTTON_MIDDLE)
 				toolIndex = 2;
+			else
+				return;
 			Tool *lastTool = c->GetActiveTool(toolIndex);
 			c->SetLastTool(lastTool);
 			UpdateDrawMode();
@@ -1264,21 +1283,21 @@ void GameView::OnMouseUp(int x, int y, unsigned button)
 						if (thumbY + (placeSaveThumb->Height) >= YRES)
 							thumbY = YRES - placeSaveThumb->Height;
 
-						c->PlaceSave(ui::Point(thumbX, thumbY), !shiftBehaviour);
+						c->PlaceSave(ui::Point(thumbX, thumbY));
 					}
 				}
 				else
 				{
-					int x2 = (selectPoint1.X > selectPoint2.X) ? selectPoint1.X : selectPoint2.X;
-					int y2 = (selectPoint1.Y > selectPoint2.Y) ? selectPoint1.Y : selectPoint2.Y;
-					int x1 = (selectPoint2.X < selectPoint1.X) ? selectPoint2.X : selectPoint1.X;
-					int y1 = (selectPoint2.Y < selectPoint1.Y) ? selectPoint2.Y : selectPoint1.Y;
-					if (selectMode == SelectCopy)
-						c->CopyRegion(ui::Point(x1, y1), ui::Point(x2, y2), !shiftBehaviour);
+					int x2 = (selectPoint1.X>selectPoint2.X) ? selectPoint1.X : selectPoint2.X;
+					int y2 = (selectPoint1.Y>selectPoint2.Y) ? selectPoint1.Y : selectPoint2.Y;
+					int x1 = (selectPoint2.X<selectPoint1.X) ? selectPoint2.X : selectPoint1.X;
+					int y1 = (selectPoint2.Y<selectPoint1.Y) ? selectPoint2.Y : selectPoint1.Y;
+					if (selectMode ==SelectCopy)
+						c->CopyRegion(ui::Point(x1, y1), ui::Point(x2, y2));
 					else if (selectMode == SelectCut)
-						c->CutRegion(ui::Point(x1, y1), ui::Point(x2, y2), !shiftBehaviour);
+						c->CutRegion(ui::Point(x1, y1), ui::Point(x2, y2));
 					else if (selectMode == SelectStamp)
-						c->StampRegion(ui::Point(x1, y1), ui::Point(x2, y2), !shiftBehaviour);
+						c->StampRegion(ui::Point(x1, y1), ui::Point(x2, y2));
 				}
 			}
 			selectMode = SelectNone;
@@ -1328,23 +1347,7 @@ void GameView::OnMouseUp(int x, int y, unsigned button)
 	UpdateDrawMode();
 }
 
-void GameView::ExitPrompt()
-{
-	class ExitConfirmation : public ConfirmDialogueCallback {
-	public:
-		ExitConfirmation() {}
-		virtual void ConfirmCallback(ConfirmPrompt::DialogueResult result) {
-			if (result == ConfirmPrompt::ResultOkay)
-			{
-				ui::Engine::Ref().Exit();
-			}
-		}
-		virtual ~ExitConfirmation() { }
-	};
-	new ConfirmPrompt("You are about to quit", "Are you sure you want to exit the game?", new ExitConfirmation());
-}
-
-void GameView::ToolTip(ui::Point senderPosition, std::string toolTip)
+void GameView::ToolTip(ui::Point senderPosition, String toolTip)
 {
 	// buttom button tooltips
 	if (senderPosition.Y > Size.Y - 17)
@@ -1359,16 +1362,16 @@ void GameView::ToolTip(ui::Point senderPosition, std::string toolTip)
 	else if (senderPosition.X > Size.X - BARSIZE)// < Size.Y-(quickOptionButtons.size()+1)*16)
 	{
 		this->toolTip = toolTip;
-		toolTipPosition = ui::Point(Size.X - 27 - Graphics::textwidth((char*)toolTip.c_str()), senderPosition.Y + 3);
-		if (toolTipPosition.Y + 10 > Size.Y - MENUSIZE)
-			toolTipPosition = ui::Point(Size.X - 27 - Graphics::textwidth((char*)toolTip.c_str()), Size.Y - MENUSIZE - 10);
+		toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), senderPosition.Y+3);
+		if(toolTipPosition.Y+10 > Size.Y-MENUSIZE)
+			toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
 		isToolTipFadingIn = true;
 	}
 	// element tooltips
 	else
 	{
 		this->toolTip = toolTip;
-		toolTipPosition = ui::Point(Size.X - 27 - Graphics::textwidth((char*)toolTip.c_str()), Size.Y - MENUSIZE - 10);
+		toolTipPosition = ui::Point(Size.X-27-Graphics::textwidth(toolTip), Size.Y-MENUSIZE-10);
 		isToolTipFadingIn = true;
 	}
 }
@@ -1400,7 +1403,7 @@ void GameView::BeginStampSelection()
 	buttonTipShow = 120;
 }
 
-void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void GameView::OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 	if (introText > 50)
 	{
@@ -1425,7 +1428,9 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			case SDLK_DOWN:
 				c->TranslateSave(ui::Point(0, 1));
 				return;
-			case 'r':
+			}
+			if (scan == SDL_SCANCODE_R && !repeat)
+			{
 				if (ctrl && shift)
 				{
 					//Vertical flip
@@ -1445,24 +1450,20 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			}
 		}
 	}
-	switch (key)
+	if (repeat)
+		return;
+	bool didKeyShortcut = true;
+	switch(scan)
 	{
-	case SDLK_LALT:
-	case SDLK_RALT:
-		enableAltBehaviour();
+	case SDL_SCANCODE_GRAVE:
+		SDL_StopTextInput();
+		SDL_StartTextInput();
+		c->ShowConsole();
 		break;
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-		enableCtrlBehaviour();
-		break;
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		enableShiftBehaviour();
-		break;
-	case ' ': //Space
+	case SDL_SCANCODE_SPACE: //Space
 		c->SetPaused();
 		break;
-	case 'z':
+	case SDL_SCANCODE_Z:
 		if (selectMode != SelectNone && isMouseDown)
 			break;
 		if (ctrl && !isMouseDown)
@@ -1479,51 +1480,51 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			c->SetZoomEnabled(true);
 		}
 		break;
-	case SDLK_TAB: //Tab
-		c->ChangeBrush();
+	case SDL_SCANCODE_P:
+	case SDL_SCANCODE_F2:
+		if (ctrl)
+		{
+			if (shift)
+				c->SetActiveTool(1, "DEFAULT_UI_PROPERTY");
+			else
+				c->SetActiveTool(0, "DEFAULT_UI_PROPERTY");
+		}
+		else
+			screenshot();
 		break;
-	case '`':
-		c->ShowConsole();
-		break;
-	case 'p':
-	case SDLK_F2:
-		screenshot();
-		break;
-	case SDLK_F3:
+	case SDL_SCANCODE_F3:
 		SetDebugHUD(!GetDebugHUD());
 		break;
-	case SDLK_F5:
+	case SDL_SCANCODE_F5:
 		c->ReloadSim();
 		break;
-	case 'a':
-		if ((Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator
-			|| Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin
-			|| Client::Ref().GetAuthUser().Username == "Mrprocom") && ctrl)
+	case SDL_SCANCODE_A:
+		if ((Client::Ref().GetAuthUser().UserElevation == User::ElevationModerator || Client::Ref().GetAuthUser().UserElevation == User::ElevationAdmin) && ctrl)
 		{
-			std::string authorString = Client::Ref().GetAuthorInfo().toStyledString();
-			new InformationMessage("Save authorship info", authorString, true);
+			ByteString authorString = Client::Ref().GetAuthorInfo().toStyledString();
+			new InformationMessage("Save authorship info", authorString.FromUtf8(), true);
 		}
 		break;
-	case 'r':
+	case SDL_SCANCODE_R:
 		if (ctrl)
 			c->ReloadSim();
 		break;
-	case 'e':
+	case SDL_SCANCODE_E:
 		c->OpenElementSearch();
 		break;
-	case 'f':
+	case SDL_SCANCODE_F:
 		if (ctrl)
 		{
 			Tool *active = c->GetActiveTool(0);
-			if (active->GetIdentifier().find("_PT_") == active->GetIdentifier().npos || ren->findingElement == active->GetToolID() % 256)
+			if (!active->GetIdentifier().Contains("_PT_") || (ren->findingElement == active->GetToolID()))
 				ren->findingElement = 0;
 			else
-				ren->findingElement = active->GetToolID() % 256;
+				ren->findingElement = active->GetToolID();
 		}
 		else
 			c->FrameStep();
 		break;
-	case 'g':
+	case SDL_SCANCODE_G:
 		if (ctrl)
 			c->ShowGravityGrid();
 		else if (shift)
@@ -1531,14 +1532,14 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 		else
 			c->AdjustGridSize(1);
 		break;
-	case SDLK_F1:
-		if (!introText)
+	case SDL_SCANCODE_F1:
+		if(!introText)
 			introText = 8047;
 		else
 			introText = 0;
 		break;
-	case 'h':
-		if (ctrl)
+	case SDL_SCANCODE_H:
+		if(ctrl)
 		{
 			if (!introText)
 				introText = 8047;
@@ -1548,8 +1549,8 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 		else
 			showHud = !showHud;
 		break;
-	case 'b':
-		if (ctrl)
+	case SDL_SCANCODE_B:
+		if(ctrl)
 			c->SetDecoration();
 		else
 			if (colourPicker->GetParentWindow())
@@ -1561,7 +1562,7 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 				c->SetActiveMenu(SC_DECO);
 			}
 		break;
-	case 'y':
+	case SDL_SCANCODE_Y:
 		if (ctrl)
 		{
 			c->HistoryForward();
@@ -1571,14 +1572,14 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			c->SwitchAir();
 		}
 		break;
-	case SDLK_ESCAPE:
-	case 'q':
-		ExitPrompt();
+	case SDL_SCANCODE_ESCAPE:
+	case SDL_SCANCODE_Q:
+		ui::Engine::Ref().ConfirmExit();
 		break;
-	case 'u':
+	case SDL_SCANCODE_U:
 		c->ToggleAHeat();
 		break;
-	case 'n':
+	case SDL_SCANCODE_N:
 		c->ToggleNewtonianGravity();
 		break;
 	case 't':
@@ -1587,14 +1588,14 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 	case 'o':
 		c->ToggleCompressibleGases();
 		break;
-	case '=':
-		if (ctrl)
+	case SDL_SCANCODE_EQUALS:
+		if(ctrl)
 			c->ResetSpark();
 		else
 			c->ResetAir();
 		break;
-	case 'c':
-		if (ctrl)
+	case SDL_SCANCODE_C:
+		if(ctrl)
 		{
 			selectMode = SelectCopy;
 			selectPoint1 = selectPoint2 = ui::Point(-1, -1);
@@ -1603,8 +1604,8 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			buttonTipShow = 120;
 		}
 		break;
-	case 'x':
-		if (ctrl)
+	case SDL_SCANCODE_X:
+		if(ctrl)
 		{
 			selectMode = SelectCut;
 			selectPoint1 = selectPoint2 = ui::Point(-1, -1);
@@ -1613,7 +1614,7 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			buttonTipShow = 120;
 		}
 		break;
-	case 'v':
+	case SDL_SCANCODE_V:
 		if (ctrl)
 		{
 			if (c->LoadClipboard())
@@ -1623,53 +1624,70 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 			}
 		}
 		break;
-	case 'l':
+	case SDL_SCANCODE_L:
 	{
-		std::vector<std::string> stampList = Client::Ref().GetStamps(0, 1);
+		std::vector<ByteString> stampList = Client::Ref().GetStamps(0, 1);
 		if (stampList.size())
 		{
-			c->LoadStamp(Client::Ref().GetStamp(stampList[0])->GetGameSave());
+			SaveFile *saveFile = Client::Ref().GetStamp(stampList[0]);
+			if (!saveFile || !saveFile->GetGameSave())
+				break;
+			c->LoadStamp(saveFile->GetGameSave());
+			delete saveFile;
 			selectPoint1 = selectPoint2 = mousePosition;
 			isMouseDown = false;
 			break;
 		}
 	}
-	case 'k':
+	case SDL_SCANCODE_K:
 		selectMode = SelectNone;
 		selectPoint1 = selectPoint2 = ui::Point(-1, -1);
 		c->OpenStamps();
 		break;
-	case ']':
-		if (zoomEnabled && !zoomCursorFixed)
+	case SDL_SCANCODE_RIGHTBRACKET:
+		if(zoomEnabled && !zoomCursorFixed)
 			c->AdjustZoomSize(1, !alt);
 		else
 			c->AdjustBrushSize(1, !alt, shiftBehaviour, ctrlBehaviour);
 		break;
-	case '[':
-		if (zoomEnabled && !zoomCursorFixed)
+	case SDL_SCANCODE_LEFTBRACKET:
+		if(zoomEnabled && !zoomCursorFixed)
 			c->AdjustZoomSize(-1, !alt);
 		else
 			c->AdjustBrushSize(-1, !alt, shiftBehaviour, ctrlBehaviour);
 		break;
-	case 'i':
-		if (ctrl)
+	case SDL_SCANCODE_I:
+		if(ctrl)
 			c->Install();
 		else
 			c->InvertAirSim();
 		break;
-	case ';':
+	case SDL_SCANCODE_SEMICOLON:
 		if (ctrl)
+			c->SetReplaceModeFlags(c->GetReplaceModeFlags()^SPECIFIC_DELETE);
+		else
+			c->SetReplaceModeFlags(c->GetReplaceModeFlags()^REPLACE_MODE);
+		break;
+	default:
+		didKeyShortcut = false;
+	}
+	if (!didKeyShortcut)
+	{
+		switch (key)
 		{
-			c->SetReplaceModeFlags(c->GetReplaceModeFlags() ^ SPECIFIC_DELETE);
+		case SDLK_TAB: //Tab
+			c->ChangeBrush();
+			break;
+		case SDLK_INSERT:
+			if (ctrl)
+				c->SetReplaceModeFlags(c->GetReplaceModeFlags()^SPECIFIC_DELETE);
+			else
+				c->SetReplaceModeFlags(c->GetReplaceModeFlags()^REPLACE_MODE);
+			break;
+		case SDLK_DELETE:
+			c->SetReplaceModeFlags(c->GetReplaceModeFlags()^SPECIFIC_DELETE);
 			break;
 		}
-		//fancy case switch without break
-	case SDLK_INSERT:
-		c->SetReplaceModeFlags(c->GetReplaceModeFlags() ^ REPLACE_MODE);
-		break;
-	case SDLK_DELETE:
-		c->SetReplaceModeFlags(c->GetReplaceModeFlags() ^ SPECIFIC_DELETE);
-		break;
 	}
 
 	if (shift && showDebug && key == '1')
@@ -1680,23 +1698,12 @@ void GameView::OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool
 	}
 }
 
-void GameView::OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void GameView::OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	switch (key)
+	if (repeat)
+		return;
+	if (scan == SDL_SCANCODE_Z)
 	{
-	case SDLK_LALT:
-	case SDLK_RALT:
-		disableAltBehaviour();
-		break;
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-		disableCtrlBehaviour();
-		break;
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		disableShiftBehaviour();
-		break;
-	case 'z':
 		if (persistentZoom)persistentZoom = false;
 		if (!zoomCursorFixed && !alt)
 			c->SetZoomEnabled(false);
@@ -1707,7 +1714,6 @@ void GameView::OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bo
 			c->SetZoomEnabled(true);
 			zoomCursorFixed = true;
 		}
-		break;
 	}
 }
 
@@ -1718,9 +1724,30 @@ void GameView::OnBlur()
 	disableShiftBehaviour();
 	isMouseDown = false;
 	drawMode = DrawPoints;
-	c->MouseUp(0, 0, 0, 1); // tell lua that mouse is up (even if it really isn't)
-	if (GetModifiers())
-		c->KeyRelease(0, 0, false, false, false);
+	c->Blur();
+}
+
+void GameView::OnFileDrop(ByteString filename)
+{
+	if (!(filename.EndsWith(".cps") || filename.EndsWith(".stm")))
+	{
+		new ErrorMessage("Error loading save", "Dropped file is not a TPT save file (.cps or .stm format)");
+		return;
+	}
+
+	SaveFile *saveFile = Client::Ref().LoadSaveFile(filename);
+	if (!saveFile)
+		return;
+	if (saveFile->GetError().length())
+	{
+		new ErrorMessage("Error loading save", "Dropped save file could not be loaded: " + saveFile->GetError());
+		return;
+	}
+	c->LoadSaveFile(saveFile);
+	delete saveFile;
+
+	// hide the info text if it's not already hidden
+	introText = 0;
 }
 
 void GameView::OnTick(float dt)
@@ -1758,28 +1785,27 @@ void GameView::OnTick(float dt)
 	int foundSignID = c->GetSignAt(mousePosition.X, mousePosition.Y);
 	if (foundSignID != -1)
 	{
-		const char* str = c->GetSignText(foundSignID).c_str();;
-		char type = '\0';
-		int pos = sign::splitsign(str, &type);
-		if (type == 'c' || type == 't' || type == 's')
+		String str = c->GetSignText(foundSignID);
+		auto si = c->GetSignSplit(foundSignID);
+
+		StringBuilder tooltip;
+		switch (si.second)
 		{
-			char buff[256];
-			strcpy(buff, str + 3);
-			buff[pos - 3] = 0;
-			std::stringstream tooltip;
-			switch (type)
-			{
-			case 'c':
-				tooltip << "Go to save ID:" << buff;
-				break;
-			case 't':
-				tooltip << "Open forum thread " << buff << " in browser";
-				break;
-			case 's':
-				tooltip << "Search for " << buff;
-				break;
-			}
-			ToolTip(ui::Point(0, Size.Y), tooltip.str());
+		case sign::Type::Save:
+			tooltip << "Go to save ID:" << str.Substr(3, si.first - 3);
+			break;
+		case sign::Type::Thread:
+			tooltip << "Open forum thread " << str.Substr(3, si.first - 3) << " in browser";
+			break;
+		case sign::Type::Search:
+			tooltip << "Search for " << str.Substr(3, si.first - 3);
+			break;
+		default: break;
+		}
+
+		if (tooltip.Size())
+		{
+			ToolTip(ui::Point(0, Size.Y), tooltip.Build());
 		}
 	}
 
@@ -1857,28 +1883,40 @@ void GameView::DoMouseWheel(int x, int y, int d)
 		Window::DoMouseWheel(x, y, d);
 }
 
-void GameView::DoKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void GameView::DoTextInput(String text)
 {
-	if (c->KeyPress(key, character, shift, ctrl, alt))
-		Window::DoKeyPress(key, character, shift, ctrl, alt);
+	if (c->TextInput(text))
+		Window::DoTextInput(text);
 }
 
-void GameView::DoKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void GameView::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	if (c->KeyRelease(key, character, shift, ctrl, alt))
-		Window::DoKeyRelease(key, character, shift, ctrl, alt);
+	if (shift && !shiftBehaviour)
+		enableShiftBehaviour();
+	if (ctrl && !ctrlBehaviour)
+		enableCtrlBehaviour();
+	if (alt && !altBehaviour)
+		enableAltBehaviour();
+	if (c->KeyPress(key, scan, repeat, shift, ctrl, alt))
+		Window::DoKeyPress(key, scan, repeat, shift, ctrl, alt);
 }
 
-void GameView::DoTick(float dt)
+void GameView::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
-	//mouse events trigger every frame when mouse is held down, needs to happen here (before things are drawn) so it can clear the point queue if false is returned from a lua mouse event
-	if (!c->MouseTick())
-	{
-		isMouseDown = false;
-		selectMode = SelectNone;
-		drawMode = DrawPoints;
-	}
-	Window::DoTick(dt);
+	if (!shift && shiftBehaviour)
+		disableShiftBehaviour();
+	if (!ctrl && ctrlBehaviour)
+		disableCtrlBehaviour();
+	if (!alt && altBehaviour)
+		disableAltBehaviour();
+	if (c->KeyRelease(key, scan, repeat, shift, ctrl, alt))
+		Window::DoKeyRelease(key, scan, repeat, shift, ctrl, alt);
+}
+
+void GameView::DoExit()
+{
+	Window::DoExit();
+	c->Exit();
 }
 
 void GameView::DoDraw()
@@ -1894,7 +1932,7 @@ void GameView::NotifyNotificationsChanged(GameModel * sender)
 		Notification * notification;
 	public:
 		NotificationButtonAction(Notification * notification) : notification(notification) { }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			notification->Action();
 			//v->c->RemoveNotification(notification);
@@ -1906,11 +1944,11 @@ void GameView::NotifyNotificationsChanged(GameModel * sender)
 		Notification * notification;
 	public:
 		CloseNotificationButtonAction(GameView * v, Notification * notification) : v(v), notification(notification) { }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->RemoveNotification(notification);
 		}
-		void AltActionCallback(ui::Button * sender)
+		void AltActionCallback(ui::Button * sender) override
 		{
 			v->c->RemoveNotification(notification);
 		}
@@ -1928,8 +1966,8 @@ void GameView::NotifyNotificationsChanged(GameModel * sender)
 	int currentY = YRES - 23;
 	for (std::vector<Notification*>::iterator iter = notifications.begin(), end = notifications.end(); iter != end; ++iter)
 	{
-		int width = (Graphics::textwidth((*iter)->Message.c_str())) + 8;
-		ui::Button * tempButton = new ui::Button(ui::Point(XRES - width - 22, currentY), ui::Point(width, 15), (*iter)->Message);
+		int width = (Graphics::textwidth((*iter)->Message))+8;
+		ui::Button * tempButton = new ui::Button(ui::Point(XRES-width-22, currentY), ui::Point(width, 15), (*iter)->Message);
 		tempButton->SetActionCallback(new NotificationButtonAction(*iter));
 		tempButton->Appearance.BorderInactive = style::Colour::WarningTitle;
 		tempButton->Appearance.TextInactive = style::Colour::WarningTitle;
@@ -1938,7 +1976,7 @@ void GameView::NotifyNotificationsChanged(GameModel * sender)
 		AddComponent(tempButton);
 		notificationComponents.push_back(tempButton);
 
-		tempButton = new ui::Button(ui::Point(XRES - 20, currentY), ui::Point(15, 15), "\xAA");
+		tempButton = new ui::Button(ui::Point(XRES-20, currentY), ui::Point(15, 15), 0xE02A);
 		//tempButton->SetIcon(IconClose);
 		tempButton->SetActionCallback(new CloseNotificationButtonAction(this, *iter));
 		tempButton->Appearance.Margin.Left -= 1;
@@ -1959,9 +1997,9 @@ void GameView::NotifyZoomChanged(GameModel * sender)
 	zoomEnabled = sender->GetZoomEnabled();
 }
 
-void GameView::NotifyLogChanged(GameModel * sender, string entry)
+void GameView::NotifyLogChanged(GameModel * sender, String entry)
 {
-	logEntries.push_front(std::pair<std::string, int>(entry, 600));
+	logEntries.push_front(std::pair<String, int>(entry, 600));
 	if (logEntries.size() > 20)
 		logEntries.pop_back();
 }
@@ -1972,6 +2010,7 @@ void GameView::NotifyPlaceSaveChanged(GameModel * sender)
 	placeSaveOffset = ui::Point(0, 0);
 	if (sender->GetPlaceSave())
 	{
+		SaveRenderer::Ref().CopyModes(sender->GetRenderer());
 		placeSaveThumb = SaveRenderer::Ref().Render(sender->GetPlaceSave());
 		selectMode = PlaceSave;
 		selectPoint2 = mousePosition;
@@ -2061,7 +2100,7 @@ void GameView::disableCtrlBehaviour()
 		saveSimulationButton->Appearance.BackgroundInactive = ui::Colour(0, 0, 0);
 		saveSimulationButton->Appearance.BackgroundHover = ui::Colour(20, 20, 20);
 		saveSimulationButton->Appearance.TextInactive = saveSimulationButton->Appearance.TextHover = ui::Colour(255, 255, 255);
-		saveSimulationButton->Enabled = saveSimulationButtonEnabled;
+		saveSimulationButton->Enabled = saveSimulationButtonEnabled && saveReuploadAllowed;
 		SetSaveButtonTooltips();
 		searchButton->Appearance.BackgroundInactive = ui::Colour(0, 0, 0);
 		searchButton->Appearance.BackgroundHover = ui::Colour(20, 20, 20);
@@ -2243,12 +2282,9 @@ void GameView::OnDraw()
 			VideoBuffer screenshot(ren->DumpFrame());
 			std::vector<char> data = format::VideoBufferToPNG(screenshot);
 
-			std::stringstream filename;
-			filename << "screenshot_";
-			filename << std::setfill('0') << std::setw(6) << (screenshotIndex++);
-			filename << ".png";
+			ByteString filename = ByteString::Build("screenshot_", Format::Width(screenshotIndex++, 6), ".png");
 
-			Client::Ref().WriteFile(data, filename.str());
+			Client::Ref().WriteFile(data, filename);
 			doScreenshot = false;
 		}
 
@@ -2257,23 +2293,19 @@ void GameView::OnDraw()
 			VideoBuffer screenshot(ren->DumpFrame());
 			std::vector<char> data = format::VideoBufferToPPM(screenshot);
 
-			std::stringstream filename;
-			filename << "recordings" << PATH_SEP << recordingFolder << PATH_SEP;
-			filename << "frame_";
-			filename << std::setfill('0') << std::setw(6) << (recordingIndex++);
-			filename << ".ppm";
+			ByteString filename = ByteString::Build("recordings", PATH_SEP, recordingFolder, PATH_SEP, "frame_", Format::Width(screenshotIndex++, 6), ".ppm");
 
-			Client::Ref().WriteFile(data, filename.str());
+			Client::Ref().WriteFile(data, filename);
 		}
 
 		if (logEntries.size())
 		{
 			int startX = 20;
-			int startY = YRES - 20;
-			deque<std::pair<std::string, int> >::iterator iter;
-			for (iter = logEntries.begin(); iter != logEntries.end(); iter++)
+			int startY = YRES-20;
+			std::deque<std::pair<String, int> >::iterator iter;
+			for(iter = logEntries.begin(); iter != logEntries.end(); iter++)
 			{
-				string message = (*iter).first;
+				String message = (*iter).first;
 				int alpha = std::min((*iter).second, 255);
 				if (alpha <= 0) //erase this and everything older
 				{
@@ -2281,8 +2313,8 @@ void GameView::OnDraw()
 					break;
 				}
 				startY -= 14;
-				g->fillrect(startX - 3, startY - 3, Graphics::textwidth((char*)message.c_str()) + 6, 14, 0, 0, 0, 100);
-				g->drawtext(startX, startY, message.c_str(), 255, 255, 255, alpha);
+				g->fillrect(startX-3, startY-3, Graphics::textwidth(message)+6, 14, 0, 0, 0, 100);
+				g->drawtext(startX, startY, message, 255, 255, 255, alpha);
 				(*iter).second -= 3;
 			}
 		}
@@ -2290,13 +2322,10 @@ void GameView::OnDraw()
 
 	if (recording)
 	{
-		std::stringstream sampleInfo;
-		sampleInfo << recordingIndex;
-		sampleInfo << ". \x8E REC";
-
-		int textWidth = Graphics::textwidth((char*)sampleInfo.str().c_str());
-		g->fillrect(XRES - 20 - textWidth, 12, textWidth + 8, 15, 0, 0, 0, 255 * 0.5);
-		g->drawtext(XRES - 16 - textWidth, 16, (const char*)sampleInfo.str().c_str(), 255, 50, 20, 255);
+		String sampleInfo = String::Build(recordingIndex, ". ", String(0xE00E), " REC");
+		int textWidth = Graphics::textwidth(sampleInfo);
+		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, 255*0.5);
+		g->drawtext(XRES-16-textWidth, 16, sampleInfo, 255, 50, 20, 255);
 	}
 	else if (showHud)
 	{
@@ -2306,8 +2335,8 @@ void GameView::OnDraw()
 			alpha = 255 - toolTipPresence * 3;
 		if (alpha < 50)
 			alpha = 50;
-		std::stringstream sampleInfo;
-		sampleInfo.precision(2);
+		StringBuilder sampleInfo;
+		sampleInfo << Format::Precision(2);
 
 		int type = sample.particle.type;
 		if (type)
@@ -2320,16 +2349,29 @@ void GameView::OnDraw()
 			if (showDebug)
 			{
 				if (type == PT_LAVA && c->IsValidElement(ctype))
-					sampleInfo << "Molten " << c->ElementResolve(ctype, -1, 1);
+				{
+					sampleInfo << "Molten " << c->ElementResolve(ctype, -1);
+				}
 				else if ((type == PT_PIPE || type == PT_PPIP) && c->IsValidElement(ctype))
-					sampleInfo << c->ElementResolve(type, -1, 1) << " with " << c->ElementResolve(ctype, (int)sample.particle.pavg[1], 1);
+				{
+					if (ctype == PT_LAVA && c->IsValidElement((int)sample.particle.pavg[1]))
+					{
+						sampleInfo << c->ElementResolve(type, -1) << " with molten " << c->ElementResolve((int)sample.particle.pavg[1], -1);
+					}
+					else
+					{
+						sampleInfo << c->ElementResolve(type, -1) << " with " << c->ElementResolve(ctype, (int)sample.particle.pavg[1]);
+					}
+				}
 				else if (type == PT_LIFE)
-					sampleInfo << c->ElementResolve(type, ctype, 1);
+				{
+					sampleInfo << c->ElementResolve(type, ctype);
+				}
 				else if (type == PT_FILT)
 				{
-					sampleInfo << c->ElementResolve(type, ctype, 1);
-					const char* filtModes[] = { "set colour", "AND", "OR", "subtract colour", "red shift", "blue shift", "no effect", "XOR", "NOT", "old QRTZ scattering", "variable red shift", "variable blue shift" };
-					if (sample.particle.tmp >= 0 && sample.particle.tmp <= 11)
+					sampleInfo << c->ElementResolve(type, ctype);
+					String filtModes[] = {"set colour", "AND", "OR", "subtract colour", "red shift", "blue shift", "no effect", "XOR", "NOT", "old QRTZ scattering", "variable red shift", "variable blue shift"};
+					if (sample.particle.tmp>=0 && sample.particle.tmp<=11)
 						sampleInfo << " (" << filtModes[sample.particle.tmp] << ")";
 					else
 						sampleInfo << " (unknown mode)";
@@ -2341,7 +2383,12 @@ void GameView::OnDraw()
 					sampleInfo << c->nucleotideName(sample.particle.life, sample.particle.tmp);
 				}
 				else if (type == PT_PHOS) {
-					sampleInfo << (sample.particle.tmp == PHOS_RED ? "Red" : "White") << " Phosphorus";
+					if(sample.particle.tmp == PHOS_RED)
+						sampleInfo << "Red";
+					else
+						sampleInfo << "White";
+					
+					sampleInfo << " Phosphorus";
 				}
 				else if (type == PT_SUGR) {
 					switch (sample.particle.tmp) {
@@ -2369,61 +2416,68 @@ void GameView::OnDraw()
 				}
 				else
 				{
-					sampleInfo << c->ElementResolve(type, ctype, 1);
+					sampleInfo << c->ElementResolve(type, ctype);
 					if (wavelengthGfx)
 						sampleInfo << " (" << ctype << ")";
 					// Some elements store extra LIFE info in upper bits of ctype, instead of tmp/tmp2
 					else if (type == PT_CRAY || type == PT_DRAY || type == PT_CONV)
-						sampleInfo << " (" << c->ElementResolve(TYP(ctype), ID(ctype), 1) << ")";
+						sampleInfo << " (" << c->ElementResolve(TYP(ctype), ID(ctype)) << ")";
 					else if (c->IsValidElement(ctype))
-						sampleInfo << " (" << c->ElementResolve(ctype, -1, 1) << ")";
+						sampleInfo << " (" << c->ElementResolve(ctype, -1) << ")";
 					else
 						sampleInfo << " ()";
 				}
-				sampleInfo << ", Temp: " << std::fixed << sample.particle.temp - 273.15f << " C";
+				sampleInfo << ", Temp: " << (sample.particle.temp - 273.15f) << " C";
 				sampleInfo << ", Life: " << sample.particle.life;
 				if (sample.particle.type != PT_RFRG && sample.particle.type != PT_RFGL)
-					sampleInfo << ", Tmp: " << sample.particle.tmp;
-				if ((sim->elements[sample.particle.type].Properties & TYPE_GAS) && sample.particle.gasCompression)
-					sampleInfo << ", Compressed x" << sample.particle.gasCompression;
+				{
+					if (sample.particle.type == PT_CONV)
+					{
+						String elemName = c->ElementResolve(
+							TYP(sample.particle.tmp),
+							ID(sample.particle.tmp));
+						if (elemName == "")
+							sampleInfo << ", Tmp: " << sample.particle.tmp;
+						else
+							sampleInfo << ", Tmp: " << elemName;
+					}
+					else{
+						sampleInfo << ", Tmp: " << sample.particle.tmp;
+						if ((sim->elements[sample.particle.type].Properties & TYPE_GAS) && sample.particle.gasCompression)
+							sampleInfo << ", Compressed x" << sample.particle.gasCompression;
+					}
+				}
 
 				// only elements that use .tmp2 show it in the debug HUD
-				if (type == PT_CRAY || type == PT_DRAY || type == PT_EXOT || type == PT_LIGH || type == PT_SOAP || type == PT_TRON || type == PT_VIBR || type == PT_VIRS || type == PT_WARP || type == PT_LCRY || type == PT_CBNW || type == PT_TSNS || type == PT_DTEC || type == PT_LSNS || type == PT_PSTN)
+				if (type == PT_CRAY || type == PT_DRAY || type == PT_EXOT || type == PT_LIGH || type == PT_SOAP || type == PT_TRON || type == PT_VIBR || type == PT_VIRS || type == PT_WARP || type == PT_LCRY || type == PT_CBNW || type == PT_TSNS || type == PT_DTEC || type == PT_LSNS || type == PT_PSTN || type == PT_LDTC)
 					sampleInfo << ", Tmp2: " << sample.particle.tmp2;
 
-				sampleInfo << ", Pressure: " << std::fixed << sample.AirPressure;
+				sampleInfo << ", Pressure: " << sample.AirPressure;
 			}
 			else
 			{
-				if (type == PT_LAVA && c->IsValidElement(ctype))
-					sampleInfo << "Molten " << c->ElementResolve(ctype, -1, 0);
-				else if ((type == PT_PIPE || type == PT_PPIP) && c->IsValidElement(ctype))
-					sampleInfo << c->ElementResolve(type, -1, 0) << " with " << c->ElementResolve(ctype, (int)sample.particle.pavg[1], 0);
-				else if (type == PT_LIFE)
-					sampleInfo << c->ElementResolve(type, ctype, 0);
-				else
-					sampleInfo << c->ElementResolve(type, ctype, 0);
-				sampleInfo << ", Temp: " << std::fixed << sample.particle.temp - 273.15f << " C";
-				sampleInfo << ", Pressure: " << std::fixed << sample.AirPressure;
+				sampleInfo << c->BasicParticleInfo(sample.particle);
+				sampleInfo << ", Temp: " << sample.particle.temp - 273.15f << " C";
+				sampleInfo << ", Pressure: " << sample.AirPressure;
 			}
 		}
 		else if (sample.WallType)
 		{
 			sampleInfo << c->WallName(sample.WallType);
-			sampleInfo << ", Pressure: " << std::fixed << sample.AirPressure;
+			sampleInfo << ", Pressure: " << sample.AirPressure;
 		}
 		else if (sample.isMouseInSim)
 		{
-			sampleInfo << "Empty, Pressure: " << std::fixed << sample.AirPressure;
+			sampleInfo << "Empty, Pressure: " << sample.AirPressure;
 		}
 		else
 		{
 			sampleInfo << "Empty";
 		}
 
-		int textWidth = Graphics::textwidth((char*)sampleInfo.str().c_str());
-		g->fillrect(XRES - 20 - textWidth, 12, textWidth + 8, 15, 0, 0, 0, alpha*0.5f);
-		g->drawtext(XRES - 16 - textWidth, 16, (const char*)sampleInfo.str().c_str(), 255, 255, 255, alpha*0.75f);
+		int textWidth = Graphics::textwidth(sampleInfo.Build());
+		g->fillrect(XRES-20-textWidth, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5f);
+		g->drawtext(XRES-16-textWidth, 16, sampleInfo.Build(), 255, 255, 255, alpha*0.75f);
 
 #ifndef OGLI
 		if (wavelengthGfx)
@@ -2464,7 +2518,8 @@ void GameView::OnDraw()
 
 		if (showDebug)
 		{
-			sampleInfo.str(std::string());
+			StringBuilder sampleInfo;
+			sampleInfo << Format::Precision(2);
 
 			if (type)
 				sampleInfo << "#" << sample.ParticleID << ", ";
@@ -2475,26 +2530,27 @@ void GameView::OnDraw()
 				sampleInfo << ", GX: " << sample.GravityVelocityX << " GY: " << sample.GravityVelocityY;
 
 			if (c->GetAHeatEnable())
-				sampleInfo << ", AHeat: " << std::fixed << sample.AirTemperature - 273.15f << " C";
+				sampleInfo << ", AHeat: " << sample.AirTemperature - 273.15f << " C";
 
-			textWidth = Graphics::textwidth((char*)sampleInfo.str().c_str());
-			g->fillrect(XRES - 20 - textWidth, 27, textWidth + 8, 14, 0, 0, 0, alpha*0.5f);
-			g->drawtext(XRES - 16 - textWidth, 30, (const char*)sampleInfo.str().c_str(), 255, 255, 255, alpha*0.75f);
+			textWidth = Graphics::textwidth(sampleInfo.Build());
+			g->fillrect(XRES-20-textWidth, 27, textWidth+8, 14, 0, 0, 0, alpha*0.5f);
+			g->drawtext(XRES-16-textWidth, 30, sampleInfo.Build(), 255, 255, 255, alpha*0.75f);
 		}
 	}
 
 	if (showHud && introText < 51)
 	{
 		//FPS and some version info
-		std::stringstream fpsInfo;
-		fpsInfo.precision(2);
-		fpsInfo << "FPS: " << std::fixed << ui::Engine::Ref().GetFps();
-#ifdef DEBUG
-		fpsInfo << " Delta: " << std::fixed << ui::Engine::Ref().GetDelta();
-#endif
+		StringBuilder fpsInfo;
+		fpsInfo << Format::Precision(2) << "FPS: " << ui::Engine::Ref().GetFps();
 
 		if (showDebug)
-			fpsInfo << " Parts: " << sample.NumParts;
+		{
+			if (ren->findingElement)
+				fpsInfo << " Parts: " << ren->foundElements << "/" << sample.NumParts;
+			else
+				fpsInfo << " Parts: " << sample.NumParts;
+		}
 		if (c->GetReplaceModeFlags()&REPLACE_MODE)
 			fpsInfo << " [REPLACE MODE]";
 		if (c->GetReplaceModeFlags()&SPECIFIC_DELETE)
@@ -2504,37 +2560,37 @@ void GameView::OnDraw()
 		if (ren && ren->findingElement)
 			fpsInfo << " [FIND]";
 
-		int textWidth = Graphics::textwidth((char*)fpsInfo.str().c_str());
-		int alpha = 255 - introText * 5;
-		g->fillrect(12, 12, textWidth + 8, 15, 0, 0, 0, alpha*0.5);
-		g->drawtext(16, 16, (const char*)fpsInfo.str().c_str(), 32, 216, 255, alpha*0.75);
+		int textWidth = Graphics::textwidth(fpsInfo.Build());
+		int alpha = 255-introText*5;
+		g->fillrect(12, 12, textWidth+8, 15, 0, 0, 0, alpha*0.5);
+		g->drawtext(16, 16, fpsInfo.Build(), 32, 216, 255, alpha*0.75);
 	}
 
 	//Tooltips
 	if (infoTipPresence)
 	{
-		int infoTipAlpha = (infoTipPresence > 50 ? 50 : infoTipPresence) * 5;
-		g->drawtext_outline((XRES - Graphics::textwidth((char*)infoTip.c_str())) / 2, (YRES / 2) - 2, (char*)infoTip.c_str(), 255, 255, 255, infoTipAlpha);
+		int infoTipAlpha = (infoTipPresence>50?50:infoTipPresence)*5;
+		g->drawtext_outline((XRES-Graphics::textwidth(infoTip))/2, (YRES/2)-2, infoTip, 255, 255, 255, infoTipAlpha);
 	}
 
 	if (toolTipPresence && toolTipPosition.X != -1 && toolTipPosition.Y != -1 && toolTip.length())
 	{
-		if (toolTipPosition.Y == Size.Y - MENUSIZE - 10)
-			g->drawtext_outline(toolTipPosition.X, toolTipPosition.Y, (char*)toolTip.c_str(), 255, 255, 255, toolTipPresence > 51 ? 255 : toolTipPresence * 5);
+		if (toolTipPosition.Y == Size.Y-MENUSIZE-10)
+			g->drawtext_outline(toolTipPosition.X, toolTipPosition.Y, toolTip, 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
 		else
-			g->drawtext(toolTipPosition.X, toolTipPosition.Y, (char*)toolTip.c_str(), 255, 255, 255, toolTipPresence > 51 ? 255 : toolTipPresence * 5);
+			g->drawtext(toolTipPosition.X, toolTipPosition.Y, toolTip, 255, 255, 255, toolTipPresence>51?255:toolTipPresence*5);
 	}
 
 	if (buttonTipShow > 0)
 	{
-		g->drawtext(16, Size.Y - MENUSIZE - 24, (char*)buttonTip.c_str(), 255, 255, 255, buttonTipShow > 51 ? 255 : buttonTipShow * 5);
+		g->drawtext(16, Size.Y-MENUSIZE-24, buttonTip, 255, 255, 255, buttonTipShow>51?255:buttonTipShow*5);
 	}
 
 	//Introduction text
 	if (introText)
 	{
-		g->fillrect(0, 0, WINDOWW, WINDOWH, 0, 0, 0, introText > 51 ? 102 : introText * 2);
-		g->drawtext(16, 20, (char*)introTextMessage.c_str(), 255, 255, 255, introText > 51 ? 255 : introText * 5);
+		g->fillrect(0, 0, WINDOWW, WINDOWH, 0, 0, 0, introText>51?102:introText*2);
+		g->drawtext(16, 20, introTextMessage, 255, 255, 255, introText>51?255:introText*5);
 	}
 
 	// Clear menu areas, to ensure particle graphics don't overlap

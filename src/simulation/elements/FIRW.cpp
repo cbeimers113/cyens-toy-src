@@ -1,8 +1,5 @@
-#include "simulation/Elements.h"
-extern "C"
-{
-	#include "hmap.h"
-}
+#include "simulation/ElementCommon.h"
+#include "hmap.h"
 //#TPT-Directive ElementClass Element_FIRW PT_FIRW 69
 Element_FIRW::Element_FIRW()
 {
@@ -69,12 +66,12 @@ int Element_FIRW::update(UPDATE_FUNC_ARGS)
 						sim->GetGravityField(x, y, sim->elements[PT_FIRW].Gravity, 1.0f, gx, gy);
 						if (gx*gx+gy*gy < 0.001f)
 						{
-							float angle = (rand()%6284)*0.001f;//(in radians, between 0 and 2*pi)
+							float angle = RNG::Ref().between(0, 6283) * 0.001f;//(in radians, between 0 and 2*pi)
 							gx += sinf(angle)*sim->elements[PT_FIRW].Gravity*0.5f;
 							gy += cosf(angle)*sim->elements[PT_FIRW].Gravity*0.5f;
 						}
 						parts[i].tmp = 1;
-						parts[i].life = rand()%10+20;
+						parts[i].life = RNG::Ref().between(20, 29);
 						multiplier = (parts[i].life+20)*0.2f/sqrtf(gx*gx+gy*gy);
 						parts[i].vx -= gx*multiplier;
 						parts[i].vy -= gy*multiplier;
@@ -92,7 +89,7 @@ int Element_FIRW::update(UPDATE_FUNC_ARGS)
 	else //if (parts[i].tmp>=2)
 	{
 		float angle, magnitude;
-		int caddress = (rand()%200)*3;
+		int caddress = RNG::Ref().between(0, 199) * 3;
 		int n;
 		unsigned col = (((firw_data[caddress]))<<16) | (((firw_data[caddress+1]))<<8) | ((firw_data[caddress+2]));
 		for (n=0; n<40; n++)
@@ -100,14 +97,14 @@ int Element_FIRW::update(UPDATE_FUNC_ARGS)
 			np = sim->create_part(-3, x, y, PT_EMBR);
 			if (np>-1)
 			{
-				magnitude = ((rand()%60)+40)*0.05f;
-				angle = (rand()%6284)*0.001f;//(in radians, between 0 and 2*pi)
+				magnitude = RNG::Ref().between(40, 99) * 0.05f;
+				angle = RNG::Ref().between(0, 6283) * 0.001f;//(in radians, between 0 and 2*pi)
 				parts[np].vx = parts[i].vx*0.5f + cosf(angle)*magnitude;
 				parts[np].vy = parts[i].vy*0.5f + sinf(angle)*magnitude;
 				parts[np].ctype = col;
 				parts[np].tmp = 1;
-				parts[np].life = rand()%40+70;
-				parts[np].temp = (rand()%500)+5750.0f;
+				parts[np].life = RNG::Ref().between(70, 109);
+				parts[np].temp = RNG::Ref().between(5750, 6249);
 				parts[np].dcolour = parts[i].dcolour;
 			}
 		}

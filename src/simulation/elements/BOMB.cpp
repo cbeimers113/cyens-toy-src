@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_BOMB PT_BOMB 129
 Element_BOMB::Element_BOMB()
 {
@@ -69,10 +69,10 @@ int Element_BOMB::update(UPDATE_FUNC_ARGS)
 							if ((pow((float)nxi,2))/(pow((float)rad,2))+(pow((float)nxj,2))/(pow((float)rad,2))<=1)
 							{
 								int ynxj = y + nxj, xnxi = x + nxi;
-								
+
 								if ((ynxj < 0) || (ynxj >= YRES) || (xnxi <= 0) || (xnxi >= XRES))
 									continue;
-								
+
 								nt = TYP(pmap[ynxj][xnxi]);
 								if (nt!=PT_DMND && nt!=PT_CLNE && nt!=PT_PCLN && nt!=PT_BCLN && nt!=PT_VIBR)
 								{
@@ -98,8 +98,8 @@ int Element_BOMB::update(UPDATE_FUNC_ARGS)
 									parts[nb].tmp = 0;
 									parts[nb].life = 50;
 									parts[nb].temp = MAX_TEMP;
-									parts[nb].vx = rand()%40-20;
-									parts[nb].vy = rand()%40-20;
+									parts[nb].vx = RNG::Ref().between(-20, 20);
+									parts[nb].vy = RNG::Ref().between(-20, 20);
 								}
 							}
 					sim->kill_part(i);

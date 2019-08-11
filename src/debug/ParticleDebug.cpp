@@ -1,8 +1,8 @@
-#include <sstream>
 #include "ParticleDebug.h"
-#include "gui/interface/Engine.h"
-#include "gui/game/GameView.h"
-#include "gui/game/GameController.h"
+
+#include "gui/game/GameModel.h"
+
+#include "simulation/Simulation.h"
 
 ParticleDebug::ParticleDebug(unsigned int id, Simulation * sim, GameModel * model):
 	DebugInfo(id),
@@ -16,7 +16,7 @@ void ParticleDebug::Debug(int mode, int x, int y)
 {
 	int debug_currentParticle = sim->debug_currentParticle;
 	int i = 0;
-	std::stringstream logmessage;
+	String logmessage;
 
 	if (mode == 0)
 	{
@@ -26,21 +26,21 @@ void ParticleDebug::Debug(int mode, int x, int y)
 		while (i < NPART && !sim->parts[i].type)
 			i++;
 		if (i == NPART)
-			logmessage << "End of particles reached, updated sim";
+			logmessage = "End of particles reached, updated sim";
 		else
-			logmessage << "Updated particle #" << i;
+			logmessage = String::Build("Updated particle #", i);
 	}
 	else if (mode == 1)
 	{
 		if (x < 0 || x >= XRES || y < 0 || y >= YRES || !sim->pmap[y][x] || (i = ID(sim->pmap[y][x])) < debug_currentParticle)
 		{
 			i = NPART;
-			logmessage << "Updated particles from #" << debug_currentParticle << " to end, updated sim";
+			logmessage = String::Build("Updated particles from #", debug_currentParticle, " to end, updated sim");
 		}
 		else
-			logmessage << "Updated particles #" << debug_currentParticle << " through #" << i;
+			logmessage = String::Build("Updated particles #", debug_currentParticle, " through #", i);
 	}
-	model->Log(logmessage.str(), false);
+	model->Log(logmessage, false);
 
 	if (sim->debug_currentParticle == 0)
 	{
@@ -58,7 +58,7 @@ void ParticleDebug::Debug(int mode, int x, int y)
 	}
 }
 
-bool ParticleDebug::KeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt, ui::Point currentMouse)
+bool ParticleDebug::KeyPress(int key, int scan, bool shift, bool ctrl, bool alt, ui::Point currentMouse)
 {
 	if (key == 'f')
 	{
@@ -90,9 +90,8 @@ bool ParticleDebug::KeyPress(int key, Uint16 character, bool shift, bool ctrl, b
 			{
 				sim->UpdateParticles(sim->debug_currentParticle, NPART);
 				sim->AfterSim();
-				std::stringstream logmessage;
-				logmessage << "Updated particles from #" << sim->debug_currentParticle << " to end, updated sim";
-				model->Log(logmessage.str(), false);
+				String logmessage = String::Build("Updated particles from #", sim->debug_currentParticle, " to end, updated sim");
+				model->Log(logmessage, false);
 				sim->debug_currentParticle = 0;
 			}
 			else

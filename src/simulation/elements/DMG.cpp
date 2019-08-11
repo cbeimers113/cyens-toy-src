@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_DMG PT_DMG 163
 Element_DMG::Element_DMG()
 {
@@ -70,7 +70,7 @@ int Element_DMG::update(UPDATE_FUNC_ARGS)
 								dist = sqrt(pow(nxi, 2.0f)+pow(nxj, 2.0f));//;(pow((float)nxi,2))/(pow((float)rad,2))+(pow((float)nxj,2))/(pow((float)rad,2));
 								if (!dist || (dist <= rad))
 								{
-									rr = pmap[y+nxj][x+nxi]; 
+									rr = pmap[y+nxj][x+nxi];
 									if (rr)
 									{
 										angle = atan2((float)nxj, nxi);

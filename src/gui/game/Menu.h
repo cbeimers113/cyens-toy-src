@@ -1,44 +1,30 @@
 #ifndef MENU_H_
 #define MENU_H_
 
-#include "Tool.h"
+#include "common/String.h"
 
+class Tool;
 class Menu
 {
-	char icon;
-	string description;
-	vector<Tool*> tools;
+	String::value_type icon;
+	String description;
+	std::vector<Tool*> tools;
 	bool visible;
 public:
-	Menu(char icon_, string description_, int visible_):
-		icon(icon_),
-		description(description_),
-		tools(vector<Tool*>()),
-		visible(visible_ ? true : false)
-	{
+	Menu(String::value_type icon_, String description_, int visible_);
+	virtual ~Menu();
 
-	}
-
-	virtual ~Menu()
-	{
-		for(unsigned int i = 0; i < tools.size(); i++)
-		{
-			delete tools[i];
-		}
-		tools.clear();
-	}
-
-	vector<Tool*> GetToolList()
+	std::vector<Tool*> GetToolList()
 	{
 		return tools;
 	}
 
-	char GetIcon()
+	String::value_type GetIcon()
 	{
 		return icon;
 	}
 
-	string GetDescription()
+	String GetDescription()
 	{
 		return description;
 	}
@@ -48,15 +34,8 @@ public:
 		return visible;
 	}
 
-	void AddTool(Tool * tool_)
-	{
-		tools.push_back(tool_);
-	}
-
-	void ClearTools()
-	{
-		tools.clear();
-	}
+	void AddTool(Tool * tool_);
+	void ClearTools();
 };
 
 

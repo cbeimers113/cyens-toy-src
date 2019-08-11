@@ -1,8 +1,8 @@
-#include <iostream>
+#include "DropDown.h"
+
 #include "graphics/Graphics.h"
 #include "gui/Style.h"
 #include "Button.h"
-#include "DropDown.h"
 #include "gui/interface/Window.h"
 
 namespace ui {
@@ -18,10 +18,10 @@ public:
 	class ItemSelectedAction: public ButtonAction
 	{
 		DropDownWindow * window;
-		std::string option;
+		String option;
 	public:
-		ItemSelectedAction(DropDownWindow * window, std::string option): window(window), option(option) { }
-		virtual void ActionCallback(ui::Button *sender)
+		ItemSelectedAction(DropDownWindow * window, String option): window(window), option(option) { }
+		void ActionCallback(ui::Button *sender) override
 		{
 			window->CloseActiveWindow();
 			window->setOption(option);
@@ -45,12 +45,12 @@ public:
 			currentY += 16;
 		}
 	}
-	virtual void OnDraw()
+	void OnDraw() override
 	{
 		Graphics * g = GetGraphics();
 		g->clearrect(Position.X, Position.Y, Size.X, Size.Y);
 	}
-	void setOption(std::string option)
+	void setOption(String option)
 	{
 		dropDown->SetOption(option);
 		if (dropDown->callback)
@@ -64,7 +64,7 @@ public:
 			dropDown->callback->OptionChanged(dropDown, dropDown->options[optionIndex]);
 		}
 	}
-	virtual void OnTryExit(ExitMethod method)
+	void OnTryExit(ExitMethod method) override
 	{
 		CloseActiveWindow();
 		SelfDestruct();
@@ -119,7 +119,7 @@ void DropDown::Draw(const Point& screenPos)
 	if(optionIndex!=-1)
 		g->drawtext(Position.X+textPosition.X, Position.Y+textPosition.Y, options[optionIndex].first, textColour.Red, textColour.Green, textColour.Blue, textColour.Alpha);
 }
-	
+
 void DropDown::OnMouseEnter(int x, int y)
 {
 	isMouseInside = true;
@@ -129,16 +129,16 @@ void DropDown::OnMouseLeave(int x, int y)
 {
 	isMouseInside = false;
 }
-	std::pair<std::string, int> DropDown::GetOption()
+	std::pair<String, int> DropDown::GetOption()
 	{
 		if(optionIndex!=-1)
 		{
 			return options[optionIndex];
 		}
-		return std::pair<std::string, int>("", -1);
+		return std::pair<String, int>("", -1);
 	}
-	
-	void DropDown::SetOption(std::string option)
+
+	void DropDown::SetOption(String option)
 	{
 		for (size_t i = 0; i < options.size(); i++)
 		{
@@ -162,7 +162,7 @@ void DropDown::OnMouseLeave(int x, int y)
 			}
 		}
 	}
-	void DropDown::AddOption(std::pair<std::string, int> option)
+	void DropDown::AddOption(std::pair<String, int> option)
 	{
 		for (size_t i = 0; i < options.size(); i++)
 		{
@@ -171,7 +171,7 @@ void DropDown::OnMouseLeave(int x, int y)
 		}
 		options.push_back(option);
 	}
-	void DropDown::RemoveOption(std::string option)
+	void DropDown::RemoveOption(String option)
 	{
 	start:
 		for (size_t i = 0; i < options.size(); i++)
@@ -185,7 +185,7 @@ void DropDown::OnMouseLeave(int x, int y)
 			}
 		}
 	}
-	void DropDown::SetOptions(std::vector<std::pair<std::string, int> > options)
+	void DropDown::SetOptions(std::vector<std::pair<String, int> > options)
 	{
 		this->options = options;
 	}

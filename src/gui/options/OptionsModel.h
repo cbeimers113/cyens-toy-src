@@ -1,13 +1,13 @@
 #ifndef OPTIONSMODEL_H_
 #define OPTIONSMODEL_H_
+
 #include <vector>
-#include "OptionsView.h"
-#include "simulation/Simulation.h"
 
 class GameModel;
 class Simulation;
 class OptionsView;
-class OptionsModel {
+class OptionsModel
+{
 	GameModel * gModel;
 	Simulation * sim;
 	std::vector<OptionsView*> observers;
@@ -39,10 +39,20 @@ public:
 	void SetGravityMode(int gravityMode);
 	int GetScale();
 	void SetScale(int scale);
+	bool GetResizable();
+	void SetResizable(bool resizable);
 	bool GetFullscreen();
 	void SetFullscreen(bool fullscreen);
+	bool GetAltFullscreen();
+	void SetAltFullscreen(bool oldFullscreen);
+	bool GetForceIntegerScaling();
+	void SetForceIntegerScaling(bool forceIntegerScaling);
 	bool GetFastQuit();
 	void SetFastQuit(bool fastquit);
+	bool GetMouseClickRequired();
+	void SetMouseClickRequired(bool mouseClickRequired);
+	bool GetIncludePressure();
+	void SetIncludePressure(bool includePressure);
 	virtual ~OptionsModel();
 };
 

@@ -1,11 +1,16 @@
-#include "gui/Style.h"
 #include "ErrorMessage.h"
+
+#include "gui/Style.h"
+
 #include "gui/interface/Button.h"
 #include "gui/interface/Engine.h"
 #include "gui/interface/Label.h"
+
 #include "PowderToy.h"
 
-ErrorMessage::ErrorMessage(std::string title, std::string message,  ErrorMessageCallback * callback_):
+#include "graphics/Graphics.h"
+
+ErrorMessage::ErrorMessage(String title, String message,  ErrorMessageCallback * callback_):
 	ui::Window(ui::Point(-1, -1), ui::Point(200, 35)),
 	callback(callback_)
 {
@@ -29,7 +34,7 @@ ErrorMessage::ErrorMessage(std::string title, std::string message,  ErrorMessage
 		ErrorMessage * message;
 	public:
 		DismissAction(ErrorMessage * message_) { message = message_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			message->CloseActiveWindow();
 			if(message->callback)
@@ -46,16 +51,16 @@ ErrorMessage::ErrorMessage(std::string title, std::string message,  ErrorMessage
 	AddComponent(okayButton);
 	SetOkayButton(okayButton);
 	SetCancelButton(okayButton);
-	
+
 	MakeActiveWindow();
 }
 
-void ErrorMessage::Blocking(std::string title, std::string message)
+void ErrorMessage::Blocking(String title, String message)
 {
 	class BlockingDismissCallback: public ErrorMessageCallback {
 	public:
 		BlockingDismissCallback() {}
-		virtual void DismissCallback() {
+		void DismissCallback() override {
 			ui::Engine::Ref().Break();
 		}
 		virtual ~BlockingDismissCallback() { }

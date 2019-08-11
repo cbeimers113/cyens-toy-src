@@ -1,6 +1,10 @@
 #include "LoginController.h"
-#include "client/User.h"
+
 #include "client/Client.h"
+
+#include "LoginView.h"
+#include "LoginModel.h"
+#include "Controller.h"
 
 LoginController::LoginController(ControllerCallback * callback):
 	HasExited(false)
@@ -15,7 +19,7 @@ LoginController::LoginController(ControllerCallback * callback):
 
 }
 
-void LoginController::Login(string username, string password)
+void LoginController::Login(ByteString username, ByteString password)
 {
 	loginModel->Login(username, password);
 }

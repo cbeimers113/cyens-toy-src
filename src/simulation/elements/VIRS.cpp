@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_VIRS PT_VIRS 174
 Element_VIRS::Element_VIRS()
 {
@@ -51,7 +51,7 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 {
 	//pavg[0] measures how many frames until it is cured (0 if still actively spreading and not being cured)
 	//pavg[1] measures how many frames until it dies
-	int r, rx, ry, rndstore = rand();
+	int r, rx, ry, rndstore = RNG::Ref().gen();
 	if (parts[i].pavg[0])
 	{
 		parts[i].pavg[0] -= (rndstore & 0x1) ? 0 : 1;
@@ -102,7 +102,7 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 				}
 				else if (TYP(r) == PT_PLSM)
 				{
-					if (surround_space && 10 + (int)(sim->pv[(y + ry) / CELL][(x + rx) / CELL]) > (rand() % 100))
+					if (surround_space && RNG::Ref().chance(10 + sim->pv[(y+ry)/CELL][(x+rx)/CELL], 100))
 					{
 						sim->create_part(i, x, y, PT_PLSM);
 						return 1;
@@ -136,7 +136,7 @@ int Element_VIRS::update(UPDATE_FUNC_ARGS)
 			}
 			//reset rndstore only once, halfway through
 			else if (!rx && !ry)
-				rndstore = rand();
+				rndstore = RNG::Ref().gen();
 		}
 	return 0;
 }

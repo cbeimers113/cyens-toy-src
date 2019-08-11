@@ -1,8 +1,15 @@
-#include <iostream>
-#include "graphics/Graphics.h"
 #include "Tool.h"
-#include "GameModel.h"
+
+#include "graphics/Graphics.h"
+#include "graphics/Renderer.h"
+
+#include "gui/game/GameModel.h"
 #include "gui/interface/Colour.h"
+
+#include "simulation/Simulation.h"
+#include "ElementClasses.h"
+
+#include "Menu.h"
 
 VideoBuffer * SampleTool::GetIcon(int toolID, int width, int height)
 {
@@ -15,7 +22,7 @@ VideoBuffer * SampleTool::GetIcon(int toolID, int width, int height)
 			newTexture->SetPixel(x, y, PIXR(pc), PIXG(pc), PIXB(pc), 255);
 		}
 	}
-	newTexture->SetCharacter((width/2)-5, (height/2)-5, 0xE6, 255, 255, 255, 255);
+	newTexture->AddCharacter((width/2)-5, (height/2)-5, 0xE066, 255, 255, 255, 255);
 	newTexture->BlendPixel(10, 9, 100, 180, 255, 255);
 	newTexture->BlendPixel(11, 8, 100, 180, 255, 255);
 	newTexture->BlendPixel(12, 7, 100, 180, 255, 255);
@@ -54,7 +61,7 @@ void SampleTool::Draw(Simulation * sim, Brush * brush, ui::Point position)
 				for(std::vector<Tool*>::iterator iter = elementTools.begin(), end = elementTools.end(); iter != end; ++iter)
 				{
 					Tool * elementTool = *iter;
-					if(elementTool && elementTool->GetToolID()/256 == particleCtype)
+					if(elementTool && ID(elementTool->GetToolID()) == particleCtype)
 						gameModel->SetActiveTool(0, elementTool);
 				}
 			}

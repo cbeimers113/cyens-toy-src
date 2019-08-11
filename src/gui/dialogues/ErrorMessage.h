@@ -7,9 +7,9 @@ class ErrorMessageCallback;
 class ErrorMessage: public ui::Window {
 	ErrorMessageCallback * callback;
 public:
-	ErrorMessage(std::string title, std::string message, ErrorMessageCallback * callback_ = NULL);
-	static void Blocking(std::string title, std::string message);
-	virtual void OnDraw();
+	ErrorMessage(String title, String message, ErrorMessageCallback * callback_ = NULL);
+	static void Blocking(String title, String message);
+	void OnDraw() override;
 	virtual ~ErrorMessage();
 };
 

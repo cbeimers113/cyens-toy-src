@@ -1,5 +1,5 @@
 #include "common/tpt-minmax.h"
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_GRAV PT_GRAV 102
 Element_GRAV::Element_GRAV()
@@ -51,7 +51,7 @@ Element_GRAV::Element_GRAV()
 //#TPT-Directive ElementHeader Element_GRAV static int update(UPDATE_FUNC_ARGS)
 int Element_GRAV::update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].vx*parts[i].vx + parts[i].vy*parts[i].vy >= 0.1f && (rand() % 512) == 0)
+	if (parts[i].vx*parts[i].vx + parts[i].vy*parts[i].vy >= 0.1f && RNG::Ref().chance(1, 512))
 	{
 		if (!parts[i].life)
 			parts[i].life = 48;

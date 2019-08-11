@@ -1,4 +1,8 @@
-#include "ToolClasses.h"
+#include "simulation/ToolCommon.h"
+
+#include "common/tpt-rand.h"
+#include <cmath>
+
 //#TPT-Directive ToolClass Tool_Mix TOOL_MIX 6
 Tool_Mix::Tool_Mix()
 {
@@ -8,13 +12,13 @@ Tool_Mix::Tool_Mix()
 	Description = "Mixes particles.";
 }
 
-int Tool_Mix::Perform(Simulation * sim, Particle * cpart, int x, int y, float strength)
+int Tool_Mix::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength)
 {
 	int thisPart = sim->pmap[y][x];
 	if(!thisPart)
 		return 0;
 
-	if(rand() % 100 != 0)
+	if(random_gen() % 100 != 0)
 		return 0;
 
 	int distance = (int)(std::pow(strength, .5f) * 10);
@@ -22,8 +26,8 @@ int Tool_Mix::Perform(Simulation * sim, Particle * cpart, int x, int y, float st
 	if(!(sim->elements[TYP(thisPart)].Properties & (TYPE_PART | TYPE_LIQUID | TYPE_GAS)))
 		return 0;
 
-	int newX = x + (rand() % distance) - (distance/2);
-	int newY = y + (rand() % distance) - (distance/2);
+	int newX = x + (random_gen() % distance) - (distance/2);
+	int newY = y + (random_gen() % distance) - (distance/2);
 
 	if(newX < 0 || newY < 0 || newX >= XRES || newY >= YRES)
 		return 0;

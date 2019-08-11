@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_NH3 PT_NH3 190
 Element_NH3::Element_NH3()
 {

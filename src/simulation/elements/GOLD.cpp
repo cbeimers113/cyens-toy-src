@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 #include "simulation/Air.h"
 //#TPT-Directive ElementClass Element_GOLD PT_GOLD 170
 Element_GOLD::Element_GOLD()
@@ -56,7 +56,7 @@ int Element_GOLD::update(UPDATE_FUNC_ARGS)
 	static int checkCoordsY[] = { 0, 0, -4, 4 };
 	//Find nearby rusted iron (BMTL with tmp 1+)
 	for(int j = 0; j < 8; j++){
-		rndstore = rand();
+		rndstore = RNG::Ref().gen();
 		rx = (rndstore % 9)-4;
 		rndstore >>= 4;
 		ry = (rndstore % 9)-4;
@@ -90,7 +90,7 @@ int Element_GOLD::update(UPDATE_FUNC_ARGS)
 	}
 	if (TYP(sim->photons[y][x]) == PT_NEUT)
 	{
-		if (!(rand()%7))
+		if (RNG::Ref().chance(1, 7))
 		{
 			sim->kill_part(ID(sim->photons[y][x]));
 		}
@@ -101,7 +101,7 @@ int Element_GOLD::update(UPDATE_FUNC_ARGS)
 //#TPT-Directive ElementHeader Element_GOLD static int graphics(GRAPHICS_FUNC_ARGS)
 int Element_GOLD::graphics(GRAPHICS_FUNC_ARGS)
 {
-	int rndstore = rand();
+	int rndstore = RNG::Ref().gen();
 	*colr += (rndstore % 10) - 5;
 	rndstore >>= 4;
 	*colg += (rndstore % 10)- 5;

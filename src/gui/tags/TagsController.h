@@ -1,13 +1,14 @@
 #ifndef TAGSCONTROLLER_H_
 #define TAGSCONTROLLER_H_
 
-#include "Controller.h"
-#include "TagsView.h"
-#include "client/SaveInfo.h"
+#include "common/String.h"
 
+class ControllerCallback;
+class SaveInfo;
 class TagsView;
 class TagsModel;
-class TagsController {
+class TagsController
+{
 	ControllerCallback * callback;
 	TagsView * tagsView;
 	TagsModel * tagsModel;
@@ -16,8 +17,8 @@ public:
 	TagsController(ControllerCallback * callback, SaveInfo * save);
 	TagsView * GetView() {return tagsView;}
 	SaveInfo * GetSave();
-	void RemoveTag(std::string tag);
-	void AddTag(std::string tag);
+	void RemoveTag(ByteString tag);
+	void AddTag(ByteString tag);
 	void Exit();
 	virtual ~TagsController();
 };

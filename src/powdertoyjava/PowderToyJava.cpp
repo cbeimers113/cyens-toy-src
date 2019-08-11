@@ -2,16 +2,12 @@
 
 #include <ctime>
 #include <iostream>
-#include <sstream>
-#include <string>
 
 #include "Config.h"
 #include "PowderToyJava.h"
 #include "graphics/Graphics.h"
 
 #include "game/GameController.h"
-
-using namespace std;
 
 GameController * gameController;
 ui::Engine * engine;
@@ -20,12 +16,12 @@ int elapsedTime = 0, currentTime = 0, lastTime = 0, currentFrame = 0;
 float fps = 0, delta = 1.0f;
 
 JNIEXPORT void JNICALL Java_PowderToy_initialise(JNIEnv * env, jobject canvas)
-{	
+{
 	ui::Engine::Ref().g = new Graphics();
-	
+
 	engine = &ui::Engine::Ref();
 	engine->Begin(WINDOWW, WINDOWH);
-	
+
 	gameController = new GameController();
 	engine->ShowWindow(gameController->GetView());
 	engine->SetFps(fps);

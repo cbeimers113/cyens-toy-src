@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_COAL PT_COAL 59
 Element_COAL::Element_COAL()
 {
@@ -56,7 +56,7 @@ int Element_COAL::update(UPDATE_FUNC_ARGS)
 	}
 	else if (parts[i].life < 100) {
 		parts[i].life--;
-		sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, PT_FIRE);
+		sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), PT_FIRE);
 	}
 	if (parts[i].type == PT_COAL)
 	{
@@ -64,8 +64,8 @@ int Element_COAL::update(UPDATE_FUNC_ARGS)
 			parts[i].tmp = 39;
 		else if (parts[i].tmp < 40 && parts[i].tmp>0)
 			parts[i].tmp--;
-		else if (parts[i].tmp <= 0) {
-			sim->create_part(i, x, y, PT_BCOL);
+		else if (parts[i].tmp<=0) {
+			sim->part_change_type(i, x, y, PT_BCOL);
 			return 1;
 		}
 	}

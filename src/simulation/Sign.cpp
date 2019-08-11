@@ -1,8 +1,9 @@
 #include "Sign.h"
+
 #include "graphics/Graphics.h"
 #include "simulation/Simulation.h"
 
-sign::sign(std::string text_, int x_, int y_, Justification justification_):
+sign::sign(String text_, int x_, int y_, Justification justification_):
 	x(x_),
 	y(y_),
 	ju(justification_),
@@ -10,106 +11,153 @@ sign::sign(std::string text_, int x_, int y_, Justification justification_):
 {
 }
 
-std::string sign::getText(Simulation *sim)
+String sign::getDisplayText(Simulation *sim, int &x0, int &y0, int &w, int &h, bool colorize)
 {
-	char buff[256];
-	char signText[256];
-	sprintf(signText, "%s", text.substr(0, 255).c_str());
-
-	if(signText[0] && signText[0] == '{')
+	String drawable_text;
+	auto si = std::make_pair(0, Type::Normal);
+	if (text.find('{') == text.npos)
 	{
-		if (!strcmp(signText,"{p}"))
-		{
-			float pressure = 0.0f;
-			if (x>=0 && x<XRES && y>=0 && y<YRES)
-				pressure = sim->pv[y/CELL][x/CELL];
-			sprintf(buff, "Pressure: %3.2f", pressure);  //...pressure
-		}
-		else if (!strcmp(signText,"{aheat}"))
-		{
-			float aheat = 0.0f;
-			if (x>=0 && x<XRES && y>=0 && y<YRES)
-				aheat = sim->hv[y/CELL][x/CELL];
-			sprintf(buff, "%3.2f", aheat-273.15);
-		}
-		else if (!strcmp(signText,"{t}"))
-		{
-			if (x>=0 && x<XRES && y>=0 && y<YRES && sim->pmap[y][x])
-				sprintf(buff, "Temp: %4.2f", sim->parts[ID(sim->pmap[y][x])].temp-273.15);  //...temperature
-			else
-				sprintf(buff, "Temp: 0.00");  //...temperature
-		}
-		else
-		{
-			int pos = splitsign(signText);
-			if (pos)
-			{
-				strcpy(buff, signText+pos+1);
-				buff[strlen(signText)-pos-2]=0;
-			}
-			else
-				strcpy(buff, signText);
-		}
+		drawable_text = text;
 	}
 	else
 	{
-		strcpy(buff, signText);
+		si = split();
+		if (si.first)
+		{
+			drawable_text = text.Between(si.first + 1, text.size() - 1);
+		}
+		else
+		{
+			Particle const *part = nullptr;
+			float pressure = 0.0f;
+			float aheat = 0.0f;
+			if (x >= 0 && x < XRES && y >= 0 && y < YRES)
+			{
+				if (sim->photons[y][x])
+				{
+					part = &(sim->parts[ID(sim->photons[y][x])]);
+				}
+				else if (sim->pmap[y][x])
+				{
+					part = &(sim->parts[ID(sim->pmap[y][x])]);
+				}
+				pressure = sim->pv[y/CELL][x/CELL];
+				aheat = sim->hv[y/CELL][x/CELL] - 273.15f;
+			}
+
+			String remaining_text = text;
+			StringBuilder formatted_text;
+			while (auto split_left_curly = remaining_text.SplitBy('{'))
+			{
+				String after_left_curly = split_left_curly.After();
+				if (auto split_right_curly = after_left_curly.SplitBy('}'))
+				{
+					formatted_text << split_left_curly.Before();
+					remaining_text = split_right_curly.After();
+					String between_curlies = split_right_curly.Before();
+					if (between_curlies == "t" || between_curlies == "temp")
+					{
+						formatted_text << Format::Precision(Format::ShowPoint(part ? part->temp - 273.15f : 0.0f), 2);
+					}
+					else if (between_curlies == "p" || between_curlies == "pres")
+					{
+						formatted_text << Format::Precision(Format::ShowPoint(pressure), 2);
+					}
+					else if (between_curlies == "a" || between_curlies == "aheat")
+					{
+						formatted_text << Format::Precision(Format::ShowPoint(aheat), 2);
+					}
+					else if (between_curlies == "type")
+					{
+						formatted_text << (part ? sim->BasicParticleInfo(*part) : (formatted_text.Size() ? String::Build("empty") : String::Build("Empty")));
+					}
+					else if (between_curlies == "ctype")
+					{
+						formatted_text << (part ? ((part->ctype && sim->IsValidElement(part->ctype)) ? sim->ElementResolve(part->ctype, -1) : String::Build(part->ctype)) : (formatted_text.Size() ? String::Build("empty") : String::Build("Empty")));
+					}
+					else if (between_curlies == "life")
+					{
+						formatted_text << (part ? part->life : 0);
+					}
+					else if (between_curlies == "tmp")
+					{
+						formatted_text << (part ? part->tmp : 0);
+					}
+					else if (between_curlies == "tmp2")
+					{
+						formatted_text << (part ? part->tmp2 : 0);
+					}
+					else
+					{
+						formatted_text << '{' << between_curlies << '}';
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			formatted_text << remaining_text;
+			drawable_text = formatted_text.Build();
+		}
 	}
 
-	return std::string(buff);
-}
-
-void sign::pos(std::string signText, int & x0, int & y0, int & w, int & h)
-{
-	w = Graphics::textwidth(signText.c_str()) + 5;
-	h = 15;
-	x0 = (ju == Right) ? x - w :
-		  (ju == Left) ? x : x - w/2;
-	y0 = (y > 18) ? y - 18 : y + 4;
-}
-
-int sign::splitsign(const char* str, char * type)
-{
-	if (str[0]=='{' && (str[1]=='c' || str[1]=='t' || str[1]=='b' || str[1]=='s'))
+	if (colorize)
 	{
-		const char* p = str+2;
-		// signs with text arguments
-		if (str[1] == 's')
+		switch (si.second)
 		{
-			if (str[2]==':')
-			{
-				p = str+4;
-				while (*p && *p!='|')
-					p++;
-			}
-			else
-				return 0;
-		}
-		// signs with number arguments
-		if (str[1] == 'c' || str[1] == 't')
-		{
-			if (str[2]==':' && str[3]>='0' && str[3]<='9')
-			{
-				p = str+4;
-				while (*p>='0' && *p<='9')
-					p++;
-			}
-			else
-				return 0;
-		}
-
-		if (*p=='|')
-		{
-			int r = p-str;
-			while (*p)
-				p++;
-			if (p[-1] == '}')
-			{
-				if (type)
-					*type = str[1];
-				return r;
-			}
+		case Normal: break;
+		case Save:   drawable_text = "\bt" + drawable_text; break;
+		case Thread: drawable_text = "\bl" + drawable_text; break;
+		case Button: drawable_text = "\bo" + drawable_text; break;
+		case Search: drawable_text = "\bu" + drawable_text; break;
 		}
 	}
-	return 0;
+
+	w = Graphics::textwidth(drawable_text.c_str()) + 5;
+	h = 15;
+	x0 = (ju == Right) ? x - w : (ju == Left) ? x : x - w/2;
+	y0 = (y > 18) ? y - 18 : y + 4;
+
+	return drawable_text;
+}
+
+std::pair<int, sign::Type> sign::split()
+{
+	String::size_type pipe = 0;
+	if (text.size() >= 4 && text.front() == '{' && text.back() == '}')
+	{
+		switch (text[1])
+		{
+		case 'c':
+		case 't':
+			if (text[2] == ':' && (pipe = text.find('|', 4)) != text.npos)
+			{
+				for (String::size_type i = 3; i < pipe; ++i)
+				{
+					if (text[i] < '0' || text[i] > '9')
+					{
+						return std::make_pair(0, Type::Normal);
+					}
+				}
+				return std::make_pair(pipe, text[1] == 'c' ? Type::Save : Type::Thread);
+			}
+			break;
+
+		case 'b':
+			if (text[2] == '|')
+			{
+				return std::make_pair(2, Type::Button);
+			}
+			break;
+
+		case 's':
+			if (text[2] == ':' && (pipe = text.find('|', 3)) != text.npos)
+			{
+				return std::make_pair(pipe, Type::Search);
+			}
+			break;
+		}
+	}
+	return std::make_pair(0, Type::Normal);
 }

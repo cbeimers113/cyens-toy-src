@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_CLST PT_CLST 155
 Element_CLST::Element_CLST()
 {
@@ -60,7 +60,7 @@ int Element_CLST::update(UPDATE_FUNC_ARGS)
 					continue;
 				if (TYP(r)==PT_WATR)
 				{
-					if (!(rand()%1500))
+					if (RNG::Ref().chance(1, 1500))
 					{
 						sim->create_part(i, x, y, PT_PSTS);
 						sim->kill_part(ID(r));

@@ -1,4 +1,5 @@
-#include "ToolClasses.h"
+#include "simulation/ToolCommon.h"
+
 //#TPT-Directive ToolClass Tool_Cool TOOL_COOL 1
 Tool_Cool::Tool_Cool()
 {
@@ -8,7 +9,7 @@ Tool_Cool::Tool_Cool()
 	Description = "Cools the targeted element.";
 }
 
-int Tool_Cool::Perform(Simulation * sim, Particle * cpart, int x, int y, float strength)
+int Tool_Cool::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength)
 {
 	if(!cpart)
 		return 0;

@@ -1,9 +1,13 @@
-#include "gui/Style.h"
 #include "SaveIDMessage.h"
+
+#include "gui/Style.h"
+
 #include "graphics/Graphics.h"
+
 #include "gui/interface/Button.h"
 #include "gui/interface/CopyTextButton.h"
 #include "gui/interface/Label.h"
+
 #include "Format.h"
 
 SaveIDMessage::SaveIDMessage(int id):
@@ -28,8 +32,8 @@ SaveIDMessage::SaveIDMessage(int id):
 	copyTextLabel->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
 	AddComponent(copyTextLabel);
 
-	textWidth = Graphics::textwidth(format::NumberToString<int>(id).c_str());
-	ui::CopyTextButton * copyTextButton = new ui::CopyTextButton(ui::Point((Size.X-textWidth-10)/2, 50), ui::Point(textWidth+10, 18), format::NumberToString<int>(id), copyTextLabel);
+	textWidth = Graphics::textwidth(String::Build(id));
+	ui::CopyTextButton * copyTextButton = new ui::CopyTextButton(ui::Point((Size.X-textWidth-10)/2, 50), ui::Point(textWidth+10, 18), String::Build(id), copyTextLabel);
 	AddComponent(copyTextButton);
 
 	class DismissAction: public ui::ButtonAction
@@ -37,7 +41,7 @@ SaveIDMessage::SaveIDMessage(int id):
 		SaveIDMessage * message;
 	public:
 		DismissAction(SaveIDMessage * message_) { message = message_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			message->CloseActiveWindow();
 			message->SelfDestruct();
@@ -52,7 +56,7 @@ SaveIDMessage::SaveIDMessage(int id):
 	// This button has multiple personalities
 	SetOkayButton(okayButton);
 	SetCancelButton(okayButton);
-	
+
 	MakeActiveWindow();
 }
 

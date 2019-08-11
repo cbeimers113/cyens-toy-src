@@ -1,5 +1,5 @@
 #include "common/tpt-minmax.h"
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 
 //#TPT-Directive ElementClass Element_PLNT PT_PLNT 20
 Element_PLNT::Element_PLNT()
@@ -49,7 +49,6 @@ Element_PLNT::Element_PLNT()
 	Graphics = &Element_PLNT::graphics;
 }
 
-#include <iostream>
 //#TPT-Directive ElementHeader Element_PLNT static int update(UPDATE_FUNC_ARGS)
 int Element_PLNT::update(UPDATE_FUNC_ARGS)
 {
@@ -62,7 +61,7 @@ int Element_PLNT::update(UPDATE_FUNC_ARGS)
 				switch (TYP(r))
 				{
 				case PT_WATR:
-					if (!(rand()%50))
+					if (RNG::Ref().chance(1, 50))
 					{
 						np = sim->create_part(ID(r),x+rx,y+ry,PT_PLNT);
 						if (np<0) continue;
@@ -70,7 +69,7 @@ int Element_PLNT::update(UPDATE_FUNC_ARGS)
 					}
 					break;
 				case PT_LAVA:
-					if (!(rand()%50))
+					if (RNG::Ref().chance(1, 50))
 					{
 						sim->part_change_type(i,x,y,PT_FIRE);
 						parts[i].life = 4;
@@ -78,14 +77,14 @@ int Element_PLNT::update(UPDATE_FUNC_ARGS)
 					break;
 				case PT_SMKE:
 				case PT_CO2:
-					if (!(rand()%50))
+					if (RNG::Ref().chance(1, 50))
 					{
 						sim->kill_part(ID(r));
-						parts[i].life = rand()%60 + 60;
+						parts[i].life = RNG::Ref().between(60, 119);
 					}
 					break;
 				case PT_WOOD:
-					rndstore = rand();
+					rndstore = RNG::Ref().gen();
 					if (surround_space && !(rndstore%4) && parts[i].tmp==1)
 					{
 						rndstore >>= 3;

@@ -2,24 +2,23 @@
 #define The_Powder_Toy_GameSave_h
 
 #include <vector>
-#include <string>
+#include "common/String.h"
 #include "Config.h"
 #include "Misc.h"
 
 #include "bson/BSON.h"
 #include "json/json.h"
-#include "simulation/Sign.h"
-#include "simulation/Particle.h"
 
-//using namespace std;
+struct sign;
+struct Particle;
 
 struct ParseException: public std::exception {
 	enum ParseResult { OK = 0, Corrupt, WrongVersion, InvalidDimensions, InternalError, MissingElement };
-	std::string message;
+	ByteString message;
 	ParseResult result;
 public:
-	ParseException(ParseResult result, std::string message_): message(message_), result(result) {}
-	const char * what() const throw()
+	ParseException(ParseResult result, String message): message(message.ToUtf8()), result(result) {}
+	const char * what() const throw() override
 	{
 		return message.c_str();
 	}
@@ -27,22 +26,53 @@ public:
 };
 
 struct BuildException: public std::exception {
-	std::string message;
+	ByteString message;
 public:
-	BuildException(std::string message_): message(message_) {}
-	const char * what() const throw()
+	BuildException(String message): message(message.ToUtf8()) {}
+	const char * what() const throw() override
 	{
 		return message.c_str();
 	}
 	~BuildException() throw() {}
 };
 
+class StkmData
+{
+public:
+	bool rocketBoots1 = false;
+	bool rocketBoots2 = false;
+	bool fan1 = false;
+	bool fan2 = false;
+	std::vector<unsigned int> rocketBootsFigh = std::vector<unsigned int>();
+	std::vector<unsigned int> fanFigh = std::vector<unsigned int>();
+
+	StkmData() = default;
+
+	StkmData(const StkmData & stkmData):
+		rocketBoots1(stkmData.rocketBoots1),
+		rocketBoots2(stkmData.rocketBoots2),
+		fan1(stkmData.fan1),
+		fan2(stkmData.fan2),
+		rocketBootsFigh(stkmData.rocketBootsFigh),
+		fanFigh(stkmData.fanFigh)
+	{
+
+	}
+
+	bool hasData()
+	{
+		return rocketBoots1 || rocketBoots2 || fan1 || fan2
+		        || rocketBootsFigh.size() || fanFigh.size();
+	}
+};
+
 class GameSave
 {
 public:
-	
+
 	int blockWidth, blockHeight;
 	bool fromNewerVersion;
+	int majorVersion, minorVersion;
 	bool hasPressure;
 	bool hasAmbientHeat;
 
@@ -57,7 +87,7 @@ public:
 	float ** velocityX;
 	float ** velocityY;
 	float ** ambientHeat;
-	
+
 	//Simulation Options
 	bool waterEEnabled;
 	bool legacyEnable;
@@ -67,12 +97,13 @@ public:
 	int gravityMode;
 	int airMode;
 	int edgeMode;
-	
+
 	//Signs
 	std::vector<sign> signs;
+	StkmData stkm;
 
 	//Element palette
-	typedef std::pair<std::string, int> PaletteItem;
+	typedef std::pair<ByteString, int> PaletteItem;
 	std::vector<PaletteItem> palette;
 
 	// author information
@@ -97,23 +128,14 @@ public:
 	void Expand();
 	void Collapse();
 	bool Collapsed();
-	
-	inline GameSave& operator << (Particle v)
-	{
-		if(particlesCount<NPART && v.type)
-		{
-			particles[particlesCount++] = v;
-		}
-		return *this;
-	}
-	
-	inline GameSave& operator << (sign v)
-	{
-		if(signs.size()<MAXSIGNS && v.text.length())
-			signs.push_back(v);
-		return *this;
-	}
-		
+
+	static bool TypeInCtype(int type, int ctype);
+	static bool TypeInTmp(int type);
+	static bool TypeInTmp2(int type, int tmp2);
+
+	GameSave& operator << (Particle &v);
+	GameSave& operator << (sign &v);
+
 private:
 	bool expanded;
 	bool hasOriginalData;

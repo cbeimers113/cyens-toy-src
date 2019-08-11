@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_CRAY PT_CRAY 167
 Element_CRAY::Element_CRAY()
 {
@@ -43,6 +43,7 @@ Element_CRAY::Element_CRAY()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_CRAY::update;
+	CtypeDraw = &Element_CRAY::ctypeDraw;
 }
 
 //#TPT-Directive ElementHeader Element_CRAY static int update(UPDATE_FUNC_ARGS)
@@ -155,5 +156,19 @@ unsigned int Element_CRAY::wavelengthToDecoColour(int wavelength)
 	return (255<<24) | (colr<<16) | (colg<<8) | colb;
 }
 
+//#TPT-Directive ElementHeader Element_CRAY static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+bool Element_CRAY::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+{
+	if (!Element::ctypeDrawVInCtype(CTYPEDRAW_FUNC_SUBCALL_ARGS))
+	{
+		return false;
+	}
+	if (t == PT_LIGH)
+	{
+		sim->parts[i].ctype |= PMAPID(30);
+	}
+	sim->parts[i].temp = sim->elements[t].Temperature;
+	return true;
+}
 
 Element_CRAY::~Element_CRAY() {}

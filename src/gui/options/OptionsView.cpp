@@ -1,3 +1,8 @@
+#include "OptionsView.h"
+
+#include "OptionsController.h"
+#include "OptionsModel.h"
+
 #include <cstdio>
 #ifdef WIN
 #include <direct.h>
@@ -7,89 +12,208 @@
 #endif
 #include "SDLCompat.h"
 
-#include "OptionsView.h"
-#include "Format.h"
 #include "gui/Style.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Label.h"
 #include "gui/interface/DropDown.h"
 #include "gui/interface/Engine.h"
-#include "gui/dialogues/ErrorMessage.h"
+#include "gui/interface/Checkbox.h"
 
-OptionsView::OptionsView() :
-	ui::Window(ui::Point(-1, -1), ui::Point(600, 348)) {
+#include "graphics/Graphics.h"
 
-	ui::Label * tempLabel = new ui::Label(ui::Point(4, 5), ui::Point(Size.X - 8, 14), "Simulation Options");
+OptionsView::OptionsView():
+	ui::Window(ui::Point(-1, -1), ui::Point(320, 340)){
+
+	auto autowidth = [this](ui::Component *c) {
+		c->Size.X = Size.X - c->Position.X - 12;
+	};
+	
+	ui::Label * tempLabel = new ui::Label(ui::Point(4, 1), ui::Point(Size.X-8, 22), "Simulation Options");
 	tempLabel->SetTextColour(style::Colour::InformationTitle);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
 	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	autowidth(tempLabel);
 	AddComponent(tempLabel);
 
-	ui::Label *cyensOptionsLabel = new ui::Label(ui::Point(34, 5), ui::Point(Size.X + 32, 14), "Cyens Toy Options");
-	cyensOptionsLabel->SetTextColour(style::Colour::InformationTitle);
-	cyensOptionsLabel->Appearance.HorizontalAlign = ui::Appearance::AlignCentre;
-	cyensOptionsLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(cyensOptionsLabel);
+	class Separator : public ui::Component
+	{
+		public:
+		Separator(ui::Point position, ui::Point size) : Component(position, size){}
+		virtual ~Separator(){}
 
-	class HeatSimulationAction : public ui::CheckboxAction
+		void Draw(const ui::Point& screenPos)
+		{
+			GetGraphics()->drawrect(screenPos.X, screenPos.Y, Size.X, Size.Y, 255, 255, 255, 180);
+		}		
+	};
+	
+	Separator *tmpSeparator = new Separator(ui::Point(0, 22), ui::Point(Size.X, 1));
+	AddComponent(tmpSeparator);
+
+	int currentY = 6;
+	scrollPanel = new ui::ScrollPanel(ui::Point(1, 23), ui::Point(Size.X-2, Size.Y-39));
+	
+	AddComponent(scrollPanel);
+
+	class HeatSimulationAction: public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		HeatSimulationAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetHeatSimulation(sender->GetChecked()); }
+		HeatSimulationAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetHeatSimulation(sender->GetChecked());
+		}
 	};
 
-	heatSimulation = new ui::Checkbox(ui::Point(8, 23), ui::Point(Size.X - 306, 16), "Heat simulation \bgIntroduced in version 34", "");
+	heatSimulation = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Heat simulation \bgIntroduced in version 34", "");
+	autowidth(heatSimulation);
 	heatSimulation->SetActionCallback(new HeatSimulationAction(this));
-	AddComponent(heatSimulation);
-	tempLabel = new ui::Label(ui::Point(24, heatSimulation->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgCan cause odd behaviour when disabled");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(heatSimulation);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(1, 16), "\bgCan cause odd behaviour when disabled");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
 
 	class AmbientHeatSimulationAction : public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		AmbientHeatSimulationAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetAmbientHeatSimulation(sender->GetChecked()); }
+		AmbientHeatSimulationAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetAmbientHeatSimulation(sender->GetChecked());
+		}
 	};
 
-	ambientHeatSimulation = new ui::Checkbox(ui::Point(8, 53), ui::Point(Size.X - 306, 16), "Ambient heat simulation \bgIntroduced in version 50", "");
+	currentY+=16;
+	ambientHeatSimulation = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Ambient heat simulation \bgIntroduced in version 50", "");
+	autowidth(ambientHeatSimulation);
 	ambientHeatSimulation->SetActionCallback(new AmbientHeatSimulationAction(this));
-	AddComponent(ambientHeatSimulation);
-	tempLabel = new ui::Label(ui::Point(24, ambientHeatSimulation->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgCan cause odd / broken behaviour with many saves");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(ambientHeatSimulation);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(1, 16), "\bgCan cause odd / broken behaviour with many saves");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
 
 	class NewtonianGravityAction : public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		NewtonianGravityAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetNewtonianGravity(sender->GetChecked()); }
+		NewtonianGravityAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetNewtonianGravity(sender->GetChecked());
+		}
 	};
 
-	newtonianGravity = new ui::Checkbox(ui::Point(8, 83), ui::Point(Size.X - 306, 16), "Newtonian gravity \bgIntroduced in version 48", "");
+	currentY+=16;
+	newtonianGravity = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Newtonian gravity \bgIntroduced in version 48", "");
+	autowidth(newtonianGravity);
 	newtonianGravity->SetActionCallback(new NewtonianGravityAction(this));
-	AddComponent(newtonianGravity);
-	tempLabel = new ui::Label(ui::Point(24, newtonianGravity->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgMay cause poor performance on older computers");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(newtonianGravity);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(1, 16), "\bgMay cause poor performance on older computers");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
 
-	class WaterEqualisationAction : public ui::CheckboxAction
+	class WaterEqualisationAction: public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		WaterEqualisationAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetWaterEqualisation(sender->GetChecked()); }
+		WaterEqualisationAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetWaterEqualisation(sender->GetChecked());
+		}
 	};
 
-	waterEqualisation = new ui::Checkbox(ui::Point(8, 113), ui::Point(Size.X - 306, 16), "Water equalisation \bgIntroduced in version 61", "");
+	currentY+=16;
+	waterEqualisation = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Water equalisation \bgIntroduced in version 61", "");
+	autowidth(waterEqualisation);
 	waterEqualisation->SetActionCallback(new WaterEqualisationAction(this));
-	AddComponent(waterEqualisation);
-	tempLabel = new ui::Label(ui::Point(24, waterEqualisation->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgMay cause poor performance with a lot of water");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(waterEqualisation);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(1, 16), "\bgMay cause poor performance with a lot of water");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+
+	class AirModeChanged : public ui::DropDownAction
+	{
+		OptionsView * v;
+	public:
+		AirModeChanged(OptionsView * v): v(v) { }
+		void OptionChanged(ui::DropDown * sender, std::pair<String, int> option) override {
+			v->c->SetAirMode(option.second);
+		}
+	};
+	currentY+=19;
+	airMode = new ui::DropDown(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
+	scrollPanel->AddChild(airMode);
+	airMode->AddOption(std::pair<String, int>("On", 0));
+	airMode->AddOption(std::pair<String, int>("Pressure off", 1));
+	airMode->AddOption(std::pair<String, int>("Velocity off", 2));
+	airMode->AddOption(std::pair<String, int>("Off", 3));
+	airMode->AddOption(std::pair<String, int>("No Update", 4));
+	airMode->SetActionCallback(new AirModeChanged(this));
+
+	tempLabel = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X-96, 16), "Air Simulation Mode");
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+
+	class GravityModeChanged : public ui::DropDownAction
+	{
+		OptionsView * v;
+	public:
+		GravityModeChanged(OptionsView * v): v(v) { }
+		void OptionChanged(ui::DropDown * sender, std::pair<String, int> option) override {
+			v->c->SetGravityMode(option.second);
+		}
+	};
+
+	currentY+=20;
+	gravityMode = new ui::DropDown(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
+	scrollPanel->AddChild(gravityMode);
+	gravityMode->AddOption(std::pair<String, int>("Vertical", 0));
+	gravityMode->AddOption(std::pair<String, int>("Off", 1));
+	gravityMode->AddOption(std::pair<String, int>("Radial", 2));
+	gravityMode->SetActionCallback(new GravityModeChanged(this));
+
+	tempLabel = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X-96, 16), "Gravity Simulation Mode");
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+
+	class EdgeModeChanged : public ui::DropDownAction
+	{
+		OptionsView * v;
+	public:
+		EdgeModeChanged(OptionsView * v): v(v) { }
+		void OptionChanged(ui::DropDown * sender, std::pair<String, int> option) override {
+			v->c->SetEdgeMode(option.second);
+		}
+	};
+	currentY+=20;
+	edgeMode = new ui::DropDown(ui::Point(Size.X-95, currentY), ui::Point(80, 16));
+	scrollPanel->AddChild(edgeMode);
+	edgeMode->AddOption(std::pair<String, int>("Void", 0));
+	edgeMode->AddOption(std::pair<String, int>("Solid", 1));
+	edgeMode->AddOption(std::pair<String, int>("Loop", 2));
+	edgeMode->SetActionCallback(new EdgeModeChanged(this));
+
+	tempLabel = new ui::Label(ui::Point(8, currentY), ui::Point(Size.X-96, 16), "Edge Mode");
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+
+	currentY+=20;
+	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
+	scrollPanel->AddChild(tmpSeparator);
 
 	class InfoScreenToggleAction : public ui::CheckboxAction
 	{
@@ -99,12 +223,16 @@ OptionsView::OptionsView() :
 		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetInfoScreen(sender->GetChecked()); }
 	};
 
-	infoScreenOption = new ui::Checkbox(ui::Point(308, 23), ui::Point(Size.X - 6, 16), "Enable info screen \bg[Not Implemented]", "");
+	currentY+=16;
+	infoScreenOption = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Enable info screen \bg[Not Implemented]", "");
+	autowidth(infoScreenOption);
 	infoScreenOption->SetActionCallback(new InfoScreenToggleAction(this));
-	AddComponent(infoScreenOption);
-	tempLabel = new ui::Label(ui::Point(324, infoScreenOption->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgMini in-game wiki");
+	scrollPanel->AddChild(infoScreenOption);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(1, 16), "\bgMini in-game wiki");
+	autowidth(tempLabel);
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(tempLabel);
 
 	class TimeDilationToggleAction : public ui::CheckboxAction
 	{
@@ -114,12 +242,15 @@ OptionsView::OptionsView() :
 		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetTimeDilation(sender->GetChecked()); }
 	};
 
-	timeDilationSimulation = new ui::Checkbox(ui::Point(308, 53), ui::Point(Size.X - 6, 16), "Time dilation simulation \bgIntroduced in Cyens Toy 2.0.0", "");
+	currentY+=16;
+	timeDilationSimulation = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Time dilation simulation \bgIntroduced in Cyens Toy 2.0.0", "");
+	autowidth(timeDilationSimulation);
 	timeDilationSimulation->SetActionCallback(new TimeDilationToggleAction(this));
-	AddComponent(timeDilationSimulation);
-	tempLabel = new ui::Label(ui::Point(324, timeDilationSimulation->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgHugely exaggerated, not realistic at all");
+	scrollPanel->AddChild(timeDilationSimulation);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(Size.X - 28, 16), String("\bgHugely exaggerated, not realistic at all"));
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(tempLabel);
 
 	class CompressibleGasesToggleAction : public ui::CheckboxAction
 	{
@@ -129,80 +260,30 @@ OptionsView::OptionsView() :
 		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetCompressibleGases(sender->GetChecked()); }
 	};
 
-	compressibleGasesSimulation = new ui::Checkbox(ui::Point(308, 83), ui::Point(Size.X - 6, 16), "Compressible gases \bgIntroduced in Cyens Toy 2.0.4", "");
+	currentY+=16;
+	compressibleGasesSimulation = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Compressible gases \bgIntroduced in Cyens Toy 2.0.4", "");
 	compressibleGasesSimulation->SetActionCallback(new CompressibleGasesToggleAction(this));
-	AddComponent(compressibleGasesSimulation);
-	tempLabel = new ui::Label(ui::Point(324, compressibleGasesSimulation->Position.Y + 14), ui::Point(Size.X - 28, 16), "\bgAllows gases to be naturally compressed up to 5x");
+	scrollPanel->AddChild(compressibleGasesSimulation);
+	currentY+=14;
+	tempLabel = new ui::Label(ui::Point(24, currentY), ui::Point(Size.X - 28, 16), String("\bgAllows gases to be naturally compressed up to 5x"));
 	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	scrollPanel->AddChild(tempLabel);
 
-	class AirModeChanged : public ui::DropDownAction
-	{
-		OptionsView * v;
-	public:
-		AirModeChanged(OptionsView * v) : v(v) { }
-		virtual void OptionChanged(ui::DropDown * sender, std::pair<std::string, int> option) { v->c->SetAirMode(option.second); }
-	};
-	airMode = new ui::DropDown(ui::Point(Size.X - 388, 146), ui::Point(80, 16));
-	AddComponent(airMode);
-	airMode->AddOption(std::pair<std::string, int>("On", 0));
-	airMode->AddOption(std::pair<std::string, int>("Pressure off", 1));
-	airMode->AddOption(std::pair<std::string, int>("Velocity off", 2));
-	airMode->AddOption(std::pair<std::string, int>("Off", 3));
-	airMode->AddOption(std::pair<std::string, int>("No Update", 4));
-	airMode->SetActionCallback(new AirModeChanged(this));
-
-	tempLabel = new ui::Label(ui::Point(8, 146), ui::Point(Size.X - 396, 16), "Air Simulation Mode");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
-
-	class GravityModeChanged : public ui::DropDownAction
-	{
-		OptionsView * v;
-	public:
-		GravityModeChanged(OptionsView * v) : v(v) { }
-		virtual void OptionChanged(ui::DropDown * sender, std::pair<std::string, int> option) { v->c->SetGravityMode(option.second); }
-	};
-
-	gravityMode = new ui::DropDown(ui::Point(Size.X - 388, 166), ui::Point(80, 16));
-	AddComponent(gravityMode);
-	gravityMode->AddOption(std::pair<std::string, int>("Vertical", 0));
-	gravityMode->AddOption(std::pair<std::string, int>("Off", 1));
-	gravityMode->AddOption(std::pair<std::string, int>("Radial", 2));
-	gravityMode->AddOption(std::pair<std::string, int>("Local", 3));
-	gravityMode->SetActionCallback(new GravityModeChanged(this));
-
-	tempLabel = new ui::Label(ui::Point(8, 166), ui::Point(Size.X - 396, 16), "Gravity Simulation Mode");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
-
-	class EdgeModeChanged : public ui::DropDownAction
-	{
-		OptionsView * v;
-	public:
-		EdgeModeChanged(OptionsView * v) : v(v) { }
-		virtual void OptionChanged(ui::DropDown * sender, std::pair<std::string, int> option) { v->c->SetEdgeMode(option.second); }
-	};
-
-	edgeMode = new ui::DropDown(ui::Point(Size.X - 388, 186), ui::Point(80, 16));
-	AddComponent(edgeMode);
-	edgeMode->AddOption(std::pair<std::string, int>("Void", 0));
-	edgeMode->AddOption(std::pair<std::string, int>("Solid", 1));
-	edgeMode->AddOption(std::pair<std::string, int>("Loop", 2));
-	edgeMode->SetActionCallback(new EdgeModeChanged(this));
-
-	tempLabel = new ui::Label(ui::Point(8, 186), ui::Point(Size.X - 396, 16), "Edge Mode");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	currentY+=20;
+	tmpSeparator = new Separator(ui::Point(0, currentY), ui::Point(Size.X, 1));
+	scrollPanel->AddChild(tmpSeparator);
 
 	class ScaleAction : public ui::DropDownAction
 	{
 		OptionsView * v;
 	public:
-		ScaleAction(OptionsView * v) : v(v) { }
-		virtual void OptionChanged(ui::DropDown * sender, std::pair<std::string, int> option) { v->c->SetScale(option.second); }
+		ScaleAction(OptionsView * v): v(v) { }
+		void OptionChanged(ui::DropDown * sender, std::pair<String, int> option) override {
+			v->c->SetScale(option.second);
+		}
 	};
-	scale = new ui::DropDown(ui::Point(8, 210), ui::Point(40, 16));
+	currentY+=4;
+	scale = new ui::DropDown(ui::Point(8, currentY), ui::Point(40, 16));
 	{
 		int current_scale = ui::Engine::Ref().GetScale();
 		int ix_scale = 1;
@@ -211,96 +292,193 @@ OptionsView::OptionsView() :
 		{
 			if (current_scale == ix_scale)
 				current_scale_valid = true;
-			scale->AddOption(std::pair<std::string, int>(format::NumberToString<int>(ix_scale), ix_scale));
+			scale->AddOption(std::pair<String, int>(String::Build(ix_scale), ix_scale));
 			ix_scale += 1;
 		} while (ui::Engine::Ref().GetMaxWidth() >= ui::Engine::Ref().GetWidth() * ix_scale && ui::Engine::Ref().GetMaxHeight() >= ui::Engine::Ref().GetHeight() * ix_scale);
 		if (!current_scale_valid)
-			scale->AddOption(std::pair<std::string, int>("current", current_scale));
+			scale->AddOption(std::pair<String, int>("current", current_scale));
 	}
 	scale->SetActionCallback(new ScaleAction(this));
-	AddComponent(scale);
+	scrollPanel->AddChild(scale);
 
-	tempLabel = new ui::Label(ui::Point(scale->Position.X + scale->Size.X + 3, scale->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Window scale factor for larger screens");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	tempLabel = new ui::Label(ui::Point(scale->Position.X+scale->Size.X+3, currentY), ui::Point(Size.X-40, 16), "\bg- Window scale factor for larger screens");
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
 
+
+	class ResizableAction: public ui::CheckboxAction
+	{
+		OptionsView * v;
+	public:
+		ResizableAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override
+		{
+			v->c->SetResizable(sender->GetChecked());
+		}
+	};
+	currentY+=20;
+	resizable = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Resizable", "");
+	autowidth(resizable);
+	resizable->SetActionCallback(new ResizableAction(this));
+	tempLabel = new ui::Label(ui::Point(resizable->Position.X+Graphics::textwidth(resizable->GetText())+20, currentY), ui::Point(1, 16), "\bg- Allow resizing and maximizing window");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(resizable);
 
 	class FullscreenAction : public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		FullscreenAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender)
+		FullscreenAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override
 		{
-#ifdef USE_SDL
-#if defined(MACOSX) && !SDL_VERSION_ATLEAST(1, 2, 15)
-			ErrorMessage::Blocking("Information", "Fullscreen doesn't work on OS X");
-#else
 			v->c->SetFullscreen(sender->GetChecked());
-#endif
-#endif
 		}
 	};
 
-	fullscreen = new ui::Checkbox(ui::Point(8, 230), ui::Point(Size.X - 6, 16), "Fullscreen", "");
+	currentY+=20;
+	fullscreen = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Fullscreen", "");
+	autowidth(fullscreen);
 	fullscreen->SetActionCallback(new FullscreenAction(this));
-	tempLabel = new ui::Label(ui::Point(fullscreen->Position.X + Graphics::textwidth(fullscreen->GetText().c_str()) + 20, fullscreen->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Fill the entire screen");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
-	AddComponent(fullscreen);
+	tempLabel = new ui::Label(ui::Point(fullscreen->Position.X+Graphics::textwidth(fullscreen->GetText())+20, currentY), ui::Point(1, 16), "\bg- Fill the entire screen");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(fullscreen);
+
+	class AltFullscreenAction: public ui::CheckboxAction
+	{
+		OptionsView * v;
+	public:
+		AltFullscreenAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override
+		{
+			v->c->SetAltFullscreen(sender->GetChecked());
+		}
+	};
+	currentY+=20;
+	altFullscreen = new ui::Checkbox(ui::Point(23, currentY), ui::Point(1, 16), "Change Resolution", "");
+	autowidth(altFullscreen);
+	altFullscreen->SetActionCallback(new AltFullscreenAction(this));
+	tempLabel = new ui::Label(ui::Point(altFullscreen->Position.X+Graphics::textwidth(altFullscreen->GetText())+20, currentY), ui::Point(1, 16), "\bg- Set optimial screen resolution");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(altFullscreen);
+
+	class ForceIntegerScalingAction: public ui::CheckboxAction
+	{
+		OptionsView * v;
+	public:
+		ForceIntegerScalingAction(OptionsView * v_) { v = v_; }
+		void ActionCallback(ui::Checkbox * sender) override
+		{
+			v->c->SetForceIntegerScaling(sender->GetChecked());
+		}
+	};
+
+	currentY+=20;
+	forceIntegerScaling = new ui::Checkbox(ui::Point(23, currentY), ui::Point(1, 16), "Force Integer Scaling", "");
+	autowidth(forceIntegerScaling);
+	forceIntegerScaling->SetActionCallback(new ForceIntegerScalingAction(this));
+	tempLabel = new ui::Label(ui::Point(altFullscreen->Position.X+Graphics::textwidth(forceIntegerScaling->GetText())+20, currentY), ui::Point(1, 16), "\bg- Less blurry");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(forceIntegerScaling);
 
 
 	class FastQuitAction : public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		FastQuitAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetFastQuit(sender->GetChecked()); }
+		FastQuitAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetFastQuit(sender->GetChecked());
+		}
 	};
-
-	fastquit = new ui::Checkbox(ui::Point(8, 250), ui::Point(Size.X - 6, 16), "Fast Quit", "");
+	currentY+=20;
+	fastquit = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Fast Quit", "");
+	autowidth(fastquit);
 	fastquit->SetActionCallback(new FastQuitAction(this));
-	tempLabel = new ui::Label(ui::Point(fastquit->Position.X + Graphics::textwidth(fastquit->GetText().c_str()) + 20, fastquit->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Always exit completely when hitting close");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
-	AddComponent(fastquit);
+	tempLabel = new ui::Label(ui::Point(fastquit->Position.X+Graphics::textwidth(fastquit->GetText())+20, currentY), ui::Point(1, 16), "\bg- Always exit completely when hitting close");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(fastquit);
 
 	class ShowAvatarsAction : public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		ShowAvatarsAction(OptionsView * v_) { v = v_; }
-		virtual void ActionCallback(ui::Checkbox * sender) { v->c->SetShowAvatars(sender->GetChecked()); }
+		ShowAvatarsAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetShowAvatars(sender->GetChecked());
+		}
 	};
-
-	showAvatars = new ui::Checkbox(ui::Point(8, 270), ui::Point(Size.X - 6, 16), "Show Avatars", "");
+	currentY+=20;
+	showAvatars = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Show Avatars", "");
+	autowidth(showAvatars);
 	showAvatars->SetActionCallback(new ShowAvatarsAction(this));
-	tempLabel = new ui::Label(ui::Point(showAvatars->Position.X + Graphics::textwidth(showAvatars->GetText().c_str()) + 20, showAvatars->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Disable if you have a slow connection");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
-	AddComponent(showAvatars);
+	tempLabel = new ui::Label(ui::Point(showAvatars->Position.X+Graphics::textwidth(showAvatars->GetText())+20, currentY), ui::Point(1, 16), "\bg- Disable if you have a slow connection");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(showAvatars);
 
-	class DepthAction : public ui::TextboxAction
+	class MouseClickRequiredAction: public ui::CheckboxAction
 	{
 		OptionsView * v;
 	public:
-		DepthAction(OptionsView * v_) { v = v_; }
-		virtual void TextChangedCallback(ui::Textbox * sender) { v->c->Set3dDepth(format::StringToNumber<int>(sender->GetText())); }
+		MouseClickRequiredAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetMouseClickrequired(sender->GetChecked());
+		}
 	};
-	depthTextbox = new ui::Textbox(ui::Point(8, Size.Y - 58), ui::Point(25, 16), format::NumberToString<int>(ui::Engine::Ref().Get3dDepth()));
-	depthTextbox->SetInputType(ui::Textbox::Numeric);
-	depthTextbox->SetActionCallback(new DepthAction(this));
-	AddComponent(depthTextbox);
+	currentY+=20;
+	mouseClickRequired = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Sticky Categories", "");
+	autowidth(mouseClickRequired);
+	mouseClickRequired->SetActionCallback(new MouseClickRequiredAction(this));
+	tempLabel = new ui::Label(ui::Point(mouseClickRequired->Position.X+Graphics::textwidth(mouseClickRequired->GetText())+20, currentY), ui::Point(1, 16), "\bg- Switch between categories by clicking");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(mouseClickRequired);
 
-	tempLabel = new ui::Label(ui::Point(depthTextbox->Position.X + depthTextbox->Size.X + 3, depthTextbox->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Change the depth of the 3D anaglyph effect");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	class IncludePressureAction: public ui::CheckboxAction
+	{
+		OptionsView * v;
+	public:
+		IncludePressureAction(OptionsView * v_){	v = v_;	}
+		void ActionCallback(ui::Checkbox * sender) override {
+			v->c->SetIncludePressure(sender->GetChecked());
+		}
+	};
+	currentY+=20;
+	includePressure = new ui::Checkbox(ui::Point(8, currentY), ui::Point(1, 16), "Include Pressure", "");
+	autowidth(includePressure);
+	includePressure->SetActionCallback(new IncludePressureAction(this));
+	tempLabel = new ui::Label(ui::Point(includePressure->Position.X+Graphics::textwidth(includePressure->GetText())+20, currentY), ui::Point(1, 16), "\bg- When saving, copying, stamping, etc.");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
+	scrollPanel->AddChild(includePressure);
 
 	class DataFolderAction : public ui::ButtonAction
 	{
 	public:
 		DataFolderAction() { }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			//one of these should always be defined
 #ifdef WIN
@@ -317,20 +495,23 @@ OptionsView::OptionsView() :
 			delete[] workingDirectory;
 		}
 	};
-	ui::Button * dataFolderButton = new ui::Button(ui::Point(8, Size.Y - 38), ui::Point(90, 16), "Open Data Folder");
+	currentY+=20;
+	ui::Button * dataFolderButton = new ui::Button(ui::Point(8, currentY), ui::Point(90, 16), "Open Data Folder");
 	dataFolderButton->SetActionCallback(new DataFolderAction());
-	AddComponent(dataFolderButton);
+	scrollPanel->AddChild(dataFolderButton);
 
-	tempLabel = new ui::Label(ui::Point(dataFolderButton->Position.X + dataFolderButton->Size.X + 3, dataFolderButton->Position.Y), ui::Point(Size.X - 28, 16), "\bg- Open the data and preferences folder");
-	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
-	AddComponent(tempLabel);
+	tempLabel = new ui::Label(ui::Point(dataFolderButton->Position.X+dataFolderButton->Size.X+3, currentY), ui::Point(1, 16), "\bg- Open the data and preferences folder");
+	autowidth(tempLabel);
+	tempLabel->Appearance.HorizontalAlign = ui::Appearance::AlignLeft;
+	tempLabel->Appearance.VerticalAlign = ui::Appearance::AlignMiddle;
+	scrollPanel->AddChild(tempLabel);
 
 	class CloseAction : public ui::ButtonAction
 	{
 	public:
 		OptionsView * v;
 		CloseAction(OptionsView * v_) { v = v_; }
-		void ActionCallback(ui::Button * sender)
+		void ActionCallback(ui::Button * sender) override
 		{
 			v->c->Exit();
 		}
@@ -341,6 +522,8 @@ OptionsView::OptionsView() :
 	AddComponent(tempButton);
 	SetCancelButton(tempButton);
 	SetOkayButton(tempButton);
+	currentY+=20;
+	scrollPanel->InnerSize = ui::Point(Size.X, currentY);
 }
 
 void OptionsView::NotifySettingsChanged(OptionsModel * sender)
@@ -353,12 +536,17 @@ void OptionsView::NotifySettingsChanged(OptionsModel * sender)
 	gravityMode->SetOption(sender->GetGravityMode());
 	edgeMode->SetOption(sender->GetEdgeMode());
 	scale->SetOption(sender->GetScale());
+	resizable->SetChecked(sender->GetResizable());
 	fullscreen->SetChecked(sender->GetFullscreen());
+	altFullscreen->SetChecked(sender->GetAltFullscreen());
+	forceIntegerScaling->SetChecked(sender->GetForceIntegerScaling());
 	fastquit->SetChecked(sender->GetFastQuit());
 	showAvatars->SetChecked(sender->GetShowAvatars());
 	infoScreenOption->SetChecked(sender->GetInfoScreen());
 	timeDilationSimulation->SetChecked(sender->GetTimeDilation());
 	compressibleGasesSimulation->SetChecked(sender->GetCompressibleGases());
+	mouseClickRequired->SetChecked(sender->GetMouseClickRequired());
+	includePressure->SetChecked(sender->GetIncludePressure());
 }
 
 void OptionsView::AttachController(OptionsController * c_)
@@ -371,8 +559,6 @@ void OptionsView::OnDraw()
 	Graphics * g = GetGraphics();
 	g->clearrect(Position.X - 2, Position.Y - 2, Size.X + 3, Size.Y + 3);
 	g->drawrect(Position.X, Position.Y, Size.X, Size.Y, 255, 255, 255, 255);
-	g->draw_line(Position.X + 1, Position.Y + scale->Position.Y - 4, Position.X + Size.X / 2 - 1, Position.Y + scale->Position.Y - 4, 255, 255, 255, 180);
-	g->draw_line(Position.X + Size.X / 2, Position.Y + 1, Position.X + Size.X / 2, Position.Y + Size.Y - 1, 255, 255, 255, 180);
 }
 
 void OptionsView::OnTryExit(ExitMethod method)

@@ -3,10 +3,10 @@
 
 struct gol_menu
 {
-	const char *name;
+	String name;
 	pixel colour;
 	int goltype;
-	const char *description;
+	String description;
 };
 
 #endif

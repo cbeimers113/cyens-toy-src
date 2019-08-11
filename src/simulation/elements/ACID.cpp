@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 #include "simulation/CyensTools.h"
 //#TPT-Directive ElementClass Element_ACID PT_ACID 21
 Element_ACID::Element_ACID()
@@ -94,24 +94,21 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 					parts[i].life = 4;
 					parts[ID(r)].life = 4;
 				}
+				//This needs to be removed
 				else if (parts[i].type == PT_ACID && (rt == PT_WTRV || rt == PT_WATR || rt == PT_CBNW || rt == PT_SLTW || rt == PT_DSTW))
 				{
-					if (!(rand() % 250))
+					if (RNG::Ref().chance(1, 250))
 					{
 						sim->part_change_type(i, x, y, PT_CAUS);
-						parts[i].life = (rand() % 50) + 25;
-						parts[i].temp += 100.0f;
-						if (rt == PT_WTRV || rt == PT_WATR || rt == PT_DSTW)
-							sim->kill_part(ID(r));
-						else
-							sim->part_change_type(ID(r), x + rx, y + ry, rt == PT_CBNW ? PT_CO2 : PT_SALT);
-
+						parts[i].life = RNG::Ref().between(25, 74);
+						sim->kill_part(ID(r));
 					}
+					else
+						sim->part_change_type(ID(r), x + rx, y + ry, rt == PT_CBNW ? PT_CO2 : PT_SALT);
 				}
 				if ((rand() % dissolve == 0) && (sim->elements[parts[ID(r)].type].Properties&TYPE_SOLID || sim->elements[parts[ID(r)].type].Properties&TYPE_PART))
 				{
-
-					if ((rt != PT_CLNE && rt != PT_PCLN && sim->elements[rt].Hardness > (rand() % 1000)) && parts[i].tmp2)
+					if (rt != PT_CLNE && rt != PT_PCLN && parts[i].life >= 50 && RNG::Ref().chance(sim->elements[rt].Hardness, 1000.0))
 					{
 						if (parts[i].life&&sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS)//GLAS protects stuff from acid
 						{
@@ -128,8 +125,8 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 			}
 	for (trade = 0; trade < 2; trade++)
 	{
-		rx = rand() % 5 - 2;
-		ry = rand() % 5 - 2;
+		rx = RNG::Ref().between(-2, 2);
+		ry = RNG::Ref().between(-2, 2);
 		if (BOUNDS_CHECK && (rx || ry))
 		{
 			r = pmap[y + ry][x + rx];

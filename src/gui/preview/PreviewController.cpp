@@ -1,14 +1,21 @@
-#include <sstream>
-#include "client/Client.h"
 #include "PreviewController.h"
+
 #include "PreviewView.h"
 #include "PreviewModel.h"
+
+#include "client/Client.h"
+#include "client/SaveInfo.h"
+
 #include "PreviewModelException.h"
+
 #include "gui/dialogues/InformationMessage.h"
 #include "gui/dialogues/ErrorMessage.h"
 #include "gui/login/LoginController.h"
+#include "gui/login/LoginView.h"
+
 #include "Controller.h"
 #include "Platform.h"
+#include "Config.h"
 
 PreviewController::PreviewController(int saveID, int saveDate, bool instant, ControllerCallback * callback):
 	saveId(saveID),
@@ -73,7 +80,7 @@ void PreviewController::Update()
 	}
 }
 
-bool PreviewController::SubmitComment(std::string comment)
+bool PreviewController::SubmitComment(String comment)
 {
 	if(comment.length() < 4)
 	{
@@ -123,7 +130,7 @@ void PreviewController::DoOpen()
 	previewModel->SetDoOpen(true);
 }
 
-void PreviewController::Report(std::string message)
+void PreviewController::Report(String message)
 {
 	if(Client::Ref().ReportSave(saveId, message) == RequestOkay)
 	{
@@ -147,16 +154,15 @@ void PreviewController::FavouriteSave()
 		}
 		catch (PreviewModelException & e)
 		{
-			new ErrorMessage("Error", e.what());
+			new ErrorMessage("Error", ByteString(e.what()).FromUtf8());
 		}
 	}
 }
 
 void PreviewController::OpenInBrowser()
 {
-	std::stringstream uriStream;
-	uriStream << "http://" << SERVER << "/Browse/View.html?ID=" << saveId;
-	Platform::OpenURI(uriStream.str());
+	ByteString uri = ByteString::Build(SCHEME, SERVER, "/Browse/View.html?ID=", saveId);
+	Platform::OpenURI(uri);
 }
 
 bool PreviewController::NextCommentPage()

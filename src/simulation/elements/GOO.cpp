@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_GOO PT_GOO 12
 Element_GOO::Element_GOO()
 {
@@ -52,7 +52,7 @@ Element_GOO::Element_GOO()
 int Element_GOO::update(UPDATE_FUNC_ARGS)
 {
 	if (!parts[i].life && sim->pv[y/CELL][x/CELL]>1.0f)
-		parts[i].life = rand()%80+300;
+		parts[i].life = RNG::Ref().between(300, 379);
 	if (parts[i].life)
 	{
 		parts[i].vx += ADVECTION*sim->vx[y/CELL][x/CELL];

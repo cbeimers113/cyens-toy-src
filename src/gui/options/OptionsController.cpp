@@ -1,14 +1,15 @@
 #include "OptionsController.h"
-#include "gui/dialogues/ErrorMessage.h"
-#include "gui/interface/Engine.h"
-#include "gui/game/GameModel.h"
+
+#include "OptionsView.h"
+#include "OptionsModel.h"
+
+#include "Controller.h"
 
 OptionsController::OptionsController(GameModel * gModel_, ControllerCallback * callback_):
 	gModel(gModel_),
 	callback(callback_),
 	HasExited(false)
 {
-	this->depth3d = ui::Engine::Ref().Get3dDepth();
 	view = new OptionsView();
 	model = new OptionsModel(gModel);
 	model->AddObserver(view);
@@ -68,6 +69,16 @@ void OptionsController::SetFullscreen(bool fullscreen)
 	model->SetFullscreen(fullscreen);
 }
 
+void OptionsController::SetAltFullscreen(bool altFullscreen)
+{
+	model->SetAltFullscreen(altFullscreen);
+}
+
+void OptionsController::SetForceIntegerScaling(bool forceIntegerScaling)
+{
+	model->SetForceIntegerScaling(forceIntegerScaling);
+}
+
 void OptionsController::SetShowAvatars(bool showAvatars)
 {
 	model->SetShowAvatars(showAvatars);
@@ -78,14 +89,14 @@ void OptionsController::SetScale(int scale)
 	model->SetScale(scale);
 }
 
+void OptionsController::SetResizable(bool resizable)
+{
+	model->SetResizable(resizable);
+}
+
 void OptionsController::SetFastQuit(bool fastquit)
 {
 	model->SetFastQuit(fastquit);
-}
-
-void OptionsController::Set3dDepth(int depth)
-{
-	depth3d = depth;
 }
 
 OptionsView * OptionsController::GetView()
@@ -93,11 +104,19 @@ OptionsView * OptionsController::GetView()
 	return view;
 }
 
+void OptionsController::SetMouseClickrequired(bool mouseClickRequired)
+{
+	model->SetMouseClickRequired(mouseClickRequired);
+}
+
+void OptionsController::SetIncludePressure(bool includePressure)
+{
+	model->SetIncludePressure(includePressure);
+}
+
 void OptionsController::Exit()
 {
 	view->CloseActiveWindow();
-	// only update on close, it would be hard to edit if the changes were live
-	ui::Engine::Ref().Set3dDepth(depth3d);
 
 	if (callback)
 		callback->ControllerExit();

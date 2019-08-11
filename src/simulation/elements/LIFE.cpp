@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 
 bool Element_GOL_colourInit = false;
 pixel Element_GOL_colour[NGOL];
@@ -53,13 +53,11 @@ Element_LIFE::Element_LIFE()
 	{
 		Element_GOL_colourInit = true;
 
-		int golMenuCount;
-		gol_menu * golMenuT = LoadGOLMenu(golMenuCount);
-		for(int i = 0; i < golMenuCount && i < NGOL; i++)
+		std::vector<gol_menu> golMenuT = LoadGOLMenu();
+		for(int i = 0; i < NGOL; i++)
 		{
 			Element_GOL_colour[i] = golMenuT[i].colour;
 		}
-		free(golMenuT);
 	}
 }
 

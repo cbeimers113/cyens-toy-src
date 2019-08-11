@@ -2,15 +2,19 @@
 #define OPTIONSVIEW_H_
 
 #include "gui/interface/Window.h"
-#include "OptionsController.h"
-#include "gui/interface/Checkbox.h"
-#include "gui/interface/DropDown.h"
-#include "gui/interface/Textbox.h"
-#include "OptionsModel.h"
+#include "gui/interface/ScrollPanel.h"
+
+namespace ui
+{
+	class Checkbox;
+	class DropDown;
+	class DropDown;
+}
 
 class OptionsModel;
 class OptionsController;
-class OptionsView : public ui::Window {
+class OptionsView: public ui::Window
+{
 	OptionsController * c;
 	ui::Checkbox * heatSimulation;
 	ui::Checkbox * ambientHeatSimulation;
@@ -23,16 +27,21 @@ class OptionsView : public ui::Window {
 	ui::DropDown * gravityMode;
 	ui::DropDown * edgeMode;
 	ui::DropDown * scale;
+	ui::Checkbox * resizable;
 	ui::Checkbox * fullscreen;
+	ui::Checkbox * altFullscreen;
+	ui::Checkbox * forceIntegerScaling;
 	ui::Checkbox * fastquit;
 	ui::Checkbox * showAvatars;
-	ui::Textbox  * depthTextbox;
+	ui::Checkbox * mouseClickRequired;
+	ui::Checkbox * includePressure;
+	ui::ScrollPanel * scrollPanel;
 public:
 	OptionsView();
 	void NotifySettingsChanged(OptionsModel * sender);
 	void AttachController(OptionsController * c_);
-	void OnDraw();
-	void OnTryExit(ExitMethod method);
+	void OnDraw() override;
+	void OnTryExit(ExitMethod method) override;
 	virtual ~OptionsView();
 };
 

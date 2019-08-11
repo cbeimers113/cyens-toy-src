@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_SOAP PT_SOAP 149
 Element_SOAP::Element_SOAP()
 {
@@ -90,7 +90,7 @@ void Element_SOAP::attach(Particle * parts, int i1, int i2)
 
 //#TPT-Directive ElementHeader Element_SOAP static int update(UPDATE_FUNC_ARGS)
 int Element_SOAP::update(UPDATE_FUNC_ARGS)
- 
+
 {
 	int r, rx, ry, nr, ng, nb, na;
 	float tr, tg, tb, ta;

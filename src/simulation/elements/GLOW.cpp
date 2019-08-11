@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_GLOW PT_GLOW 66
 Element_GLOW::Element_GLOW()
 {
@@ -57,7 +57,7 @@ int Element_GLOW::update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_WATR && !(rand()%400))
+				if (TYP(r)==PT_WATR && RNG::Ref().chance(1, 400))
 				{
 					sim->kill_part(i);
 					sim->part_change_type(ID(r),x+rx,y+ry,PT_DEUT);

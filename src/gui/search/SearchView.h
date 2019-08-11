@@ -2,10 +2,8 @@
 #define SEARCHVIEW_H
 
 #include <vector>
-#include "SearchController.h"
 #include "client/ClientListener.h"
-
-using namespace std;
+#include "gui/interface/Window.h"
 
 namespace ui
 {
@@ -24,8 +22,8 @@ class SearchView: public ui::Window, public ClientListener
 {
 private:
 	SearchController * c;
-	vector<ui::SaveButton*> saveButtons;
-	vector<ui::Button*> tagButtons;
+	std::vector<ui::SaveButton*> saveButtons;
+	std::vector<ui::Button*> tagButtons;
 	ui::Button * favButton;
 	ui::Button * nextButton;
 	ui::Button * previousButton;
@@ -35,7 +33,7 @@ private:
 	ui::Label * pageLabel;
 	ui::Label * pageCountLabel;
 	ui::Label * tagsLabel;
-	ui::RichLabel * motdLabel;
+	ui::RichLabel * motdLabel = nullptr;
 	ui::Button * sortButton;
 	ui::Button * ownButton;
 	ui::Spinner * loadingSpinner;
@@ -59,18 +57,18 @@ public:
 	void NotifySortChanged(SearchModel * sender);
 	void NotifyShowOwnChanged(SearchModel * sender);
 	void NotifyShowFavouriteChanged(SearchModel * sender);
-	void NotifyAuthUserChanged(Client * sender);
-	void NotifyMessageOfTheDay(Client * sender);
+	void NotifyAuthUserChanged(Client * sender) override;
+	void NotifyMessageOfTheDay(Client * sender) override;
 	void CheckAccess();
-	virtual void OnTryOkay(OkayMethod method);
+	void OnTryOkay(OkayMethod method) override;
     SearchView();
 	virtual ~SearchView();
 	void AttachController(SearchController * _c) { c = _c; }
-	virtual void Search(std::string);
-	virtual void OnTick(float dt);
-	virtual void OnMouseWheel(int x, int y, int d);
-	virtual void OnKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt);
-	virtual void OnKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt);
+	virtual void Search(String);
+	void OnTick(float dt) override;
+	void OnMouseWheel(int x, int y, int d) override;
+	void OnKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
+	void OnKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt) override;
 
 };
 

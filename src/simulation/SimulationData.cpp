@@ -1,84 +1,83 @@
 #include "SimulationData.h"
-//#include "ElementFunctions.h"
+
 #include "ElementGraphics.h"
-#include "Elements.h"
+#include "ElementDefs.h"
+#include "ElementClasses.h"
 
-gol_menu * LoadGOLMenu(int & golMenuCount)
+#include "GOLMenu.h"
+#include "WallType.h"
+#include "MenuSection.h"
+
+#include "graphics/Renderer.h"
+
+std::vector<gol_menu> LoadGOLMenu()
 {
-	gol_menu golMenu[NGOL] =
-	{
-		{"GOL",		PIXPACK(0x0CAC00), 0, "Game Of Life: Begin 3/Stay 23"},
-		{"HLIF",	PIXPACK(0xFF0000), 1, "High Life: B36/S23"},
-		{"ASIM",	PIXPACK(0x0000FF), 2, "Assimilation: B345/S4567"},
-		{"2x2",		PIXPACK(0xFFFF00), 3, "2x2: B36/S125"},
-		{"DANI",	PIXPACK(0x00FFFF), 4, "Day and Night: B3678/S34678"},
-		{"AMOE",	PIXPACK(0xFF00FF), 5, "Amoeba: B357/S1358"},
-		{"MOVE",	PIXPACK(0xFFFFFF), 6, "'Move' particles. Does not move things.. it is a life type: B368/S245"},
-		{"PGOL",	PIXPACK(0xE05010), 7, "Pseudo Life: B357/S238"},
-		{"DMOE",	PIXPACK(0x500000), 8, "Diamoeba: B35678/S5678"},
-		{"34",		PIXPACK(0x500050), 9, "34: B34/S34"},
-		{"LLIF",	PIXPACK(0x505050), 10, "Long Life: B345/S5"},
-		{"STAN",	PIXPACK(0x5000FF), 11, "Stains: B3678/S235678"},
-		{"SEED",	PIXPACK(0xFBEC7D), 12, "Seeds: B2/S"},
-		{"MAZE",	PIXPACK(0xA8E4A0), 13, "Maze: B3/S12345"},
-		{"COAG",	PIXPACK(0x9ACD32), 14, "Coagulations: B378/S235678"},
-		{"WALL",	PIXPACK(0x0047AB), 15, "Walled cities: B45678/S2345"},
-		{"GNAR",	PIXPACK(0xE5B73B), 16, "Gnarl: B1/S1"},
-		{"REPL",	PIXPACK(0x259588), 17, "Replicator: B1357/S1357"},
-		{"MYST",	PIXPACK(0x0C3C00), 18, "Mystery: B3458/S05678"},
-		{"LOTE",	PIXPACK(0xFF0000), 19, "Living on the Edge: B37/S3458/4"},
-		{"FRG2",	PIXPACK(0x00FF00), 20, "Like Frogs rule: B3/S124/3"},
-		{"STAR",	PIXPACK(0x0000FF), 21, "Like Star Wars rule: B278/S3456/6"},
-		{"FROG",	PIXPACK(0x00AA00), 22, "Frogs: B34/S12/3"},
-		{"BRAN",	PIXPACK(0xCCCC00), 23, "Brian 6: B246/S6/3"}
+	return
+	std::vector<gol_menu>{
+		{"GOL",		PIXPACK(0x0CAC00), 0, String("Game Of Life: Begin 3/Stay 23")},
+		{"HLIF",	PIXPACK(0xFF0000), 1, String("High Life: B36/S23")},
+		{"ASIM",	PIXPACK(0x0000FF), 2, String("Assimilation: B345/S4567")},
+		{"2x2",		PIXPACK(0xFFFF00), 3, String("2x2: B36/S125")},
+		{"DANI",	PIXPACK(0x00FFFF), 4, String("Day and Night: B3678/S34678")},
+		{"AMOE",	PIXPACK(0xFF00FF), 5, String("Amoeba: B357/S1358")},
+		{"MOVE",	PIXPACK(0xFFFFFF), 6, String("'Move' particles. Does not move things.. it is a life type: B368/S245")},
+		{"PGOL",	PIXPACK(0xE05010), 7, String("Pseudo Life: B357/S238")},
+		{"DMOE",	PIXPACK(0x500000), 8, String("Diamoeba: B35678/S5678")},
+		{"34",		PIXPACK(0x500050), 9, String("34: B34/S34")},
+		{"LLIF",	PIXPACK(0x505050), 10, String("Long Life: B345/S5")},
+		{"STAN",	PIXPACK(0x5000FF), 11, String("Stains: B3678/S235678")},
+		{"SEED",	PIXPACK(0xFBEC7D), 12, String("Seeds: B2/S")},
+		{"MAZE",	PIXPACK(0xA8E4A0), 13, String("Maze: B3/S12345")},
+		{"COAG",	PIXPACK(0x9ACD32), 14, String("Coagulations: B378/S235678")},
+		{"WALL",	PIXPACK(0x0047AB), 15, String("Walled cities: B45678/S2345")},
+		{"GNAR",	PIXPACK(0xE5B73B), 16, String("Gnarl: B1/S1")},
+		{"REPL",	PIXPACK(0x259588), 17, String("Replicator: B1357/S1357")},
+		{"MYST",	PIXPACK(0x0C3C00), 18, String("Mystery: B3458/S05678")},
+		{"LOTE",	PIXPACK(0xFF0000), 19, String("Living on the Edge: B37/S3458/4")},
+		{"FRG2",	PIXPACK(0x00FF00), 20, String("Like Frogs rule: B3/S124/3")},
+		{"STAR",	PIXPACK(0x0000FF), 21, String("Like Star Wars rule: B278/S3456/6")},
+		{"FROG",	PIXPACK(0x00AA00), 22, String("Frogs: B34/S12/3")},
+		{"BRAN",	PIXPACK(0xCCCC00), 23, String("Brian 6: B246/S6/3")}
 	};
-	golMenuCount = NGOL;
-	gol_menu * golMenuT = (gol_menu*)malloc(NGOL * sizeof(gol_menu));
-	memcpy(golMenuT, golMenu, NGOL * sizeof(gol_menu));
-	return golMenuT;
 }
 
-int * LoadGOLRules(int & golRuleCount)
+std::vector<std::array<int, 10> > LoadGOLRules()
 {
-	int golRules[NGOL + 1][10] =
-	{
-		//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
-			{0,0,0,0,0,0,0,0,0,2},//blank
-			{0,0,1,3,0,0,0,0,0,2},//GOL
-			{0,0,1,3,0,0,2,0,0,2},//HLIF
-			{0,0,0,2,3,3,1,1,0,2},//ASIM
-			{0,1,1,2,0,1,2,0,0,2},//2x2
-			{0,0,0,3,1,0,3,3,3,2},//DANI
-			{0,1,0,3,0,3,0,2,1,2},//AMOE
-			{0,0,1,2,1,1,2,0,2,2},//MOVE
-			{0,0,1,3,0,2,0,2,1,2},//PGOL
-			{0,0,0,2,0,3,3,3,3,2},//DMOE
-			{0,0,0,3,3,0,0,0,0,2},//34
-			{0,0,0,2,2,3,0,0,0,2},//LLIF
-			{0,0,1,3,0,1,3,3,3,2},//STAN
-			{0,0,2,0,0,0,0,0,0,2},//SEED
-			{0,1,1,3,1,1,0,0,0,2},//MAZE
-			{0,0,1,3,0,1,1,3,3,2},//COAG
-			{0,0,1,1,3,3,2,2,2,2},//WALL
-			{0,3,0,0,0,0,0,0,0,2},//GNAR
-			{0,3,0,3,0,3,0,3,0,2},//REPL
-			{1,0,0,2,2,3,1,1,3,2},//MYST
-			{0,0,0,3,1,1,0,2,1,4},//LOTE
-			{0,1,1,2,1,0,0,0,0,3},//FRG2
-			{0,0,2,1,1,1,1,2,2,6},//STAR
-			{0,1,1,2,2,0,0,0,0,3},//FROG
-			{0,0,2,0,2,0,3,0,0,3},//BRAN
+	return
+	std::vector<std::array<int, 10> >{
+	//	 0,1,2,3,4,5,6,7,8,STATES    live=1  spawn=2 spawn&live=3   States are kind of how long until it dies, normal ones use two states(living,dead) for others the intermediate states live but do nothing
+		{0,0,0,0,0,0,0,0,0,2},//blank
+		{0,0,1,3,0,0,0,0,0,2},//GOL
+		{0,0,1,3,0,0,2,0,0,2},//HLIF
+		{0,0,0,2,3,3,1,1,0,2},//ASIM
+		{0,1,1,2,0,1,2,0,0,2},//2x2
+		{0,0,0,3,1,0,3,3,3,2},//DANI
+		{0,1,0,3,0,3,0,2,1,2},//AMOE
+		{0,0,1,2,1,1,2,0,2,2},//MOVE
+		{0,0,1,3,0,2,0,2,1,2},//PGOL
+		{0,0,0,2,0,3,3,3,3,2},//DMOE
+		{0,0,0,3,3,0,0,0,0,2},//34
+		{0,0,0,2,2,3,0,0,0,2},//LLIF
+		{0,0,1,3,0,1,3,3,3,2},//STAN
+		{0,0,2,0,0,0,0,0,0,2},//SEED
+		{0,1,1,3,1,1,0,0,0,2},//MAZE
+		{0,0,1,3,0,1,1,3,3,2},//COAG
+		{0,0,1,1,3,3,2,2,2,2},//WALL
+		{0,3,0,0,0,0,0,0,0,2},//GNAR
+		{0,3,0,3,0,3,0,3,0,2},//REPL
+		{1,0,0,2,2,3,1,1,3,2},//MYST
+		{0,0,0,3,1,1,0,2,1,4},//LOTE
+		{0,1,1,2,1,0,0,0,0,3},//FRG2
+		{0,0,2,1,1,1,1,2,2,6},//STAR
+		{0,1,1,2,2,0,0,0,0,3},//FROG
+		{0,0,2,0,2,0,3,0,0,3},//BRAN
 	};
-	golRuleCount = NGOL + 1;
-	int * golRulesT = (int*)malloc((golRuleCount * 10) * sizeof(int));
-	memcpy(golRulesT, golRules, (golRuleCount * 10) * sizeof(int));
-	return golRulesT;
 }
 
-int * LoadGOLTypes(int & golTypeCount)
+std::vector<int> LoadGOLTypes()
 {
-	int golTypes[NGOL] =
-	{
+	return 
+	std::vector<int>{
 		GT_GOL,
 		GT_HLIF,
 		GT_ASIM,
@@ -104,77 +103,66 @@ int * LoadGOLTypes(int & golTypeCount)
 		GT_FROG,
 		GT_BRAN,
 	};
-	golTypeCount = NGOL;
-	int * golTypesT = (int*)malloc((golTypeCount) * sizeof(int));
-	memcpy(golTypesT, golTypes, (golTypeCount) * sizeof(int));
-	return golTypesT;
 }
 
-wall_type * LoadWalls(int & wallCount)
+std::vector<wall_type> LoadWalls()
 {
-	wall_type wtypes[] =
-	{
-		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, "ERASE",			"DEFAULT_WL_ERASE",	"Erases walls."},
-		{PIXPACK(0xC0C0C0), PIXPACK(0x101010), 0, Renderer::WallIcon, "CONDUCTIVE WALL","DEFAULT_WL_CNDTW",	"Blocks everything. Conductive."},
-		{PIXPACK(0x808080), PIXPACK(0x808080), 0, Renderer::WallIcon, "EWALL",			"DEFAULT_WL_EWALL",	"E-Wall. Becomes transparent when electricity is connected."},
-		{PIXPACK(0xFF8080), PIXPACK(0xFF2008), 1, Renderer::WallIcon, "DETECTOR",		"DEFAULT_WL_DTECT",	"Detector. Generates electricity when a particle is inside."},
-		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, "STREAMLINE",		"DEFAULT_WL_STRM",	"Streamline. Set start point of a streamline."},
-		{PIXPACK(0x8080FF), PIXPACK(0x000000), 1, Renderer::WallIcon, "FAN",			"DEFAULT_WL_FAN",	"Fan. Accelerates air. Use the line tool to set direction and strength."},
-		{PIXPACK(0xC0C0C0), PIXPACK(0x101010), 2, Renderer::WallIcon, "LIQUID WALL",	"DEFAULT_WL_LIQD",	"Allows liquids, blocks all other particles. Conductive."},
-		{PIXPACK(0x808080), PIXPACK(0x000000), 1, Renderer::WallIcon, "ABSORB WALL",	"DEFAULT_WL_ABSRB",	"Absorbs particles but lets air currents through."},
-		{PIXPACK(0x808080), PIXPACK(0x000000), 3, Renderer::WallIcon, "WALL",			"DEFAULT_WL_WALL",	"Basic wall, blocks everything."},
-		{PIXPACK(0x3C3C3C), PIXPACK(0x000000), 1, Renderer::WallIcon, "AIRONLY WALL",	"DEFAULT_WL_AIR",	"Allows air, but blocks all particles."},
-		{PIXPACK(0x575757), PIXPACK(0x000000), 1, Renderer::WallIcon, "POWDER WALL",	"DEFAULT_WL_POWDR",	"Allows powders, blocks all other particles."},
-		{PIXPACK(0xFFFF22), PIXPACK(0x101010), 2, Renderer::WallIcon, "CONDUCTOR",		"DEFAULT_WL_CNDTR",	"Conductor. Allows all particles to pass through and conducts electricity."},
-		{PIXPACK(0x242424), PIXPACK(0x101010), 0, Renderer::WallIcon, "EHOLE",			"DEFAULT_WL_EHOLE",	"E-Hole. absorbs particles, releases them when powered."},
-		{PIXPACK(0x579777), PIXPACK(0x000000), 1, Renderer::WallIcon, "GAS WALL",		"DEFAULT_WL_GAS",	"Allows gases, blocks all other particles."},
-		{PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4, Renderer::WallIcon, "GRAVITY WALL",	"DEFAULT_WL_GRVTY",	"Gravity wall. Newtonian Gravity has no effect inside a box drawn with this."},
-		{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4, Renderer::WallIcon, "ENERGY WALL",	"DEFAULT_WL_ENRGY",	"Allows energy particles, blocks all other particles."},
-		{PIXPACK(0xDCDCDC), PIXPACK(0x000000), 1, Renderer::WallIcon, "AIRBLOCK WALL",	"DEFAULT_WL_NOAIR",	"Allows all particles, but blocks air."},
-		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, "ERASEALL",		"DEFAULT_WL_ERASEA","Erases walls, particles, and signs."},
+	return
+	std::vector<wall_type>{
+		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("ERASE"),           "DEFAULT_WL_ERASE",  String("Erases walls.")},
+		{PIXPACK(0xC0C0C0), PIXPACK(0x101010), 0, Renderer::WallIcon, String("CONDUCTIVE WALL"), "DEFAULT_WL_CNDTW",  String("Blocks everything. Conductive.")},
+		{PIXPACK(0x808080), PIXPACK(0x808080), 0, Renderer::WallIcon, String("EWALL"),           "DEFAULT_WL_EWALL",  String("E-Wall. Becomes transparent when electricity is connected.")},
+		{PIXPACK(0xFF8080), PIXPACK(0xFF2008), 1, Renderer::WallIcon, String("DETECTOR"),        "DEFAULT_WL_DTECT",  String("Detector. Generates electricity when a particle is inside.")},
+		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("STREAMLINE"),      "DEFAULT_WL_STRM",   String("Streamline. Set start point of a streamline.")},
+		{PIXPACK(0x8080FF), PIXPACK(0x000000), 1, Renderer::WallIcon, String("FAN"),             "DEFAULT_WL_FAN",    String("Fan. Accelerates air. Use the line tool to set direction and strength.")},
+		{PIXPACK(0xC0C0C0), PIXPACK(0x101010), 2, Renderer::WallIcon, String("LIQUID WALL"),     "DEFAULT_WL_LIQD",   String("Allows liquids, blocks all other particles. Conductive.")},
+		{PIXPACK(0x808080), PIXPACK(0x000000), 1, Renderer::WallIcon, String("ABSORB WALL"),     "DEFAULT_WL_ABSRB",  String("Absorbs particles but lets air currents through.")},
+		{PIXPACK(0x808080), PIXPACK(0x000000), 3, Renderer::WallIcon, String("WALL"),            "DEFAULT_WL_WALL",   String("Basic wall, blocks everything.")},
+		{PIXPACK(0x3C3C3C), PIXPACK(0x000000), 1, Renderer::WallIcon, String("AIRONLY WALL"),    "DEFAULT_WL_AIR",    String("Allows air, but blocks all particles.")},
+		{PIXPACK(0x575757), PIXPACK(0x000000), 1, Renderer::WallIcon, String("POWDER WALL"),     "DEFAULT_WL_POWDR",  String("Allows powders, blocks all other particles.")},
+		{PIXPACK(0xFFFF22), PIXPACK(0x101010), 2, Renderer::WallIcon, String("CONDUCTOR"),       "DEFAULT_WL_CNDTR",  String("Conductor. Allows all particles to pass through and conducts electricity.")},
+		{PIXPACK(0x242424), PIXPACK(0x101010), 0, Renderer::WallIcon, String("EHOLE"),           "DEFAULT_WL_EHOLE",  String("E-Hole. absorbs particles, releases them when powered.")},
+		{PIXPACK(0x579777), PIXPACK(0x000000), 1, Renderer::WallIcon, String("GAS WALL"),        "DEFAULT_WL_GAS",    String("Allows gases, blocks all other particles.")},
+		{PIXPACK(0xFFEE00), PIXPACK(0xAA9900), 4, Renderer::WallIcon, String("GRAVITY WALL"),    "DEFAULT_WL_GRVTY",  String("Gravity wall. Newtonian Gravity has no effect inside a box drawn with this.")},
+		{PIXPACK(0xFFAA00), PIXPACK(0xAA5500), 4, Renderer::WallIcon, String("ENERGY WALL"),     "DEFAULT_WL_ENRGY",  String("Allows energy particles, blocks all other particles.")},
+		{PIXPACK(0xDCDCDC), PIXPACK(0x000000), 1, Renderer::WallIcon, String("AIRBLOCK WALL"),   "DEFAULT_WL_NOAIR",  String("Allows all particles, but blocks air.")},
+		{PIXPACK(0x808080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("ERASEALL"),        "DEFAULT_WL_ERASEA", String("Erases walls, particles, and signs.")},
+		{PIXPACK(0x800080), PIXPACK(0x000000), 0, Renderer::WallIcon, String("STASIS WALL"),     "DEFAULT_WL_STASIS", String("Freezes particles inside the wall in place until powered.")},
 	};
-	wallCount = UI_WALLCOUNT;
-	wall_type * wtypesT = (wall_type*)malloc(UI_WALLCOUNT * sizeof(wall_type));
-	memcpy(wtypesT, wtypes, UI_WALLCOUNT * sizeof(wall_type));
-	return wtypesT;
 }
 
-menu_section * LoadMenus(int & menuCount)
+std::vector<menu_section> LoadMenus()
 {
-	menu_section msections[] = //doshow does not do anything currently.
-	{
-		{"\xC1", "Walls", 0, 1},
-		{"\xC2", "Electronics", 0, 1},
-		{"\xD6", "Engineering", 0, 1},
-		{"\x99", "Sensors", 0, 0},
-		{"\xE2", "Force", 0, 0},
-		{"\xC3", "Explosives", 0, 1},
-		{"\xC5", "Gases", 0, 1},
-		{"\xC4", "Liquids", 0, 1},
-		{"\xD0", "Powders", 0, 1},
-		{"\xD1", "Solids", 0, 1},
-		{"\xC6", "Radioactive", 0, 1},
-		{"\xD5", "Organic Chemistry", 0, 1 },
-		{"\xC0", "Biochemistry", 0, 1 },
-		{"\xD4", "Quantum Physics", 0, 1 },
-		{"\xCC", "Special", 0, 1},
-		{"\xD2", "Game Of Life", 0, 1},
-		{"\xD7", "Tools", 0, 1},
-		{"\xE7", "Favorites", 0, 0},
-		{"\xE4", "Decoration tools", 0, 0},
-		{"\xC8", "Cracker", 0, 0},
-		{"\xC8", "Cracker!", 0, 0},
+	return
+	std::vector<menu_section>{
+		{0xE041, String("Walls"), 0, 1},
+		{0xE042, String("Electronics"), 0, 1},
+		{0xE056, String("Engineering"), 0, 1},
+		{0xE019, String("Sensors"), 0, 0},
+		{0xE062, String("Force"), 0, 0},
+		{0xE043, String("Explosives"), 0, 1},
+		{0xE045, String("Gases"), 0, 1},
+		{0xE044, String("Liquids"), 0, 1},
+		{0xE050, String("Powders"), 0, 1},
+		{0xE051, String("Solids"), 0, 1},
+		{0xE046, String("Nuclear Physics"), 0, 1},
+		{0xE055, String("Organic Chemistry"), 0, 1},
+		{0xE040, String("Biochemistry"), 0, 1},
+		{0xE054, String("Quantum Physics"), 0, 1},
+		{0xE04C, String("Special"), 0, 1},
+		{0xE052, String("Game Of Life"), 0, 1},
+		{0xE057, String("Tools"), 0, 1},
+		{0xE067, String("Favorites"), 0, 0},
+		{0xE064, String("Decoration tools"), 0, 0},
+		{0xE048, String("Cracker"), 0, 0},
+		{0xE048, String("Cracker!"), 0, 0},
 	};
-	menuCount = SC_TOTAL;
-	menu_section * msectionsT = (menu_section*)malloc(SC_TOTAL * sizeof(menu_section));
-	memcpy(msectionsT, msections, SC_TOTAL * sizeof(menu_section));
-	return msectionsT;
 }
 
-unsigned int * LoadLatent(int & elementCount)
+std::vector<unsigned int> LoadLatent()
 {
-	unsigned int platent[PT_NUM] =
-	{
+	return
+	std::vector<unsigned int>{
 		/* NONE */ 0,
 		/* DUST */ 0,
 		/* WATR */ 7500,
@@ -337,8 +325,4 @@ unsigned int * LoadLatent(int & elementCount)
 		/* FRAY */ 0,
 		/* REPL */ 0,
 	};
-	elementCount = PT_NUM;
-	unsigned int * platentT = (unsigned int*)malloc(PT_NUM * sizeof(unsigned int));
-	memcpy(platentT, platent, PT_NUM * sizeof(unsigned int));
-	return platentT;
 }

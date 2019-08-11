@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_CBXL PT_CBXL 193
 Element_CBXL::Element_CBXL()
 {

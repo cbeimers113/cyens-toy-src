@@ -1,10 +1,11 @@
-#include <iostream>
 #include "Window.h"
+
 #include "Engine.h"
 #include "Keys.h"
 #include "Component.h"
-#include "gui/interface/Point.h"
 #include "gui/interface/Button.h"
+
+#include "graphics/Graphics.h"
 
 using namespace ui;
 
@@ -80,6 +81,7 @@ void Window::RemoveComponent(Component* c)
 			Components.erase(Components.begin() + i);
 
 			// we're done
+			c->SetParentWindow(NULL);
 			return;
 		}
 	}
@@ -160,6 +162,11 @@ void Window::DoFocus()
 	OnFocus();
 }
 
+void Window::DoFileDrop(ByteString filename)
+{
+	OnFileDrop(filename);
+}
+
 void Window::DoDraw()
 {
 	OnDraw();
@@ -227,17 +234,16 @@ void Window::DoDraw()
 		{
 			int xPos = focusedComponent_->Position.X+focusedComponent_->Size.X+5+Position.X;
 			Graphics * g = ui::Engine::Ref().g;
-			char tempString[512];
-			char tempString2[512];
-			
-			sprintf(tempString, "Position: L %d, R %d, T: %d, B: %d", focusedComponent_->Position.X, Size.X-(focusedComponent_->Position.X+focusedComponent_->Size.X), focusedComponent_->Position.Y, Size.Y-(focusedComponent_->Position.Y+focusedComponent_->Size.Y));
-			sprintf(tempString2, "Size: %d, %d", focusedComponent_->Size.X, focusedComponent_->Size.Y);
-			
+			String tempString, tempString2;
+
+			tempString = String::Build("Position: L ", focusedComponent_->Position.X, ", R ", Size.X-(focusedComponent_->Position.X+focusedComponent_->Size.X), ", T: ", focusedComponent_->Position.Y, ", B: ", Size.Y-(focusedComponent_->Position.Y+focusedComponent_->Size.Y));
+			tempString2 = String::Build("Size: ", focusedComponent_->Size.X, ", ", focusedComponent_->Size.Y);
+
 			if (Graphics::textwidth(tempString)+xPos > WINDOWW)
 				xPos = WINDOWW-(Graphics::textwidth(tempString)+5);
 			if (Graphics::textwidth(tempString2)+xPos > WINDOWW)
 				xPos = WINDOWW-(Graphics::textwidth(tempString2)+5);
-			
+
 			g->drawtext(xPos, focusedComponent_->Position.Y+Position.Y+1, tempString, 0, 0, 0, 200);
 			g->drawtext(xPos, focusedComponent_->Position.Y+Position.Y, tempString, 255, 255, 255, 255);
 			g->drawtext(xPos, focusedComponent_->Position.Y+Position.Y+13, tempString2, 0, 0, 0, 200);
@@ -284,7 +290,7 @@ void Window::DoTick(float dt)
 		finalise();
 }
 
-void Window::DoKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void Window::DoKeyPress(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 #ifdef DEBUG
 	if (key == SDLK_TAB && ctrl)
@@ -375,12 +381,12 @@ void Window::DoKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool a
 	if (focusedComponent_ != NULL)
 	{
 		if (focusedComponent_->Enabled && focusedComponent_->Visible)
-			focusedComponent_->OnKeyPress(key, character, shift, ctrl, alt);
+			focusedComponent_->OnKeyPress(key, scan, repeat, shift, ctrl, alt);
 	}
 
 	if (!stop)
-		OnKeyPress(key, character, shift, ctrl, alt);
-	
+		OnKeyPress(key, scan, repeat, shift, ctrl, alt);
+
 	if (key == SDLK_ESCAPE)
 		OnTryExit(Escape);
 
@@ -391,7 +397,7 @@ void Window::DoKeyPress(int key, Uint16 character, bool shift, bool ctrl, bool a
 		finalise();
 }
 
-void Window::DoKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool alt)
+void Window::DoKeyRelease(int key, int scan, bool repeat, bool shift, bool ctrl, bool alt)
 {
 #ifdef DEBUG
 	if(debugMode)
@@ -401,11 +407,30 @@ void Window::DoKeyRelease(int key, Uint16 character, bool shift, bool ctrl, bool
 	if (focusedComponent_ != NULL)
 	{
 		if (focusedComponent_->Enabled && focusedComponent_->Visible)
-			focusedComponent_->OnKeyRelease(key, character, shift, ctrl, alt);
+			focusedComponent_->OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
 	}
 
 	if (!stop)
-		OnKeyRelease(key, character, shift, ctrl, alt);
+		OnKeyRelease(key, scan, repeat, shift, ctrl, alt);
+	if (destruct)
+		finalise();
+}
+
+void Window::DoTextInput(String text)
+{
+#ifdef DEBUG
+	if (debugMode)
+		return;
+#endif
+	//on key unpress
+	if (focusedComponent_ != NULL)
+	{
+		if (focusedComponent_->Enabled && focusedComponent_->Visible)
+			focusedComponent_->OnTextInput(text);
+	}
+
+	if (!stop)
+		OnTextInput(text);
 	if (destruct)
 		finalise();
 }
@@ -435,7 +460,7 @@ void Window::DoMouseDown(int x_, int y_, unsigned button)
 
 	if (!clickState)
 		FocusComponent(NULL);
-	
+
 #ifdef DEBUG
 	if (debugMode)
 		return;

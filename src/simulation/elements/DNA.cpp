@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_DNA PT_DNA 217
 Element_DNA::Element_DNA()
 {

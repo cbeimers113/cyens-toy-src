@@ -1,4 +1,5 @@
-#include "ToolClasses.h"
+#include "simulation/ToolCommon.h"
+
 //#TPT-Directive ToolClass Tool_Heat TOOL_HEAT 0
 Tool_Heat::Tool_Heat()
 {
@@ -8,7 +9,7 @@ Tool_Heat::Tool_Heat()
 	Description = "Heats the targeted element.";
 }
 
-int Tool_Heat::Perform(Simulation * sim, Particle * cpart, int x, int y, float strength)
+int Tool_Heat::Perform(Simulation * sim, Particle * cpart, int x, int y, int brushX, int brushY, float strength)
 {
 	if(!cpart)
 		return 0;

@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_FUSE PT_FUSE 70
 Element_FUSE::Element_FUSE()
 {
@@ -57,8 +57,8 @@ int Element_FUSE::update(UPDATE_FUNC_ARGS)
 	}
 	else if (parts[i].life < 40) {
 		parts[i].life--;
-		if (!(rand()%100)) {
-			r = sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_PLSM);
+		if (RNG::Ref().chance(1, 100)) {
+			r = sim->create_part(-1, x + RNG::Ref().chance(-1, 1), y + RNG::Ref().chance(-1, 1), PT_PLSM);
 			if (r>-1)
 				parts[r].life = 50;
 		}
@@ -79,7 +79,7 @@ int Element_FUSE::update(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_SPRK || (parts[i].temp>=(273.15+700.0f) && !(rand()%20)))
+				if (TYP(r)==PT_SPRK || (parts[i].temp>=(273.15+700.0f) && RNG::Ref().chance(1, 20)))
 				{
 					if (parts[i].life > 40)
 						parts[i].life = 39;

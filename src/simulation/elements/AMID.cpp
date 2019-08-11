@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_AMID PT_AMID 208
 Element_AMID::Element_AMID()
 {

@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_INVIS PT_INVIS 115
 Element_INVIS::Element_INVIS()
 {
@@ -73,7 +73,7 @@ int Element_INVIS::graphics(GRAPHICS_FUNC_ARGS)
 		*colg = 0;
 		*colb = 150;
 		*pixel_mode = PMODE_BLEND;
-	} 
+	}
 	return 0;
 }
 

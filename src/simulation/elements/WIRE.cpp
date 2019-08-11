@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_WIRE PT_WIRE 156
 Element_WIRE::Element_WIRE()
 {
@@ -54,7 +54,7 @@ int Element_WIRE::update(UPDATE_FUNC_ARGS)
 	  0:  wire
 	  1:  spark head
 	  2:  spark tail
-	  
+
 	  tmp is previous state, ctype is current state
 	*/
 	//parts[i].tmp=parts[i].ctype;

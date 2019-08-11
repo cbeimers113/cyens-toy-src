@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_ELEC PT_ELEC 136
 Element_ELEC::Element_ELEC()
 {
@@ -70,20 +70,20 @@ int Element_ELEC::update(UPDATE_FUNC_ARGS)
 									parts[nb].tmp = 0;
 									parts[nb].life = 50;
 									parts[nb].temp = parts[i].temp*0.8f;
-									parts[nb].vx = rand()%20-10;
-									parts[nb].vy = rand()%20-10;
+									parts[nb].vx = RNG::Ref().between(-10, 10);
+									parts[nb].vy = RNG::Ref().between(-10, 10);
 								}
 							}
 					sim->kill_part(i);
 					return 1;
 				case PT_LCRY:
-					parts[ID(r)].tmp2 = 5+rand()%5;
+					parts[ID(r)].tmp2 = RNG::Ref().between(5, 9);
 					break;
 				case PT_WATR:
 				case PT_DSTW:
 				case PT_SLTW:
 				case PT_CBNW:
-					if(!(rand()%3))
+					if (RNG::Ref().chance(1, 3))
 						sim->create_part(ID(r), x+rx, y+ry, PT_O2);
 					else
 						sim->create_part(ID(r), x+rx, y+ry, PT_H2);

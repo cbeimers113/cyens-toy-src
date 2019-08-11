@@ -1,14 +1,15 @@
-Cyens Toy 2.1.0
-===============
+Cyens Toy 3.1.1
 
-Get the latest version here, as well as an up-to-date reference document for the mod 
-and links to contact and support firefreak11: https://tpt.io/.302980
+Get the latest version [here](https://tpt.io/.302980), as well as an up-to-date reference document for the mod 
+and links to contact and support firefreak11.
+
+To use online features such as saving, you need to [register an account](https://powdertoy.co.uk/Register.html).
+You can also visit [the official TPT forum](https://powdertoy.co.uk/Discussions/Categories/Index.html).
 
 The only mod that simulates organic chemistry and relativity, Cyens Toy is a mod by firefreak11 that aims to revive The Science Toy and the Unrealistic Science Mod series in order to create an up-to-date version that will do more than ever before. 
 
-Why is this version 2.x.y?
-==========================
-Cyens Toy is just a newer version of The Science Toy, being released in modules that contain major features that are all focused on a particular branch of science. The version number of the mod is named based on how many times I've changed the official code base since creating The Science Toy, which module is being released or updated, and the amount of small tweaks made to the module. Version 2.0.0 is therefore the built on an updated code base, it contains the first module (start counting at 0), with no small tweaks made. 2.0.1 would be the first minor update to that module, 2.1.0 would be the first release of the second module, and 3.0.0 would be a third update of the official code base, in which case it would be rewritten again.
+
+Cyens Toy is a the modern successor to firefreak11's Mod, The Unrealistic Science Mod, and The Science Toy, being released in modules that contain major features that are each focused on a particular branch of science. The version number of the mod is named based on how many times I've changed the official code base since creating The Science Toy, which module is being released or updated, and the amount of small tweaks made to the module. <Official Codebase.Module.Minor Update> 
 
 Thanks
 ===========================================================================
@@ -28,5 +29,6 @@ Thanks
 * MaksProg
 * jacob1
 * mniip
+* LBPHacker
 * AngrySpam
 * Michael238

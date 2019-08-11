@@ -1,9 +1,10 @@
 #ifndef SAVERENDERER_H_
 #define SAVERENDERER_H_
 #ifdef OGLI
-#include "graphics/OpenGLHeaders.h" 
+#include "graphics/OpenGLHeaders.h"
 #endif
 #include "common/Singleton.h"
+#include <mutex>
 
 class GameSave;
 class VideoBuffer;
@@ -15,10 +16,13 @@ class SaveRenderer: public Singleton<SaveRenderer> {
 	Graphics * g;
 	Simulation * sim;
 	Renderer * ren;
+	std::mutex renderMutex;
 public:
 	SaveRenderer();
 	VideoBuffer * Render(GameSave * save, bool decorations = true, bool fire = true);
 	VideoBuffer * Render(unsigned char * saveData, int saveDataSize, bool decorations = true, bool fire = true);
+	void CopyModes(Renderer *source);
+	void ResetModes();
 	virtual ~SaveRenderer();
 
 private:

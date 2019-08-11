@@ -1,6 +1,8 @@
 #include "ContextMenu.h"
-#include "common/tpt-minmax.h"
+
 #include "graphics/Graphics.h"
+
+#include "common/tpt-minmax.h"
 
 using namespace ui;
 
@@ -10,7 +12,7 @@ class ContextMenu::ItemSelectedAction: public ButtonAction
 	int item;
 public:
 	ItemSelectedAction(ContextMenu * window, int itemID): window(window), item(itemID) { }
-	virtual void ActionCallback(ui::Button *sender)
+	void ActionCallback(ui::Button *sender) override
 	{
 		window->ActionCallbackItem(sender, item);
 	}
@@ -70,7 +72,7 @@ void ContextMenu::OnMouseDown(int x, int y, unsigned button)
 		CloseActiveWindow();
 }
 
-void ContextMenu::SetItem(int id, std::string text)
+void ContextMenu::SetItem(int id, String text)
 {
 	for (size_t i = 0; i < items.size(); i++)
 	{

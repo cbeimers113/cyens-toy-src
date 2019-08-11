@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //Temp particle used for graphics
 Particle tpart;
 
@@ -76,6 +76,30 @@ Element_PIPE::Element_PIPE()
 signed char pos_1_rx[] = {-1,-1,-1, 0, 0, 1, 1, 1};
 signed char pos_1_ry[] = {-1, 0, 1,-1, 1,-1, 0, 1};
 
+unsigned int prevColor(unsigned int flags)
+{
+	unsigned int color = flags & PFLAG_COLORS;
+	if (color == PFLAG_COLOR_RED)
+		return PFLAG_COLOR_GREEN;
+	else if (color == PFLAG_COLOR_GREEN)
+		return PFLAG_COLOR_BLUE;
+	else if (color == PFLAG_COLOR_BLUE)
+		return PFLAG_COLOR_RED;
+	return PFLAG_COLOR_RED;
+}
+
+unsigned int nextColor(unsigned int flags)
+{
+	unsigned int color = flags & PFLAG_COLORS;
+	if (color == PFLAG_COLOR_RED)
+		return PFLAG_COLOR_BLUE;
+	else if (color == PFLAG_COLOR_BLUE)
+		color = PFLAG_COLOR_GREEN;
+	else if (color == PFLAG_COLOR_GREEN)
+		return PFLAG_COLOR_RED;
+	return PFLAG_COLOR_GREEN;
+}
+
 //#TPT-Directive ElementHeader Element_PIPE static int update(UPDATE_FUNC_ARGS)
 int Element_PIPE::update(UPDATE_FUNC_ARGS)
 {
@@ -117,7 +141,7 @@ int Element_PIPE::update(UPDATE_FUNC_ARGS)
 					}
 				}
 		}
-	
+
 		if (parts[i].tmp & PPIP_TMPFLAG_TRIGGER_REVERSE)
 		{
 			parts[i].tmp ^= PPIP_TMPFLAG_REVERSED;
@@ -133,7 +157,7 @@ int Element_PIPE::update(UPDATE_FUNC_ARGS)
 				parts[i].tmp |= coords2<<13;
 			}
 		}
-		
+
 		parts[i].tmp &= ~PPIP_TMPFLAG_TRIGGERS;
 	}
 	if ((parts[i].tmp&PFLAG_COLORS) && !(parts[i].tmp & PPIP_TMPFLAG_PAUSED))
@@ -148,33 +172,37 @@ int Element_PIPE::update(UPDATE_FUNC_ARGS)
 				for (ry=-1; ry<2; ry++)
 					if (BOUNDS_CHECK && (rx || ry))
 					{
+						count++;
 						r = pmap[y+ry][x+rx];
 						if (!r)
 							continue;
 						if (TYP(r) != PT_PIPE && TYP(r) != PT_PPIP)
 							continue;
-						unsigned int nextColor = (((((parts[i].tmp&PFLAG_COLORS)>>18)+1)%3)+1)<<18;
+						unsigned int next = nextColor(parts[i].tmp);
+						unsigned int prev = prevColor(parts[i].tmp);
 						if (parts[ID(r)].tmp&PFLAG_INITIALIZING)
 						{
-							parts[ID(r)].tmp |= nextColor;
+							parts[ID(r)].tmp |= next;
 							parts[ID(r)].tmp &= ~PFLAG_INITIALIZING;
 							parts[ID(r)].life = 6;
-							if (parts[i].tmp&0x100)//is a single pixel pipe
+							// Is a single pixel pipe
+							if (parts[i].tmp&0x100)
 							{
-								parts[ID(r)].tmp |= 0x200;//will transfer to a single pixel pipe
-								parts[ID(r)].tmp |= count<<10;//coords of where it came from
-								parts[i].tmp |= ((7-count)<<14);
+								// Will transfer to a single pixel pipe
+								parts[ID(r)].tmp |= 0x200;
+								// Coords of where it came from
+								parts[ID(r)].tmp |= (count - 1) << 10;
+								parts[i].tmp |= (8 - count) << 14;
 								parts[i].tmp |= 0x2000;
 							}
 							neighborcount ++;
 							lastneighbor = ID(r);
 						}
-						else if ((parts[ID(r)].tmp&PFLAG_COLORS) != nextColor)
+						else if ((parts[ID(r)].tmp&PFLAG_COLORS) != prev)
 						{
 							neighborcount ++;
 							lastneighbor = ID(r);
 						}
-						count++;
 					}
 			if (neighborcount == 1)
 				parts[lastneighbor].tmp |= 0x100;
@@ -192,7 +220,7 @@ int Element_PIPE::update(UPDATE_FUNC_ARGS)
 
 			if (nt)//there is something besides PIPE around current particle
 			{
-				rndstore = rand();
+				rndstore = RNG::Ref().gen();
 				rnd = rndstore&7;
 				//rndstore = rndstore>>3;
 				rx = pos_1_rx[rnd];
@@ -413,7 +441,7 @@ void Element_PIPE::transfer_pipe_to_pipe(Particle *src, Particle *dest, bool STO
 	}
 	else
 	{
-		dest->ctype = src->ctype;	
+		dest->ctype = src->ctype;
 		src->ctype = 0;
 	}
 	dest->temp = src->temp;
@@ -426,17 +454,18 @@ void Element_PIPE::transfer_pipe_to_pipe(Particle *src, Particle *dest, bool STO
 void Element_PIPE::pushParticle(Simulation * sim, int i, int count, int original)
 {
 	int rndstore, rnd, rx, ry, r, x, y, np, q;
-	unsigned int notctype = (((((sim->parts[i].tmp&PFLAG_COLORS)>>18)+1)%3)+1)<<18;
+	unsigned int notctype = nextColor(sim->parts[i].tmp);
 	if (!TYP(sim->parts[i].ctype) || count >= 2)//don't push if there is nothing there, max speed of 2 per frame
 		return;
 	x = (int)(sim->parts[i].x+0.5f);
 	y = (int)(sim->parts[i].y+0.5f);
 	if( !(sim->parts[i].tmp&0x200) )
-	{ 
+	{
 		//normal random push
-		rndstore = rand();
+		rndstore = RNG::Ref().gen();
 		// RAND_MAX is at least 32767 on all platforms i.e. pow(8,5)-1
 		// so can go 5 cycles without regenerating rndstore
+		// (although now we use our own randomizer so maybe should reevaluate all the rndstore usages in every element)
 		for (q=0; q<3; q++)//try to push 3 times
 		{
 			rnd = rndstore&7;
@@ -511,7 +540,7 @@ void Element_PIPE::pushParticle(Simulation * sim, int i, int count, int original
 				transfer_pipe_to_part(sim, sim->parts+i, sim->parts+np);
 			}
 		}
-		
+
 	}
 	return;
 }

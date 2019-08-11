@@ -1,7 +1,8 @@
-#include <iostream>
 #include "ScrollPanel.h"
-#include "common/tpt-minmax.h"
+
 #include "graphics/Graphics.h"
+
+#include "common/tpt-minmax.h"
 
 using namespace ui;
 
@@ -94,7 +95,7 @@ void ScrollPanel::XOnMouseMoved(int x, int y, int dx, int dy)
 		{
 			scrollPos = float(Size.Y-scrollHeight)*(float(offsetY)/float(maxOffset.Y));
 		}
-		
+
 		if (scrollbarSelected)
 		{
 			if (x > 0)

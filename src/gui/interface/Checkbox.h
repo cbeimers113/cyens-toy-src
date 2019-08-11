@@ -1,7 +1,7 @@
 #ifndef CHECKBOX_H_
 #define CHECKBOX_H_
 
-#include <string>
+#include "common/String.h"
 #include "Component.h"
 namespace ui
 {
@@ -13,22 +13,22 @@ public:
 	virtual ~CheckboxAction() {}
 };
 class Checkbox: public ui::Component {
-	std::string text;
-	std::string toolTip;
+	String text;
+	String toolTip;
 	bool checked;
 	bool isMouseOver;
 	CheckboxAction * actionCallback;
 public:
-	Checkbox(ui::Point position, ui::Point size, std::string text, std::string toolTip);
-	void SetText(std::string text);
-	std::string GetText();
+	Checkbox(ui::Point position, ui::Point size, String text, String toolTip);
+	void SetText(String text);
+	String GetText();
 	void SetIcon(Icon icon);
-	void Draw(const Point& screenPos);
-	virtual void OnMouseEnter(int x, int y);
-	virtual void OnMouseHover(int x, int y);
-	virtual void OnMouseLeave(int x, int y);
-	virtual void OnMouseClick(int x, int y, unsigned int button);
-	virtual void OnMouseUp(int x, int y, unsigned int button);
+	void Draw(const Point& screenPos) override;
+	void OnMouseEnter(int x, int y) override;
+	void OnMouseHover(int x, int y) override;
+	void OnMouseLeave(int x, int y) override;
+	void OnMouseClick(int x, int y, unsigned int button) override;
+	void OnMouseUp(int x, int y, unsigned int button) override;
 	void SetActionCallback(CheckboxAction * action);
 	CheckboxAction * GetActionCallback() { return actionCallback; }
 	bool GetChecked() { return checked; }

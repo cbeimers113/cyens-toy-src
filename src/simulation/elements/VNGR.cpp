@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_VNGR PT_VNGR 195
 Element_VNGR::Element_VNGR()
 {

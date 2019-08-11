@@ -1,20 +1,16 @@
 #ifndef OPTIONSCONTROLLER_H_
 #define OPTIONSCONTROLLER_H_
 
-#include "Controller.h"
-#include "simulation/Simulation.h"
-#include "OptionsView.h"
-#include "OptionsModel.h"
-
+class ControllerCallback;
 class GameModel;
 class OptionsModel;
 class OptionsView;
-class OptionsController {
+class OptionsController
+{
 	GameModel * gModel;
 	OptionsView * view;
 	OptionsModel * model;
 	ControllerCallback * callback;
-	int depth3d;
 public:
 	bool HasExited;
 	OptionsController(GameModel * gModel_, ControllerCallback * callback_);
@@ -29,10 +25,15 @@ public:
 	void SetAirMode(int airMode);
 	void SetEdgeMode(int edgeMode);
 	void SetFullscreen(bool fullscreen);
+	void SetAltFullscreen(bool altFullscreen);
+	void SetForceIntegerScaling(bool forceIntegerScaling);
 	void SetScale(int scale);
+	void SetResizable(bool resizable);
 	void SetFastQuit(bool fastquit);
 	void SetShowAvatars(bool showAvatars);
-	void Set3dDepth(int depth);
+	void SetMouseClickrequired(bool mouseClickRequired);
+	void SetIncludePressure(bool includePressure);
+	
 	void Exit();
 	OptionsView * GetView();
 	virtual ~OptionsController();

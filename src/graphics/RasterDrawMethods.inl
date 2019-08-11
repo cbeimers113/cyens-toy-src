@@ -1,32 +1,33 @@
-#include "font.h"
 #include <cmath>
+#include "FontReader.h"
 
-int PIXELMETHODS_CLASS::drawtext_outline(int x, int y, const char *s, int r, int g, int b, int a)
+int PIXELMETHODS_CLASS::drawtext_outline(int x, int y, String s, int r, int g, int b, int a)
 {
 	drawtext(x-1, y-1, s, 0, 0, 0, 120);
 	drawtext(x+1, y+1, s, 0, 0, 0, 120);
-	
+
 	drawtext(x-1, y+1, s, 0, 0, 0, 120);
 	drawtext(x+1, y-1, s, 0, 0, 0, 120);
-	
+
 	return drawtext(x, y, s, r, g, b, a);
 }
 
-int PIXELMETHODS_CLASS::drawtext(int x, int y, const char *s, int r, int g, int b, int a)
+int PIXELMETHODS_CLASS::drawtext(int x, int y, String str, int r, int g, int b, int a)
 {
-	if(!strlen(s))
+	if(!str.size())
 		return 0;
 
 	int invert = 0;
 	int oR = r, oG = g, oB = b;
 	int characterX = x, characterY = y;
 	int startX = characterX;
+	String::value_type const *s = str.c_str();
 	for (; *s; s++)
 	{
 		if (*s == '\n')
 		{
 			characterX = startX;
-			characterY += FONT_H+2;
+			characterY += FONT_H;
 		}
 		else if (*s == '\x0F')
 		{
@@ -57,34 +58,14 @@ int PIXELMETHODS_CLASS::drawtext(int x, int y, const char *s, int r, int g, int 
 			if(!s[1]) break;
 			switch (s[1])
 			{
-			case 'w':
-				r = g = b = 255;
-				break;
-			case 'g':
-				r = g = b = 192;
-				break;
-			case 'o':
-				r = 255;
-				g = 216;
-				b = 32;
-				break;
-			case 'r':
-				r = 255;
-				g = b = 0;
-				break;
-			case 'l':
-				r = 255;
-				g = b = 75;
-				break;
-			case 'b':
-				r = g = 0;
-				b = 255;
-				break;
-			case 't':
-				b = 255;
-				g = 170;
-				r = 32;
-				break;
+			case 'w': r = 255; g = 255; b = 255; break;
+			case 'g': r = 192; g = 192; b = 192; break;
+			case 'o': r = 255; g = 216; b =  32; break;
+			case 'r': r = 255; g =   0; b =   0; break;
+			case 'l': r = 255; g =  75; b =  75; break;
+			case 'b': r =   0; g =   0; b = 255; break;
+			case 't': b = 255; g = 170; r =  32; break;
+			case 'u': r = 147; g =  83; b = 211; break;
 			}
 			if(invert)
 			{
@@ -96,57 +77,28 @@ int PIXELMETHODS_CLASS::drawtext(int x, int y, const char *s, int r, int g, int 
 		}
 		else
 		{
-			characterX = drawchar(characterX, characterY, *(unsigned char *)s, r, g, b, a);
+			characterX = drawchar(characterX, characterY, *s, r, g, b, a);
 		}
 	}
 	return x;
 }
 
-int PIXELMETHODS_CLASS::drawtext(int x, int y, std::string s, int r, int g, int b, int a)
+int PIXELMETHODS_CLASS::drawchar(int x, int y, String::value_type c, int r, int g, int b, int a)
 {
-	return drawtext(x, y, s.c_str(), r, g, b, a);
+	FontReader reader(c);
+	for (int j = -2; j < FONT_H - 2; j++)
+		for (int i = 0; i < reader.GetWidth(); i++)
+			blendpixel(x + i, y + j, r, g, b, reader.NextPixel() * a / 3);
+	return x + reader.GetWidth();
 }
 
-int PIXELMETHODS_CLASS::drawchar(int x, int y, int c, int r, int g, int b, int a)
+int PIXELMETHODS_CLASS::addchar(int x, int y, String::value_type c, int r, int g, int b, int a)
 {
-	int i, j, w, bn = 0, ba = 0;
-	unsigned char *rp = font_data + font_ptrs[c];
-	w = *(rp++);
-	for (j=0; j<FONT_H; j++)
-		for (i=0; i<w; i++)
-		{
-			if (!bn)
-			{
-				ba = *(rp++);
-				bn = 8;
-			}
-			blendpixel(x+i, y+j, r, g, b, ((ba&3)*a)/3);
-			ba >>= 2;
-			bn -= 2;
-		}
-	return x + w;
-}
-
-int PIXELMETHODS_CLASS::addchar(int x, int y, int c, int r, int g, int b, int a)
-{
-	int i, j, w, bn = 0, ba = 0;
-	unsigned char *rp = font_data + font_ptrs[c];
-	w = *(rp++);
-	for (j=0; j<FONT_H; j++)
-		for (i=0; i<w; i++)
-		{
-			if (!bn)
-			{
-				ba = *(rp++);
-				bn = 8;
-			}
-			{
-			addpixel(x+i, y+j, r, g, b, ((ba&3)*a)/3);
-			}
-			ba >>= 2;
-			bn -= 2;
-		}
-	return x + w;
+	FontReader reader(c);
+	for (int j = -2; j < FONT_H - 2; j++)
+		for (int i = 0; i < reader.GetWidth(); i++)
+			addpixel(x + i, y + j, r, g, b, reader.NextPixel() * a / 3);
+	return x + reader.GetWidth();
 }
 
 TPT_INLINE void PIXELMETHODS_CLASS::xor_pixel(int x, int y)

@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_CLNE PT_CLNE 9
 Element_CLNE::Element_CLNE()
 {
@@ -31,7 +31,7 @@ Element_CLNE::Element_CLNE()
 	HeatConduct = 251;
 	Description = "Clone. Duplicates any particles it touches.";
 
-	Properties = TYPE_SOLID|PROP_DRAWONCTYPE|PROP_NOCTYPEDRAW;
+	Properties = TYPE_SOLID | PROP_NOCTYPEDRAW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -43,6 +43,7 @@ Element_CLNE::Element_CLNE()
 	HighTemperatureTransition = NT;
 
 	Update = &Element_CLNE::update;
+	CtypeDraw = &Element::ctypeDrawVInTmp;
 }
 
 //#TPT-Directive ElementHeader Element_CLNE static int update(UPDATE_FUNC_ARGS)
@@ -72,11 +73,12 @@ int Element_CLNE::update(UPDATE_FUNC_ARGS)
 					}
 				}
 	}
-	else {
-		if (parts[i].ctype==PT_LIFE) sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_LIFE, parts[i].tmp);
-		else if (parts[i].ctype!=PT_LIGH || (rand()%30)==0)
+	else
+	{
+		if (parts[i].ctype==PT_LIFE) sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), PT_LIFE, parts[i].tmp);
+		else if (parts[i].ctype!=PT_LIGH || RNG::Ref().chance(1, 30))
 		{
-			int np = sim->create_part(-1, x+rand()%3-1, y+rand()%3-1, TYP(parts[i].ctype));
+			int np = sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), TYP(parts[i].ctype));
 			if (np>=0)
 			{
 				if (parts[i].ctype==PT_LAVA && parts[i].tmp>0 && parts[i].tmp<PT_NUM && sim->elements[parts[i].tmp].HighTemperatureTransition==PT_LAVA)
@@ -86,6 +88,5 @@ int Element_CLNE::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
 
 Element_CLNE::~Element_CLNE() {}

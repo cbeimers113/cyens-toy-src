@@ -1,4 +1,4 @@
-#include "simulation/Elements.h"
+#include "simulation/ElementCommon.h"
 //#TPT-Directive ElementClass Element_PRTO PT_PRTO 110
 Element_PRTO::Element_PRTO()
 {
@@ -74,7 +74,7 @@ int Element_PRTO::update(UPDATE_FUNC_ARGS)
 					fe = 1;
 					for ( nnx =0 ; nnx<80; nnx++)
 					{
-						int randomness = (count + rand()%3-1 + 4)%8;//add -1,0,or 1 to count
+						int randomness = (count + RNG::Ref().between(-1, 1) + 4) % 8;//add -1,0,or 1 to count
 						if (sim->portalp[parts[i].tmp][randomness][nnx].type==PT_SPRK)// TODO: make it look better, spark creation
 						{
 							sim->create_part(-1,x+1,y,PT_SPRK);
@@ -142,15 +142,15 @@ int Element_PRTO::update(UPDATE_FUNC_ARGS)
 	if (fe) {
 		int orbd[4] = {0, 0, 0, 0};	//Orbital distances
 		int orbl[4] = {0, 0, 0, 0};	//Orbital locations
-		if (!sim->parts[i].life) parts[i].life = rand()*rand()*rand();
-		if (!sim->parts[i].ctype) parts[i].ctype = rand()*rand()*rand();
+		if (!sim->parts[i].life) parts[i].life = RNG::Ref().gen();
+		if (!sim->parts[i].ctype) parts[i].ctype = RNG::Ref().gen();
 		sim->orbitalparts_get(parts[i].life, parts[i].ctype, orbd, orbl);
 		for (r = 0; r < 4; r++) {
 			if (orbd[r]<254) {
 				orbd[r] += 16;
 				if (orbd[r]>254) {
 					orbd[r] = 0;
-					orbl[r] = rand()%255;
+					orbl[r] = RNG::Ref().between(0, 254);
 				}
 				else
 				{
@@ -161,7 +161,7 @@ int Element_PRTO::update(UPDATE_FUNC_ARGS)
 				//orbl[r] = orbl[r]%255;
 			} else {
 				orbd[r] = 0;
-				orbl[r] = rand()%255;
+				orbl[r] = RNG::Ref().between(0, 254);
 			}
 		}
 		sim->orbitalparts_set(&parts[i].life, &parts[i].ctype, orbd, orbl);

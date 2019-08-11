@@ -1,12 +1,15 @@
 #ifndef AVATARBUTTON_H_
 #define AVATARBUTTON_H_
 
-#include <string>
+#include "common/String.h"
 
 #include "Component.h"
 #include "graphics/Graphics.h"
 #include "gui/interface/Colour.h"
-#include "client/requestbroker/RequestListener.h"
+#include "client/http/AvatarRequest.h"
+#include "client/http/RequestMonitor.h"
+
+#include <memory>
 
 namespace ui
 {
@@ -18,32 +21,32 @@ public:
 	virtual ~AvatarButtonAction() {}
 };
 
-class AvatarButton : public Component, public RequestListener
+class AvatarButton : public Component, public http::RequestMonitor<http::AvatarRequest>
 {
-	VideoBuffer * avatar;
-	std::string name;
+	std::unique_ptr<VideoBuffer> avatar;
+	ByteString name;
 	bool tried;
 public:
-	AvatarButton(Point position, Point size, std::string username);
+	AvatarButton(Point position, Point size, ByteString username);
 	virtual ~AvatarButton();
 
-	virtual void OnMouseClick(int x, int y, unsigned int button);
-	virtual void OnMouseUnclick(int x, int y, unsigned int button);
+	void OnMouseClick(int x, int y, unsigned int button) override;
+	void OnMouseUnclick(int x, int y, unsigned int button) override;
 
-	virtual void OnMouseEnter(int x, int y);
-	virtual void OnMouseLeave(int x, int y);
+	void OnMouseEnter(int x, int y) override;
+	void OnMouseLeave(int x, int y) override;
 
-	virtual void OnContextMenuAction(int item);
+	void OnContextMenuAction(int item) override;
 
-	virtual void Draw(const Point& screenPos);
-	virtual void Tick(float dt);
+	void Draw(const Point& screenPos) override;
+	void Tick(float dt) override;
 
-	virtual void OnResponseReady(void * imagePtr, int identifier);
-	
-	virtual void DoAction();
+	void OnResponse(std::unique_ptr<VideoBuffer> avatar) override;
 
-	void SetUsername(std::string username) { name = username; }
-	std::string GetUsername() { return name; }
+	void DoAction();
+
+	void SetUsername(ByteString username) { name = username; }
+	ByteString GetUsername() { return name; }
 	void SetActionCallback(AvatarButtonAction * action);
 protected:
 	bool isMouseInside, isButtonDown;

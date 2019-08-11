@@ -1,10 +1,14 @@
-#include <iostream>
 #include "TextPrompt.h"
+
 #include "gui/interface/Label.h"
 #include "gui/interface/Button.h"
 #include "gui/interface/Engine.h"
+#include "gui/interface/Textbox.h"
+
 #include "gui/Style.h"
 #include "PowderToy.h"
+
+#include "graphics/Graphics.h"
 
 class CloseAction: public ui::ButtonAction
 {
@@ -12,7 +16,7 @@ public:
 	TextPrompt * prompt;
 	TextPrompt::DialogueResult result;
 	CloseAction(TextPrompt * prompt_, TextPrompt::DialogueResult result_) { prompt = prompt_; result = result_; }
-	void ActionCallback(ui::Button * sender)
+	void ActionCallback(ui::Button * sender) override
 	{
 		prompt->CloseActiveWindow();
 		if(prompt->callback)
@@ -21,7 +25,7 @@ public:
 	}
 };
 
-TextPrompt::TextPrompt(std::string title, std::string message, std::string text, std::string placeholder, bool multiline, TextDialogueCallback * callback_):
+TextPrompt::TextPrompt(String title, String message, String text, String placeholder, bool multiline, TextDialogueCallback * callback_):
 	ui::Window(ui::Point(-1, -1), ui::Point(200, 65)),
 	callback(callback_)
 {
@@ -77,15 +81,15 @@ TextPrompt::TextPrompt(std::string title, std::string message, std::string text,
 	MakeActiveWindow();
 }
 
-std::string TextPrompt::Blocking(std::string title, std::string message, std::string text, std::string placeholder, bool multiline)
+String TextPrompt::Blocking(String title, String message, String text, String placeholder, bool multiline)
 {
-	std::string returnString = "";
+	String returnString = "";
 
 	class BlockingTextCallback: public TextDialogueCallback {
-		std::string & outputString;
+		String & outputString;
 	public:
-		BlockingTextCallback(std::string & output) : outputString(output) {}
-		virtual void TextCallback(TextPrompt::DialogueResult result, std::string resultText) {
+		BlockingTextCallback(String & output) : outputString(output) {}
+		void TextCallback(TextPrompt::DialogueResult result, String resultText) override {
 			if(result == ResultOkay)
 				outputString = resultText;
 			else
