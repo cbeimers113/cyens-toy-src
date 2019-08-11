@@ -1,7 +1,7 @@
 #include "simulation/ElementCommon.h"
 #include <iostream>
 
-//#TPT-Directive ElementClass Element_LDTC PT_LDTC 186
+//#TPT-Directive ElementClass Element_LDTC PT_LDTC 224
 Element_LDTC::Element_LDTC()
 {
 	Identifier = "DEFAULT_PT_LDTC";
