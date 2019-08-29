@@ -70,7 +70,6 @@ private:
 	int screenshotIndex;
 	bool recording;
 	int recordingFolder;
-	int recordingIndex;
 
 	ui::Point currentPoint, lastPoint;
 	GameController * c;
