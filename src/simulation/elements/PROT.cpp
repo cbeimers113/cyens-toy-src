@@ -17,7 +17,7 @@ Element_PROT::Element_PROT()
 	Collision = -.99f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -117,7 +117,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 			sim->pv[y / CELL][x / CELL] += 1.00f;
 		}
 		//prevent inactive sparkable elements from being sparked
-		else if ((sim->elements[utype].Properties&PROP_CONDUCTS) && parts[uID].life <= 4)
+		else if ((sim->elements[utype].Properties & PROP_CONDUCTS) && parts[uID].life <= 4)
 		{
 			parts[uID].life = 40 + parts[uID].life;
 		}
@@ -125,9 +125,10 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 	}
 	//make temp of other things closer to it's own temperature. This will change temp of things that don't conduct, and won't change the PROT's temperature
 	if (utype && utype != PT_WIFI)
-		parts[uID].temp = restrict_flt(parts[uID].temp-(parts[uID].temp-parts[i].temp)/4.0f, MIN_TEMP, MAX_TEMP);
+		parts[uID].temp = restrict_flt(parts[uID].temp - (parts[uID].temp - parts[i].temp) / 4.0f, MIN_TEMP, MAX_TEMP);
 
 	//if this proton has collided with another last frame, change it into a heavier element
+	//TODO: replace with realistic hadron collisions to create pions, kaons, higgs, etc
 	if (parts[i].tmp)
 	{
 		int newID, element;
@@ -149,7 +150,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 			element = PT_NBLE;
 		newID = sim->create_part(-1, x + RNG::Ref().between(-1, 1), y + RNG::Ref().between(-1, 1), element);
 		if (newID >= 0)
-			parts[newID].temp = restrict_flt(100.0f*parts[i].tmp, MIN_TEMP, MAX_TEMP);
+			parts[newID].temp = restrict_flt(100.0f * parts[i].tmp, MIN_TEMP, MAX_TEMP);
 		sim->kill_part(i);
 		return 1;
 	}
@@ -174,7 +175,7 @@ int Element_PROT::update(UPDATE_FUNC_ARGS)
 }
 
 //#TPT-Directive ElementHeader Element_PROT static int DeutImplosion(Simulation * sim, int n, int x, int y, float temp, int t)
-int Element_PROT::DeutImplosion(Simulation * sim, int n, int x, int y, float temp, int t)
+int Element_PROT::DeutImplosion(Simulation* sim, int n, int x, int y, float temp, int t)
 {
 	int i;
 	n = (n / 50);
@@ -191,7 +192,7 @@ int Element_PROT::DeutImplosion(Simulation * sim, int n, int x, int y, float tem
 		else if (sim->pfree < 0)
 			break;
 	}
-	sim->pv[y / CELL][x / CELL] -= (6.0f * CFDS)*n;
+	sim->pv[y / CELL][x / CELL] -= (6.0f * CFDS) * n;
 	return 0;
 }
 
@@ -202,6 +203,8 @@ int Element_PROT::graphics(GRAPHICS_FUNC_ARGS)
 	*firer = 250;
 	*fireg = 170;
 	*fireb = 170;
+
+	*cola = 125;
 
 	*pixel_mode |= FIRE_BLEND;
 	return 1;

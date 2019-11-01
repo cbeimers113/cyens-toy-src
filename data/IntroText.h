@@ -1,6 +1,6 @@
 #pragma once
 const char *const introTextData =
-	"\btCyens Toy 3.1.1 \bg- \blOfficial Version " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://powdertoy.co.uk, irc.freenode.net #powder\n"
+	"\btCyens Toy " MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " - https://tpt.io/.302980, Discord: https://discord.gg/pnwjv37\n"
 	"\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F\n"
 	"\n"
 	"\bgControl+C/V/X are Copy, Paste and cut respectively.\n"
@@ -32,7 +32,7 @@ const char *const introTextData =
 	"\brThis is a BETA, you cannot save things publicly. If you are planning on publishing any saves, use the release version\n"
 #endif
 	"\n"
-	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) "." MTOS(BUILD_NUM) " " IDENT_PLATFORM " "
+	"\bt" MTOS(SAVE_VERSION) "." MTOS(MINOR_VERSION) " " IDENT_PLATFORM " "
 #ifdef SNAPSHOT
 	"SNAPSHOT " MTOS(SNAPSHOT_ID) " "
 #elif MOD_ID > 0

@@ -12,7 +12,7 @@ struct Particle;
 class Element
 {
 public:
-	const char *FullName;
+	String FullName;
 	ByteString Identifier;
 	String Name;
 	pixel Colour;

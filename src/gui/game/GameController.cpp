@@ -81,9 +81,9 @@
 
 class GameController::SearchCallback : public ControllerCallback
 {
-	GameController * cc;
+	GameController* cc;
 public:
-	SearchCallback(GameController * cc_) { cc = cc_; }
+	SearchCallback(GameController* cc_) { cc = cc_; }
 
 	void ControllerExit() override
 	{
@@ -95,7 +95,7 @@ public:
 				cc->gameModel->SetSave(cc->search->GetLoadedSave(), cc->gameView->ShiftBehaviour());
 				cc->search->ReleaseLoadedSave();
 			}
-			catch (GameModelException & ex)
+			catch (GameModelException& ex)
 			{
 				new ErrorMessage("Cannot open save", ByteString(ex.what()).FromUtf8());
 			}
@@ -105,9 +105,9 @@ public:
 
 class GameController::SaveOpenCallback : public ControllerCallback
 {
-	GameController * cc;
+	GameController* cc;
 public:
-	SaveOpenCallback(GameController * cc_) { cc = cc_; }
+	SaveOpenCallback(GameController* cc_) { cc = cc_; }
 	void ControllerExit() override
 	{
 		if (cc->activePreview->GetDoOpen() && cc->activePreview->GetSaveInfo())
@@ -117,7 +117,7 @@ public:
 				cc->HistorySnapshot();
 				cc->LoadSave(cc->activePreview->GetSaveInfo());
 			}
-			catch (GameModelException & ex)
+			catch (GameModelException& ex)
 			{
 				new ErrorMessage("Cannot open save", ByteString(ex.what()).FromUtf8());
 			}
@@ -127,9 +127,9 @@ public:
 
 class GameController::OptionsCallback : public ControllerCallback
 {
-	GameController * cc;
+	GameController* cc;
 public:
-	OptionsCallback(GameController * cc_) { cc = cc_; }
+	OptionsCallback(GameController* cc_) { cc = cc_; }
 	void ControllerExit() override
 	{
 		cc->gameModel->UpdateQuickOptions();
@@ -139,9 +139,9 @@ public:
 
 class GameController::TagsCallback : public ControllerCallback
 {
-	GameController * cc;
+	GameController* cc;
 public:
-	TagsCallback(GameController * cc_) { cc = cc_; }
+	TagsCallback(GameController* cc_) { cc = cc_; }
 	void ControllerExit() override
 	{
 		cc->gameView->NotifySaveChanged(cc->gameModel);
@@ -150,12 +150,12 @@ public:
 
 class GameController::StampsCallback : public ControllerCallback
 {
-	GameController * cc;
+	GameController* cc;
 public:
-	StampsCallback(GameController * cc_) { cc = cc_; }
+	StampsCallback(GameController* cc_) { cc = cc_; }
 	void ControllerExit() override
 	{
-		SaveFile *file = cc->localBrowser->GetSave();
+		SaveFile* file = cc->localBrowser->GetSave();
 		if (file)
 		{
 			if (file->GetError().length())
@@ -241,23 +241,23 @@ GameController::~GameController()
 	}
 	for (std::vector<DebugInfo*>::iterator iter = debugInfo.begin(), end = debugInfo.end(); iter != end; iter++)
 	{
-		delete *iter;
+		delete* iter;
 	}
 	//deleted here because it refuses to be deleted when deleted from gameModel even with the same code
 	std::deque<Snapshot*> history = gameModel->GetHistory();
 	for (std::deque<Snapshot*>::iterator iter = history.begin(), end = history.end(); iter != end; ++iter)
 	{
-		delete *iter;
+		delete* iter;
 	}
 	std::vector<QuickOption*> quickOptions = gameModel->GetQuickOptions();
 	for (std::vector<QuickOption*>::iterator iter = quickOptions.begin(), end = quickOptions.end(); iter != end; ++iter)
 	{
-		delete *iter;
+		delete* iter;
 	}
 	std::vector<Notification*> notifications = gameModel->GetNotifications();
 	for (std::vector<Notification*>::iterator iter = notifications.begin(); iter != notifications.end(); ++iter)
 	{
-		delete *iter;
+		delete* iter;
 	}
 	delete gameModel;
 	if (gameView->CloseActiveWindow())
@@ -277,13 +277,13 @@ void GameController::HistoryRestore()
 	// This way ctrl+y will always bring you back to the point right before your last ctrl+z
 	if (historyPosition == history.size())
 	{
-		Snapshot * newSnap = gameModel->GetSimulation()->CreateSnapshot();
+		Snapshot* newSnap = gameModel->GetSimulation()->CreateSnapshot();
 		if (newSnap)
 			newSnap->Authors = Client::Ref().GetAuthorInfo();
 		delete gameModel->GetRedoHistory();
 		gameModel->SetRedoHistory(newSnap);
 	}
-	Snapshot * snap = history[newHistoryPosition];
+	Snapshot* snap = history[newHistoryPosition];
 	gameModel->GetSimulation()->Restore(*snap);
 	Client::Ref().OverwriteAuthorInfo(snap->Authors);
 	gameModel->SetHistory(history);
@@ -294,19 +294,19 @@ void GameController::HistorySnapshot()
 {
 	std::deque<Snapshot*> history = gameModel->GetHistory();
 	unsigned int historyPosition = gameModel->GetHistoryPosition();
-	Snapshot * newSnap = gameModel->GetSimulation()->CreateSnapshot();
+	Snapshot* newSnap = gameModel->GetSimulation()->CreateSnapshot();
 	if (newSnap)
 	{
 		newSnap->Authors = Client::Ref().GetAuthorInfo();
 		while (historyPosition < history.size())
 		{
-			Snapshot * snap = history.back();
+			Snapshot* snap = history.back();
 			history.pop_back();
 			delete snap;
 		}
 		if (history.size() >= gameModel->GetUndoHistoryLimit())
 		{
-			Snapshot * snap = history.front();
+			Snapshot* snap = history.front();
 			history.pop_front();
 			delete snap;
 			if (historyPosition > history.size())
@@ -327,7 +327,7 @@ void GameController::HistoryForward()
 		return;
 	unsigned int historyPosition = gameModel->GetHistoryPosition();
 	unsigned int newHistoryPosition = std::min((size_t)historyPosition + 1, history.size());
-	Snapshot *snap;
+	Snapshot* snap;
 	if (newHistoryPosition == history.size())
 		snap = gameModel->GetRedoHistory();
 	else
@@ -339,19 +339,19 @@ void GameController::HistoryForward()
 	gameModel->SetHistoryPosition(newHistoryPosition);
 }
 
-GameView * GameController::GetView()
+GameView* GameController::GetView()
 {
 	return gameView;
 }
 
 int GameController::GetSignAt(int x, int y)
 {
-	Simulation * sim = gameModel->GetSimulation();
+	Simulation* sim = gameModel->GetSimulation();
 	for (int i = sim->signs.size() - 1; i >= 0; i--)
 	{
 		int signx, signy, signw, signh;
 		sim->signs[i].getDisplayText(sim, signx, signy, signw, signh);
-		if (x>=signx && x<=signx+signw && y>=signy && y<=signy+signh)
+		if (x >= signx && x <= signx + signw && y >= signy && y <= signy + signh)
 			return i;
 	}
 	return -1;
@@ -370,7 +370,7 @@ std::pair<int, sign::Type> GameController::GetSignSplit(int signID)
 
 void GameController::PlaceSave(ui::Point position)
 {
-	GameSave *placeSave = gameModel->GetPlaceSave();
+	GameSave* placeSave = gameModel->GetPlaceSave();
 	if (placeSave)
 	{
 		HistorySnapshot();
@@ -389,8 +389,8 @@ void GameController::Install()
 #elif defined(WIN) || defined(LIN)
 	class InstallConfirmation : public ConfirmDialogueCallback {
 	public:
-		GameController * c;
-		InstallConfirmation(GameController * c_) {	c = c_;	}
+		GameController* c;
+		InstallConfirmation(GameController* c_) { c = c_; }
 		void ConfirmCallback(ConfirmPrompt::DialogueResult result) override {
 			if (result == ConfirmPrompt::ResultOkay)
 			{
@@ -433,11 +433,11 @@ void GameController::AdjustBrushSize(int delta, bool logarithmic, bool xAxis, bo
 
 	ui::Point newSize(0, 0);
 	ui::Point oldSize = gameModel->GetBrush()->GetRadius();
-	if(logarithmic)
+	if (logarithmic)
 		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(delta * std::max(gameModel->GetBrush()->GetRadius().X / 5, 1), delta * std::max(gameModel->GetBrush()->GetRadius().Y / 5, 1));
 	else
 		newSize = gameModel->GetBrush()->GetRadius() + ui::Point(delta, delta);
-	if(newSize.X < 0)
+	if (newSize.X < 0)
 		newSize.X = 0;
 	if (newSize.Y < 0)
 		newSize.Y = 0;
@@ -462,14 +462,14 @@ void GameController::SetBrushSize(ui::Point newSize)
 void GameController::AdjustZoomSize(int delta, bool logarithmic)
 {
 	int newSize;
-	if(logarithmic)
+	if (logarithmic)
 		newSize = gameModel->GetZoomSize() + std::max(gameModel->GetZoomSize() / 10, 1) * delta;
 	else
 		newSize = gameModel->GetZoomSize() + delta;
-	if(newSize<5)
-			newSize = 5;
-	if(newSize>64)
-			newSize = 64;
+	if (newSize < 5)
+		newSize = 5;
+	if (newSize > 64)
+		newSize = 64;
 	gameModel->SetZoomSize(newSize);
 
 	int newZoomFactor = 256 / newSize;
@@ -508,15 +508,15 @@ ui::Point GameController::PointTranslate(ui::Point point)
 
 ui::Point GameController::NormaliseBlockCoord(ui::Point point)
 {
-	return (point / CELL)*CELL;
+	return (point / CELL) * CELL;
 }
 
 void GameController::DrawRect(int toolSelection, ui::Point point1, ui::Point point2)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	Tool * activeTool = gameModel->GetActiveTool(toolSelection);
+	Simulation* sim = gameModel->GetSimulation();
+	Tool* activeTool = gameModel->GetActiveTool(toolSelection);
 	gameModel->SetLastTool(activeTool);
-	Brush * cBrush = gameModel->GetBrush();
+	Brush* cBrush = gameModel->GetBrush();
 	if (!activeTool || !cBrush)
 		return;
 	activeTool->SetStrength(1.0f);
@@ -525,10 +525,10 @@ void GameController::DrawRect(int toolSelection, ui::Point point1, ui::Point poi
 
 void GameController::DrawLine(int toolSelection, ui::Point point1, ui::Point point2)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	Tool * activeTool = gameModel->GetActiveTool(toolSelection);
+	Simulation* sim = gameModel->GetSimulation();
+	Tool* activeTool = gameModel->GetActiveTool(toolSelection);
 	gameModel->SetLastTool(activeTool);
-	Brush * cBrush = gameModel->GetBrush();
+	Brush* cBrush = gameModel->GetBrush();
 	if (!activeTool || !cBrush)
 		return;
 	activeTool->SetStrength(1.0f);
@@ -537,10 +537,10 @@ void GameController::DrawLine(int toolSelection, ui::Point point1, ui::Point poi
 
 void GameController::DrawFill(int toolSelection, ui::Point point)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	Tool * activeTool = gameModel->GetActiveTool(toolSelection);
+	Simulation* sim = gameModel->GetSimulation();
+	Tool* activeTool = gameModel->GetActiveTool(toolSelection);
 	gameModel->SetLastTool(activeTool);
-	Brush * cBrush = gameModel->GetBrush();
+	Brush* cBrush = gameModel->GetBrush();
 	if (!activeTool || !cBrush)
 		return;
 	activeTool->SetStrength(1.0f);
@@ -549,10 +549,10 @@ void GameController::DrawFill(int toolSelection, ui::Point point)
 
 void GameController::DrawPoints(int toolSelection, ui::Point oldPos, ui::Point newPos, bool held)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	Tool * activeTool = gameModel->GetActiveTool(toolSelection);
+	Simulation* sim = gameModel->GetSimulation();
+	Tool* activeTool = gameModel->GetActiveTool(toolSelection);
 	gameModel->SetLastTool(activeTool);
-	Brush * cBrush = gameModel->GetBrush();
+	Brush* cBrush = gameModel->GetBrush();
 	if (!activeTool || !cBrush)
 	{
 		return;
@@ -567,7 +567,7 @@ void GameController::DrawPoints(int toolSelection, ui::Point oldPos, ui::Point n
 
 bool GameController::LoadClipboard()
 {
-	GameSave *clip = gameModel->GetClipboard();
+	GameSave* clip = gameModel->GetClipboard();
 	if (!clip)
 		return false;
 	gameModel->SetPlaceSave(clip);
@@ -576,7 +576,7 @@ bool GameController::LoadClipboard()
 	return true;
 }
 
-void GameController::LoadStamp(GameSave *stamp)
+void GameController::LoadStamp(GameSave* stamp)
 {
 	gameModel->SetPlaceSave(stamp);
 	if (gameModel->GetPlaceSave() && gameModel->GetPlaceSave()->Collapsed())
@@ -602,9 +602,9 @@ void GameController::TransformSave(matrix2d transform)
 
 void GameController::ToolClick(int toolSelection, ui::Point point)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	Tool * activeTool = gameModel->GetActiveTool(toolSelection);
-	Brush * cBrush = gameModel->GetBrush();
+	Simulation* sim = gameModel->GetSimulation();
+	Tool* activeTool = gameModel->GetActiveTool(toolSelection);
+	Brush* cBrush = gameModel->GetBrush();
 	if (!activeTool || !cBrush)
 		return;
 	activeTool->Click(sim, cBrush, point);
@@ -612,8 +612,8 @@ void GameController::ToolClick(int toolSelection, ui::Point point)
 
 ByteString GameController::StampRegion(ui::Point point1, ui::Point point2)
 {
-	GameSave * newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
-	if(newSave)
+	GameSave* newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
+	if (newSave)
 	{
 		newSave->paused = gameModel->GetPaused();
 		ByteString stampName = Client::Ref().AddStamp(newSave);
@@ -631,8 +631,8 @@ ByteString GameController::StampRegion(ui::Point point1, ui::Point point2)
 
 void GameController::CopyRegion(ui::Point point1, ui::Point point2)
 {
-	GameSave * newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
-	if(newSave)
+	GameSave* newSave = gameModel->GetSimulation()->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour(), point1.X, point1.Y, point2.X, point2.Y);
+	if (newSave)
 	{
 		Json::Value clipboardInfo;
 		clipboardInfo["type"] = "clipboard";
@@ -649,7 +649,7 @@ void GameController::CopyRegion(ui::Point point1, ui::Point point2)
 void GameController::CutRegion(ui::Point point1, ui::Point point2)
 {
 	CopyRegion(point1, point2);
-	gameModel->GetSimulation()->clear_area(point1.X, point1.Y, point2.X-point1.X, point2.Y-point1.Y);
+	gameModel->GetSimulation()->clear_area(point1.X, point1.Y, point2.X - point1.X, point2.Y - point1.Y);
 }
 
 bool GameController::MouseMove(int x, int y, int dx, int dy)
@@ -662,7 +662,7 @@ bool GameController::MouseDown(int x, int y, unsigned button)
 {
 	MouseDownEvent ev(x, y, button);
 	bool ret = commandInterface->HandleEvent(LuaEvents::mousedown, &ev);
-	if (ret && y<YRES && x<XRES && !gameView->GetPlacingSave() && !gameView->GetPlacingZoom())
+	if (ret && y < YRES && x < XRES && !gameView->GetPlacingSave() && !gameView->GetPlacingZoom())
 	{
 		ui::Point point = gameModel->AdjustZoomCoords(ui::Point(x, y));
 		x = point.X;
@@ -698,7 +698,7 @@ bool GameController::MouseUp(int x, int y, unsigned button, char type)
 			int foundSignID = GetSignAt(x, y);
 			if (foundSignID != -1)
 			{
-				sign &foundSign = gameModel->GetSimulation()->signs[foundSignID];
+				sign& foundSign = gameModel->GetSimulation()->signs[foundSignID];
 				String str = foundSign.text;
 				auto si = gameModel->GetSimulation()->signs[foundSignID].split();
 				if (si.first)
@@ -707,12 +707,12 @@ bool GameController::MouseUp(int x, int y, unsigned button, char type)
 					switch (si.second)
 					{
 					case sign::Type::Save:
-						{
-							int saveID = str.Substr(3, si.first - 3).ToNumber<int>(true);
-							if (saveID)
-								OpenSavePreview(saveID, 0, false);
-						}
-						break;
+					{
+						int saveID = str.Substr(3, si.first - 3).ToNumber<int>(true);
+						if (saveID)
+							OpenSavePreview(saveID, 0, false);
+					}
+					break;
 					case sign::Type::Thread:
 						Platform::OpenURI(ByteString::Build(SCHEME "powdertoy.co.uk/Discussions/Thread/View.html?Thread=", str.Substr(3, si.first - 3).ToUtf8()));
 						break;
@@ -752,7 +752,7 @@ bool GameController::KeyPress(int key, int scan, bool repeat, bool shift, bool c
 		return ret;
 	if (ret)
 	{
-		Simulation * sim = gameModel->GetSimulation();
+		Simulation* sim = gameModel->GetSimulation();
 		if (!gameView->GetPlacingSave())
 		{
 			// Go right command
@@ -766,12 +766,12 @@ bool GameController::KeyPress(int key, int scan, bool repeat, bool shift, bool c
 				sim->player.comm = (int)(sim->player.comm) | 0x01;
 			}
 			// Use element command
-			else if (key == SDLK_DOWN && ((int)(sim->player.comm)&0x08)!=0x08)
+			else if (key == SDLK_DOWN && ((int)(sim->player.comm) & 0x08) != 0x08)
 			{
 				sim->player.comm = (int)(sim->player.comm) | 0x08;
 			}
 			// Jump command
-			else if (key == SDLK_UP && ((int)(sim->player.comm)&0x04)!=0x04)
+			else if (key == SDLK_UP && ((int)(sim->player.comm) & 0x04) != 0x04)
 			{
 				sim->player.comm = (int)(sim->player.comm) | 0x04;
 			}
@@ -788,22 +788,22 @@ bool GameController::KeyPress(int key, int scan, bool repeat, bool shift, bool c
 			sim->player2.comm = (int)(sim->player2.comm) | 0x01;
 		}
 		// Use element command
-		else if (scan == SDL_SCANCODE_S && ((int)(sim->player2.comm)&0x08)!=0x08)
+		else if (scan == SDL_SCANCODE_S && ((int)(sim->player2.comm) & 0x08) != 0x08)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x08;
 		}
 		// Jump command
-		else if (scan == SDL_SCANCODE_W && ((int)(sim->player2.comm)&0x04)!=0x04)
+		else if (scan == SDL_SCANCODE_W && ((int)(sim->player2.comm) & 0x04) != 0x04)
 		{
 			sim->player2.comm = (int)(sim->player2.comm) | 0x04;
 		}
 
 		if (!sim->elementCount[PT_STKM2] || ctrl)
 		{
-			switch(scan)
+			switch (scan)
 			{
 			case SDL_SCANCODE_W:
-				if(ctrl)ToggleInfoscreen();
+				if (ctrl)ToggleInfoscreen();
 				else SwitchGravity();
 				break;
 			case SDL_SCANCODE_D:
@@ -833,7 +833,7 @@ bool GameController::KeyRelease(int key, int scan, bool repeat, bool shift, bool
 		return ret;
 	if (ret)
 	{
-		Simulation * sim = gameModel->GetSimulation();
+		Simulation* sim = gameModel->GetSimulation();
 		if (key == SDLK_RIGHT || key == SDLK_LEFT)
 		{
 			sim->player.pcomm = sim->player.comm;  //Saving last movement
@@ -906,7 +906,7 @@ void GameController::Exit()
 
 void GameController::ResetAir()
 {
-	Simulation * sim = gameModel->GetSimulation();
+	Simulation* sim = gameModel->GetSimulation();
 	sim->air->Clear();
 	for (int i = 0; i < NPART; i++)
 	{
@@ -919,7 +919,7 @@ void GameController::ResetAir()
 
 void GameController::ResetSpark()
 {
-	Simulation * sim = gameModel->GetSimulation();
+	Simulation* sim = gameModel->GetSimulation();
 	for (int i = 0; i < NPART; i++)
 		if (sim->parts[i].type == PT_SPRK)
 		{
@@ -1006,9 +1006,13 @@ void GameController::ToggleCompressibleGases() {
 	gameModel->SetCompressibleGasesEnable(!gameModel->GetCompressibleGasesEnable());
 }
 
+void GameController::ToggleDrawQuantumFields() {
+	gameModel->SetDrawQuantumFields(!gameModel->GetDrawQuantumFields());
+}
+
 void GameController::LoadRenderPreset(int presetNum)
 {
-	Renderer * renderer = gameModel->GetRenderer();
+	Renderer* renderer = gameModel->GetRenderer();
 	RenderPreset preset = renderer->renderModePresets[presetNum];
 	gameModel->SetInfoTip(preset.Name);
 	renderer->SetRenderMode(preset.RenderModes);
@@ -1025,7 +1029,7 @@ void GameController::Update()
 	else
 		gameView->SetSample(gameModel->GetSimulation()->GetSample(pos.X, pos.Y));
 
-	Simulation * sim = gameModel->GetSimulation();
+	Simulation* sim = gameModel->GetSimulation();
 	gameView->SetSim(sim);
 	sim->BeforeSim();
 	if (!sim->sys_pause || sim->framerender)
@@ -1039,7 +1043,7 @@ void GameController::Update()
 	if (!sim->player.spwn || !sim->player2.spwn)
 	{
 		int rightSelected = PT_DUST;
-		Tool * activeTool = gameModel->GetActiveTool(1);
+		Tool* activeTool = gameModel->GetActiveTool(1);
 		if (activeTool->GetIdentifier().BeginsWith("DEFAULT_PT_"))
 		{
 			int sr = activeTool->GetToolID();
@@ -1107,7 +1111,7 @@ void GameController::SetZoomPosition(ui::Point position)
 
 	ui::Point zoomWindowPosition = ui::Point(0, 0);
 	if (position.X < XRES / 2)
-		zoomWindowPosition.X = XRES - (gameModel->GetZoomSize()*gameModel->GetZoomFactor());
+		zoomWindowPosition.X = XRES - (gameModel->GetZoomSize() * gameModel->GetZoomFactor());
 
 	gameModel->SetZoomPosition(zoomPosition);
 	gameModel->SetZoomWindowPosition(zoomWindowPosition);
@@ -1204,12 +1208,12 @@ void GameController::RebuildFavoritesMenu()
 	gameModel->BuildFavoritesMenu();
 }
 
-Tool * GameController::GetActiveTool(int selection)
+Tool* GameController::GetActiveTool(int selection)
 {
 	return gameModel->GetActiveTool(selection);
 }
 
-void GameController::SetActiveTool(int toolSelection, Tool * tool)
+void GameController::SetActiveTool(int toolSelection, Tool* tool)
 {
 	if (gameModel->GetActiveMenu() == SC_DECO && toolSelection == 2)
 		toolSelection = 0;
@@ -1224,18 +1228,18 @@ void GameController::SetActiveTool(int toolSelection, Tool * tool)
 			gameModel->GetRenderer()->gravityZonesEnabled = true;
 	}
 	if (tool->GetIdentifier() == "DEFAULT_UI_PROPERTY")
-		((PropertyTool *)tool)->OpenWindow(gameModel->GetSimulation());
+		((PropertyTool*)tool)->OpenWindow(gameModel->GetSimulation());
 }
 
 void GameController::SetActiveTool(int toolSelection, ByteString identifier)
 {
-	Tool *tool = gameModel->GetToolFromIdentifier(identifier);
+	Tool* tool = gameModel->GetToolFromIdentifier(identifier);
 	if (!tool)
 		return;
 	SetActiveTool(toolSelection, tool);
 }
 
-void GameController::SetLastTool(Tool * tool)
+void GameController::SetLastTool(Tool* tool)
 {
 	gameModel->SetLastTool(tool);
 }
@@ -1277,9 +1281,9 @@ void GameController::OpenSearch(String searchText)
 
 void GameController::OpenLocalSaveWindow(bool asCurrent)
 {
-	Simulation * sim = gameModel->GetSimulation();
-	GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
-	if(!gameSave)
+	Simulation* sim = gameModel->GetSimulation();
+	GameSave* gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+	if (!gameSave)
 	{
 		new ErrorMessage("Error", "Unable to build save.");
 	}
@@ -1299,9 +1303,9 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 		{
 			class LocalSaveCallback : public FileSavedCallback
 			{
-				GameController * c;
+				GameController* c;
 			public:
-				LocalSaveCallback(GameController * _c) : c(_c) {}
+				LocalSaveCallback(GameController* _c) : c(_c) {}
 				virtual  ~LocalSaveCallback() {}
 				void FileSaved(SaveFile* file) override
 				{
@@ -1333,13 +1337,13 @@ void GameController::OpenLocalSaveWindow(bool asCurrent)
 	}
 }
 
-void GameController::LoadSaveFile(SaveFile * file)
+void GameController::LoadSaveFile(SaveFile* file)
 {
 	gameModel->SetSaveFile(file, gameView->ShiftBehaviour());
 }
 
 
-void GameController::LoadSave(SaveInfo * save)
+void GameController::LoadSave(SaveInfo* save)
 {
 	gameModel->SetSave(save, gameView->ShiftBehaviour());
 }
@@ -1363,9 +1367,9 @@ void GameController::OpenLocalBrowse()
 {
 	class LocalSaveOpenCallback : public FileSelectedCallback
 	{
-		GameController * c;
+		GameController* c;
 	public:
-		LocalSaveOpenCallback(GameController * _c) : c(_c) {}
+		LocalSaveOpenCallback(GameController* _c) : c(_c) {}
 		virtual  ~LocalSaveOpenCallback() {};
 		void FileSelected(SaveFile* file) override
 		{
@@ -1400,12 +1404,12 @@ void GameController::OpenElementSearch()
 {
 	std::vector<Tool*> toolList;
 	std::vector<Menu*> menuList = gameModel->GetMenuList();
-	for(auto *mm : menuList)
+	for (auto* mm : menuList)
 	{
-		if(!mm)
+		if (!mm)
 			continue;
 		std::vector<Tool*> menuToolList = mm->GetToolList();
-		if(!menuToolList.size())
+		if (!menuToolList.size())
 			continue;
 		toolList.insert(toolList.end(), menuToolList.begin(), menuToolList.end());
 	}
@@ -1418,9 +1422,9 @@ void GameController::OpenColourPicker()
 {
 	class ColourPickerCallback : public ColourPickedCallback
 	{
-		GameController * c;
+		GameController* c;
 	public:
-		ColourPickerCallback(GameController * _c): c(_c) {}
+		ColourPickerCallback(GameController* _c) : c(_c) {}
 		virtual  ~ColourPickerCallback() {}
 		void ColourPicked(ui::Colour colour) override
 		{
@@ -1482,9 +1486,9 @@ void GameController::OpenSaveWindow()
 {
 	class SaveUploadedCallback : public ServerSaveActivity::SaveUploadedCallback
 	{
-		GameController * c;
+		GameController* c;
 	public:
-		SaveUploadedCallback(GameController * _c) : c(_c) {}
+		SaveUploadedCallback(GameController* _c) : c(_c) {}
 		virtual  ~SaveUploadedCallback() {}
 		void SaveUploaded(SaveInfo save) override
 		{
@@ -1495,9 +1499,9 @@ void GameController::OpenSaveWindow()
 	};
 	if (gameModel->GetUser().UserID)
 	{
-		Simulation * sim = gameModel->GetSimulation();
-		GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
-		if(!gameSave)
+		Simulation* sim = gameModel->GetSimulation();
+		GameSave* gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+		if (!gameSave)
 		{
 			new ErrorMessage("Error", "Unable to build save.");
 		}
@@ -1530,9 +1534,9 @@ void GameController::SaveAsCurrent()
 
 	class SaveUploadedCallback : public ServerSaveActivity::SaveUploadedCallback
 	{
-		GameController * c;
+		GameController* c;
 	public:
-		SaveUploadedCallback(GameController * _c) : c(_c) {}
+		SaveUploadedCallback(GameController* _c) : c(_c) {}
 		virtual  ~SaveUploadedCallback() {}
 		void SaveUploaded(SaveInfo save) override
 		{
@@ -1542,9 +1546,9 @@ void GameController::SaveAsCurrent()
 
 	if (gameModel->GetSave() && gameModel->GetUser().UserID && gameModel->GetUser().Username == gameModel->GetSave()->GetUserName())
 	{
-		Simulation * sim = gameModel->GetSimulation();
-		GameSave * gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
-		if(!gameSave)
+		Simulation* sim = gameModel->GetSimulation();
+		GameSave* gameSave = sim->Save(gameModel->GetIncludePressure() != gameView->ShiftBehaviour());
+		if (!gameSave)
 		{
 			new ErrorMessage("Error", "Unable to build save.");
 		}
@@ -1590,7 +1594,7 @@ void GameController::Vote(int direction)
 		{
 			gameModel->SetVote(direction);
 		}
-		catch (GameModelException & ex)
+		catch (GameModelException& ex)
 		{
 			new ErrorMessage("Error while voting", ByteString(ex.what()).FromUtf8());
 		}
@@ -1618,7 +1622,7 @@ String GameController::ElementResolve(int type, int ctype)
 	return "";
 }
 
-String GameController::BasicParticleInfo(Particle const &sample_part)
+String GameController::BasicParticleInfo(Particle const& sample_part)
 {
 	if (gameModel && gameModel->GetSimulation())
 	{
@@ -1629,12 +1633,12 @@ String GameController::BasicParticleInfo(Particle const &sample_part)
 
 void GameController::ReloadSim()
 {
-	if(gameModel->GetSave() && gameModel->GetSave()->GetGameSave())
+	if (gameModel->GetSave() && gameModel->GetSave()->GetGameSave())
 	{
 		HistorySnapshot();
 		gameModel->SetSave(gameModel->GetSave(), gameView->ShiftBehaviour());
 	}
-	else if(gameModel->GetSaveFile() && gameModel->GetSaveFile()->GetGameSave())
+	else if (gameModel->GetSaveFile() && gameModel->GetSaveFile()->GetGameSave())
 	{
 		HistorySnapshot();
 		gameModel->SetSaveFile(gameModel->GetSaveFile(), gameView->ShiftBehaviour());
@@ -1746,7 +1750,7 @@ String GameController::hydrocarbonName(int t, int c, int h, int b, int a) {
 		ss << "Hexacont";
 		break;
 	default:
-		if(t == PT_ALCL)
+		if (t == PT_ALCL)
 			return "Alcohol";
 		return "Kerosene";
 	}
@@ -1775,33 +1779,41 @@ String GameController::nucleotideName(int l, int t) {
 	switch (l) {
 	case ADENINE:
 		name << "Adenine";
-		if(t == NCTD_BONDED_AU)
+		if (t == NCTD_BONDED_AU)
 			name << " bonded to Uracil";
-		else if(t == NCTD_BONDED_TA)
+		else if (t == NCTD_BONDED_TA)
 			name << " bonded to Thyamine";
 		return name.Build();
 	case GUANINE:
 		name << "Guanine";
-		if(t == NCTD_BONDED_GC)
+		if (t == NCTD_BONDED_GC)
 			name << " bonded to Cytosine";
 		return name.Build();
 	case CYTOSINE:
 		name << "Cytosine";
-		if(t == NCTD_BONDED_GC)
+		if (t == NCTD_BONDED_GC)
 			name << " bonded to Guanine";
 		return name.Build();
 	case THYMINE:
 		name << "Thymine";
-		if(t == NCTD_BONDED_TA)
+		if (t == NCTD_BONDED_TA)
 			name << " bonded to Adenine";
 		return name.Build();
 	case URACIL:
 		name << "Uracil";
-		if(t == NCTD_BONDED_AU)
+		if (t == NCTD_BONDED_AU)
 			name << " bonded to Adenine";
 		return name.Build();
 	}
 	return "null";
+}
+
+String GameController::ElementFullName(int t) {
+	if (gameModel && gameModel->GetSimulation())
+	{
+		return gameModel->GetSimulation()->ElementFullName(t);
+	}
+	return "";
 }
 
 bool GameController::IsValidElement(int type)
@@ -1816,7 +1828,7 @@ bool GameController::IsValidElement(int type)
 
 String GameController::WallName(int type)
 {
-	if(gameModel && gameModel->GetSimulation() && type >= 0 && type < UI_WALLCOUNT)
+	if (gameModel && gameModel->GetSimulation() && type >= 0 && type < UI_WALLCOUNT)
 		return gameModel->GetSimulation()->wtypes[type].name;
 	else
 		return String();
@@ -1827,13 +1839,13 @@ int GameController::Record(bool record)
 	return gameView->Record(record);
 }
 
-void GameController::NotifyAuthUserChanged(Client * sender)
+void GameController::NotifyAuthUserChanged(Client* sender)
 {
 	User newUser = sender->GetAuthUser();
 	gameModel->SetUser(newUser);
 }
 
-void GameController::NotifyNewNotification(Client * sender, std::pair<String, ByteString> notification)
+void GameController::NotifyNewNotification(Client* sender, std::pair<String, ByteString> notification)
 {
 	class LinkNotification : public Notification
 	{
@@ -1850,12 +1862,12 @@ void GameController::NotifyNewNotification(Client * sender, std::pair<String, By
 	gameModel->AddNotification(new LinkNotification(notification.second, notification.first));
 }
 
-void GameController::NotifyUpdateAvailable(Client * sender)
+void GameController::NotifyUpdateAvailable(Client* sender)
 {
 	class UpdateConfirmation : public ConfirmDialogueCallback {
 	public:
-		GameController * c;
-		UpdateConfirmation(GameController * c_) {	c = c_;	}
+		GameController* c;
+		UpdateConfirmation(GameController* c_) { c = c_; }
 		void ConfirmCallback(ConfirmPrompt::DialogueResult result) override {
 			if (result == ConfirmPrompt::ResultOkay)
 			{
@@ -1867,9 +1879,9 @@ void GameController::NotifyUpdateAvailable(Client * sender)
 
 	class UpdateNotification : public Notification
 	{
-		GameController * c;
+		GameController* c;
 	public:
-		UpdateNotification(GameController * c, String message) : Notification(message), c(c) {}
+		UpdateNotification(GameController* c, String message) : Notification(message), c(c) {}
 		virtual ~UpdateNotification() {}
 
 		void Action() override
@@ -1919,17 +1931,17 @@ void GameController::NotifyUpdateAvailable(Client * sender)
 #else
 		gameModel->AddNotification(new UpdateNotification(this, "A new snapshot is available - click here to update"));
 #endif
-			break;
-		case UpdateInfo::Stable:
-			gameModel->AddNotification(new UpdateNotification(this, "A new version is available - click here to update"));
-			break;
-		case UpdateInfo::Beta:
-			gameModel->AddNotification(new UpdateNotification(this, "A new beta is available - click here to update"));
-			break;
+		break;
+	case UpdateInfo::Stable:
+		gameModel->AddNotification(new UpdateNotification(this, "A new version is available - click here to update"));
+		break;
+	case UpdateInfo::Beta:
+		gameModel->AddNotification(new UpdateNotification(this, "A new beta is available - click here to update"));
+		break;
 	}
 }
 
-void GameController::RemoveNotification(Notification * notification)
+void GameController::RemoveNotification(Notification* notification)
 {
 	gameModel->RemoveNotification(notification);
 }

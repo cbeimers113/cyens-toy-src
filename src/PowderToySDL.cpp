@@ -55,9 +55,9 @@
 
 int desktopWidth = 1280, desktopHeight = 1024;
 
-SDL_Window * sdl_window;
-SDL_Renderer * sdl_renderer;
-SDL_Texture * sdl_texture;
+SDL_Window* sdl_window;
+SDL_Renderer* sdl_renderer;
+SDL_Texture* sdl_texture;
 int scale = 1;
 bool fullscreen = false;
 bool altFullscreen = false;
@@ -99,8 +99,8 @@ void LoadWindowPosition()
 	{
 		SDL_GetDisplayBounds(i, &displayBounds);
 		if (savedWindowX + borderTop > displayBounds.x && savedWindowY + borderLeft > displayBounds.y &&
-				savedWindowX + borderTop < displayBounds.x + displayBounds.w &&
-				savedWindowY + borderLeft < displayBounds.y + displayBounds.h)
+			savedWindowX + borderTop < displayBounds.x + displayBounds.w &&
+			savedWindowY + borderLeft < displayBounds.y + displayBounds.h)
 		{
 			ok = true;
 			break;
@@ -122,7 +122,7 @@ void SaveWindowPosition()
 	Client::Ref().SetPref("WindowY", y - borderTop);
 }
 
-void CalculateMousePosition(int *x, int *y)
+void CalculateMousePosition(int* x, int* y)
 {
 	int globalMx, globalMy;
 	SDL_GetGlobalMouseState(&globalMx, &globalMy);
@@ -130,9 +130,9 @@ void CalculateMousePosition(int *x, int *y)
 	SDL_GetWindowPosition(sdl_window, &windowX, &windowY);
 
 	if (x)
-		*x = (globalMx - windowX) / scale;
+		* x = (globalMx - windowX) / scale;
 	if (y)
-		*y = (globalMy - windowY) / scale;
+		* y = (globalMy - windowY) / scale;
 }
 
 #ifdef OGLI
@@ -141,9 +141,9 @@ void blit()
 	SDL_GL_SwapBuffers();
 }
 #else
-void blit(pixel * vid)
+void blit(pixel* vid)
 {
-	SDL_UpdateTexture(sdl_texture, NULL, vid, WINDOWW * sizeof (Uint32));
+	SDL_UpdateTexture(sdl_texture, NULL, vid, WINDOWW * sizeof(Uint32));
 	// need to clear the renderer if there are black edges (fullscreen, or resizable window)
 	if (fullscreen || resizable)
 		SDL_RenderClear(sdl_renderer);
@@ -177,10 +177,10 @@ int SDLOpen()
 #ifdef WIN
 	SDL_SysWMinfo SysInfo;
 	SDL_VERSION(&SysInfo.version);
-	if(SDL_GetWindowWMInfo(sdl_window, &SysInfo) <= 0)
+	if (SDL_GetWindowWMInfo(sdl_window, &SysInfo) <= 0)
 	{
-	    printf("%s : %p\n", SDL_GetError(), SysInfo.info.win.window);
-	    exit(-1);
+		printf("%s : %p\n", SDL_GetError(), SysInfo.info.win.window);
+		exit(-1);
 	}
 	HWND WindowHandle = SysInfo.info.win.window;
 
@@ -192,7 +192,7 @@ int SDLOpen()
 	SendMessage(WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
 #endif
 #ifdef LIN
-	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void*)app_icon, 128, 128, 32, 512, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+	SDL_Surface* icon = SDL_CreateRGBSurfaceFrom((void*)app_icon, 128, 128, 32, 512, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	SDL_SetWindowIcon(sdl_window, icon);
 	SDL_FreeSurface(icon);
 #endif
@@ -203,7 +203,7 @@ int SDLOpen()
 
 void SDLSetScreen(int scale_, bool resizable_, bool fullscreen_, bool altFullscreen_, bool forceIntegerScaling_)
 {
-//	bool changingScale = scale != scale_;
+	//	bool changingScale = scale != scale_;
 	bool changingFullscreen = fullscreen_ != fullscreen || (altFullscreen_ != altFullscreen && fullscreen);
 	bool changingResizable = resizable != resizable_;
 	scale = scale_;
@@ -251,8 +251,8 @@ void RecreateWindow()
 		SDL_DestroyWindow(sdl_window);
 	}
 
-	sdl_window = SDL_CreateWindow("The Powder Toy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWW * scale, WINDOWH * scale,
-	                              flags);
+	sdl_window = SDL_CreateWindow("Cyens Toy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWW * scale, WINDOWH * scale,
+		flags);
 	sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdl_renderer, WINDOWW, WINDOWH);
 	if (forceIntegerScaling && fullscreen)
@@ -272,7 +272,7 @@ unsigned int GetTicks()
 	return SDL_GetTicks();
 }
 
-std::map<ByteString, ByteString> readArguments(int argc, char * argv[])
+std::map<ByteString, ByteString> readArguments(int argc, char* argv[])
 {
 	std::map<ByteString, ByteString> arguments;
 
@@ -288,16 +288,16 @@ std::map<ByteString, ByteString> readArguments(int argc, char * argv[])
 	arguments["ddir"] = "";
 	arguments["ptsave"] = "";
 
-	for (int i=1; i<argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
-		if (!strncmp(argv[i], "scale:", 6) && argv[i]+6)
+		if (!strncmp(argv[i], "scale:", 6) && argv[i] + 6)
 		{
-			arguments["scale"] = argv[i]+6;
+			arguments["scale"] = argv[i] + 6;
 		}
 		else if (!strncmp(argv[i], "proxy:", 6))
 		{
-			if(argv[i]+6)
-				arguments["proxy"] = argv[i]+6;
+			if (argv[i] + 6)
+				arguments["proxy"] = argv[i] + 6;
 			else
 				arguments["proxy"] = "false";
 		}
@@ -321,19 +321,19 @@ std::map<ByteString, ByteString> readArguments(int argc, char * argv[])
 		{
 			arguments["scripts"] = "true";
 		}
-		else if (!strncmp(argv[i], "open", 5) && i+1<argc)
+		else if (!strncmp(argv[i], "open", 5) && i + 1 < argc)
 		{
-			arguments["open"] = argv[i+1];
+			arguments["open"] = argv[i + 1];
 			i++;
 		}
-		else if (!strncmp(argv[i], "ddir", 5) && i+1<argc)
+		else if (!strncmp(argv[i], "ddir", 5) && i + 1 < argc)
 		{
-			arguments["ddir"] = argv[i+1];
+			arguments["ddir"] = argv[i + 1];
 			i++;
 		}
-		else if (!strncmp(argv[i], "ptsave", 7) && i+1<argc)
+		else if (!strncmp(argv[i], "ptsave", 7) && i + 1 < argc)
 		{
-			arguments["ptsave"] = argv[i+1];
+			arguments["ptsave"] = argv[i + 1];
 			i++;
 			break;
 		}
@@ -349,7 +349,7 @@ int elapsedTime = 0, currentTime = 0, lastTime = 0, currentFrame = 0;
 unsigned int lastTick = 0;
 unsigned int lastFpsUpdate = 0;
 float fps = 0;
-ui::Engine * engine = NULL;
+ui::Engine* engine = NULL;
 bool showDoubleScreenDialog = false;
 float currentWidth, currentHeight;
 
@@ -369,13 +369,13 @@ void EventProcess(SDL_Event event)
 			engine->Exit();
 		break;
 	case SDL_KEYDOWN:
-		if (!event.key.repeat && event.key.keysym.sym == 'q' && (event.key.keysym.mod&KMOD_CTRL))
+		if (!event.key.repeat && event.key.keysym.sym == 'q' && (event.key.keysym.mod & KMOD_CTRL))
 			engine->ConfirmExit();
 		else
-			engine->onKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+			engine->onKeyPress(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod & KMOD_SHIFT, event.key.keysym.mod & KMOD_CTRL, event.key.keysym.mod & KMOD_ALT);
 		break;
 	case SDL_KEYUP:
-		engine->onKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod&KMOD_SHIFT, event.key.keysym.mod&KMOD_CTRL, event.key.keysym.mod&KMOD_ALT);
+		engine->onKeyRelease(event.key.keysym.sym, event.key.keysym.scancode, event.key.repeat, event.key.keysym.mod & KMOD_SHIFT, event.key.keysym.mod & KMOD_CTRL, event.key.keysym.mod & KMOD_ALT);
 		break;
 	case SDL_TEXTINPUT:
 		engine->onTextInput(ByteString(event.text.text).FromUtf8());
@@ -447,33 +447,33 @@ void EventProcess(SDL_Event event)
 				calculatedInitialMouse = true;
 			}
 			break;
-		// This event would be needed in certain glitchy cases of window resizing
-		// But for all currently tested cases, it isn't needed
-		/*case SDL_WINDOWEVENT_RESIZED:
-		{
-			float width = event.window.data1;
-			float height = event.window.data2;
-
-			currentWidth = width;
-			currentHeight = height;
-			// this "* scale" thing doesn't really work properly
-			// currently there is a bug where input doesn't scale properly after resizing, only when double scale mode is active
-			inputScaleH = (float)WINDOWW * scale / currentWidth;
-			inputScaleV = (float)WINDOWH * scale / currentHeight;
-			std::cout << "Changing input scale to " << inputScaleH << "x" << inputScaleV << std::endl;
-			break;
-		}*/
-		// This would send a mouse up event when focus is lost
-		// Not even sdl itself will know when the mouse was released if it happens in another window
-		// So it will ignore the next mouse down (after tpt is re-focused) and not send any events at all
-		// This is more unintuitive than pretending the mouse is still down when it's not, so this code is commented out
-		/*case SDL_WINDOWEVENT_FOCUS_LOST:
-			if (mouseDown)
+			// This event would be needed in certain glitchy cases of window resizing
+			// But for all currently tested cases, it isn't needed
+			/*case SDL_WINDOWEVENT_RESIZED:
 			{
-				mouseDown = false;
-				engine->onMouseUnclick(mousex, mousey, mouseButton);
-			}
-			break;*/
+				float width = event.window.data1;
+				float height = event.window.data2;
+
+				currentWidth = width;
+				currentHeight = height;
+				// this "* scale" thing doesn't really work properly
+				// currently there is a bug where input doesn't scale properly after resizing, only when double scale mode is active
+				inputScaleH = (float)WINDOWW * scale / currentWidth;
+				inputScaleV = (float)WINDOWH * scale / currentHeight;
+				std::cout << "Changing input scale to " << inputScaleH << "x" << inputScaleV << std::endl;
+				break;
+			}*/
+			// This would send a mouse up event when focus is lost
+			// Not even sdl itself will know when the mouse was released if it happens in another window
+			// So it will ignore the next mouse down (after tpt is re-focused) and not send any events at all
+			// This is more unintuitive than pretending the mouse is still down when it's not, so this code is commented out
+			/*case SDL_WINDOWEVENT_FOCUS_LOST:
+				if (mouseDown)
+				{
+					mouseDown = false;
+					engine->onMouseUnclick(mousex, mousey, mouseButton);
+				}
+				break;*/
 		}
 		break;
 	}
@@ -484,7 +484,7 @@ void DoubleScreenDialog()
 {
 	StringBuilder message;
 	message << "Switching to double size mode since your screen was determined to be large enough: ";
-	message << desktopWidth << "x" << desktopHeight << " detected, " << WINDOWW*2 << "x" << WINDOWH*2 << " required";
+	message << desktopWidth << "x" << desktopHeight << " detected, " << WINDOWW * 2 << "x" << WINDOWH * 2 << " required";
 	message << "\nTo undo this, hit Cancel. You can toggle double size mode in settings at any time.";
 	if (!ConfirmPrompt::Blocking("Large screen detected", message.Build()))
 	{
@@ -497,27 +497,27 @@ void EngineProcess()
 {
 	double frameTimeAvg = 0.0f, correctedFrameTimeAvg = 0.0f;
 	SDL_Event event;
-	while(engine->Running())
+	while (engine->Running())
 	{
 		int frameStart = SDL_GetTicks();
-		if(engine->Broken()) { engine->UnBreak(); break; }
+		if (engine->Broken()) { engine->UnBreak(); break; }
 		event.type = 0;
 		while (SDL_PollEvent(&event))
 		{
 			EventProcess(event);
 			event.type = 0; //Clear last event
 		}
-		if(engine->Broken()) { engine->UnBreak(); break; }
+		if (engine->Broken()) { engine->UnBreak(); break; }
 
 		engine->Tick();
 		engine->Draw();
 
 		if (scale != engine->Scale || fullscreen != engine->Fullscreen ||
-				altFullscreen != engine->GetAltFullscreen() ||
-				forceIntegerScaling != engine->GetForceIntegerScaling() || resizable != engine->GetResizable())
+			altFullscreen != engine->GetAltFullscreen() ||
+			forceIntegerScaling != engine->GetForceIntegerScaling() || resizable != engine->GetResizable())
 		{
 			SDLSetScreen(engine->Scale, engine->GetResizable(), engine->Fullscreen, engine->GetAltFullscreen(),
-						 engine->GetForceIntegerScaling());
+				engine->GetForceIntegerScaling());
 		}
 
 #ifdef OGLI
@@ -529,10 +529,10 @@ void EngineProcess()
 		int frameTime = SDL_GetTicks() - frameStart;
 		frameTimeAvg = frameTimeAvg * 0.8 + frameTime * 0.2;
 		int fpsLimit = ui::Engine::Ref().FpsLimit;
-		if(fpsLimit > 2)
+		if (fpsLimit > 2)
 		{
 			double offset = 1000.0 / fpsLimit - frameTimeAvg;
-			if(offset > 0)
+			if (offset > 0)
 				SDL_Delay(offset + 0.5);
 		}
 		int correctedFrameTime = SDL_GetTicks() - frameStart;
@@ -560,7 +560,7 @@ void EngineProcess()
 
 void BlueScreen(String detailMessage)
 {
-	ui::Engine * engine = &ui::Engine::Ref();
+	ui::Engine* engine = &ui::Engine::Ref();
 	engine->g->fillrect(0, 0, engine->GetWidth(), engine->GetHeight(), 17, 114, 169, 210);
 
 	String errorTitle = "ERROR";
@@ -571,24 +571,24 @@ void BlueScreen(String detailMessage)
 	int errorWidth = 0;
 	Graphics::textsize(errorHelp, errorWidth, height);
 
-	engine->g->drawtext((engine->GetWidth()/2)-(errorWidth/2), ((engine->GetHeight()/2)-100) + currentY, errorTitle.c_str(), 255, 255, 255, 255);
+	engine->g->drawtext((engine->GetWidth() / 2) - (errorWidth / 2), ((engine->GetHeight() / 2) - 100) + currentY, errorTitle.c_str(), 255, 255, 255, 255);
 	Graphics::textsize(errorTitle, width, height);
 	currentY += height + 4;
 
-	engine->g->drawtext((engine->GetWidth()/2)-(errorWidth/2), ((engine->GetHeight()/2)-100) + currentY, errorDetails.c_str(), 255, 255, 255, 255);
+	engine->g->drawtext((engine->GetWidth() / 2) - (errorWidth / 2), ((engine->GetHeight() / 2) - 100) + currentY, errorDetails.c_str(), 255, 255, 255, 255);
 	Graphics::textsize(errorTitle, width, height);
 	currentY += height + 4;
 
-	engine->g->drawtext((engine->GetWidth()/2)-(errorWidth/2), ((engine->GetHeight()/2)-100) + currentY, errorHelp.c_str(), 255, 255, 255, 255);
+	engine->g->drawtext((engine->GetWidth() / 2) - (errorWidth / 2), ((engine->GetHeight() / 2) - 100) + currentY, errorHelp.c_str(), 255, 255, 255, 255);
 	Graphics::textsize(errorTitle, width, height);
 	currentY += height + 4;
 
 	//Death loop
 	SDL_Event event;
-	while(true)
+	while (true)
 	{
 		while (SDL_PollEvent(&event))
-			if(event.type == SDL_QUIT)
+			if (event.type == SDL_QUIT)
 				exit(-1);
 #ifdef OGLI
 		blit();
@@ -600,7 +600,7 @@ void BlueScreen(String detailMessage)
 
 void SigHandler(int signal)
 {
-	switch(signal){
+	switch (signal) {
 	case SIGSEGV:
 		BlueScreen("Memory read/write error");
 		break;
@@ -623,9 +623,9 @@ void ChdirToDataDirectory()
 	OSType folderType = kApplicationSupportFolderType;
 	char path[PATH_MAX];
 
-	FSFindFolder( kUserDomain, folderType, kCreateFolder, &ref );
+	FSFindFolder(kUserDomain, folderType, kCreateFolder, &ref);
 
-	FSRefMakePath( &ref, (UInt8*)&path, PATH_MAX );
+	FSRefMakePath(&ref, (UInt8*)& path, PATH_MAX);
 
 	std::string tptPath = std::string(path) + "/The Powder Toy";
 	mkdir(tptPath.c_str(), 0755);
@@ -633,7 +633,7 @@ void ChdirToDataDirectory()
 #endif
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
 #if defined(_DEBUG) && defined(_MSC_VER)
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
@@ -644,7 +644,7 @@ int main(int argc, char * argv[])
 
 	std::map<ByteString, ByteString> arguments = readArguments(argc, argv);
 
-	if(arguments["ddir"].length())
+	if (arguments["ddir"].length())
 #ifdef WIN
 		_chdir(arguments["ddir"].c_str());
 #else
@@ -660,28 +660,28 @@ int main(int argc, char * argv[])
 	forceIntegerScaling = Client::Ref().GetPrefBool("ForceIntegerScaling", true);
 
 
-	if(arguments["kiosk"] == "true")
+	if (arguments["kiosk"] == "true")
 	{
 		fullscreen = true;
 		Client::Ref().SetPref("Fullscreen", fullscreen);
 	}
 
-	if(arguments["redirect"] == "true")
+	if (arguments["redirect"] == "true")
 	{
 		freopen("stdout.log", "w", stdout);
 		freopen("stderr.log", "w", stderr);
 	}
 
-	if(arguments["scale"].length())
+	if (arguments["scale"].length())
 	{
 		scale = arguments["scale"].ToNumber<int>();
 		Client::Ref().SetPref("Scale", scale);
 	}
 
 	ByteString proxyString = "";
-	if(arguments["proxy"].length())
+	if (arguments["proxy"].length())
 	{
-		if(arguments["proxy"] == "false")
+		if (arguments["proxy"] == "false")
 		{
 			proxyString = "";
 			Client::Ref().SetPref("Proxy", "");
@@ -692,7 +692,7 @@ int main(int argc, char * argv[])
 			Client::Ref().SetPref("Proxy", arguments["proxy"]);
 		}
 	}
-	else if(Client::Ref().GetPrefString("Proxy", "").length())
+	else if (Client::Ref().GetPrefString("Proxy", "").length())
 	{
 		proxyString = (Client::Ref().GetPrefByteString("Proxy", ""));
 	}
@@ -704,12 +704,12 @@ int main(int argc, char * argv[])
 	Client::Ref().Initialise(proxyString, disableNetwork);
 
 	// TODO: maybe bind the maximum allowed scale to screen size somehow
-	if(scale < 1 || scale > 10)
+	if (scale < 1 || scale > 10)
 		scale = 1;
 
 	SDLOpen();
 	// TODO: mabe make a nice loop that automagically finds the optimal scale
-	if (Client::Ref().IsFirstRun() && desktopWidth > WINDOWW*2+30 && desktopHeight > WINDOWH*2+30)
+	if (Client::Ref().IsFirstRun() && desktopWidth > WINDOWW * 2 + 30 && desktopHeight > WINDOWH * 2 + 30)
 	{
 		scale = 2;
 		Client::Ref().SetPref("Scale", 2);
@@ -718,12 +718,12 @@ int main(int argc, char * argv[])
 	}
 
 #ifdef OGLI
-	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	//glScaled(2.0f, 2.0f, 1.0f);
 #endif
 #if defined(OGLI) && !defined(MACOSX)
 	int status = glewInit();
-	if(status != GLEW_OK)
+	if (status != GLEW_OK)
 	{
 		fprintf(stderr, "Initializing Glew: %d\n", status);
 		exit(-1);
@@ -756,7 +756,7 @@ int main(int argc, char * argv[])
 	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
-	GameController * gameController = NULL;
+	GameController* gameController = NULL;
 #if !defined(DEBUG) && !defined(_DEBUG)
 	try {
 #endif
@@ -765,33 +765,33 @@ int main(int argc, char * argv[])
 		gameController = new GameController();
 		engine->ShowWindow(gameController->GetView());
 
-		if(arguments["open"].length())
+		if (arguments["open"].length())
 		{
 #ifdef DEBUG
 			std::cout << "Loading " << arguments["open"] << std::endl;
 #endif
-			if(Client::Ref().FileExists(arguments["open"]))
+			if (Client::Ref().FileExists(arguments["open"]))
 			{
 				try
 				{
 					std::vector<unsigned char> gameSaveData = Client::Ref().ReadFile(arguments["open"]);
-					if(!gameSaveData.size())
+					if (!gameSaveData.size())
 					{
 						new ErrorMessage("Error", "Could not read file");
 					}
 					else
 					{
-						SaveFile * newFile = new SaveFile(arguments["open"]);
-						GameSave * newSave = new GameSave(gameSaveData);
+						SaveFile* newFile = new SaveFile(arguments["open"]);
+						GameSave* newSave = new GameSave(gameSaveData);
 						newFile->SetGameSave(newSave);
 						gameController->LoadSaveFile(newFile);
 						delete newFile;
 					}
 
 				}
-				catch(std::exception & e)
+				catch (std::exception& e)
 				{
-					new ErrorMessage("Error", "Could not open save file:\n" + ByteString(e.what()).FromUtf8()) ;
+					new ErrorMessage("Error", "Could not open save file:\n" + ByteString(e.what()).FromUtf8());
 				}
 			}
 			else
@@ -800,11 +800,11 @@ int main(int argc, char * argv[])
 			}
 		}
 
-		if(arguments["ptsave"].length())
+		if (arguments["ptsave"].length())
 		{
-			engine->g->fillrect((engine->GetWidth()/2)-101, (engine->GetHeight()/2)-26, 202, 52, 0, 0, 0, 210);
-			engine->g->drawrect((engine->GetWidth()/2)-100, (engine->GetHeight()/2)-25, 200, 50, 255, 255, 255, 180);
-			engine->g->drawtext((engine->GetWidth()/2)-(Graphics::textwidth("Loading save...")/2), (engine->GetHeight()/2)-5, "Loading save...", style::Colour::InformationTitle.Red, style::Colour::InformationTitle.Green, style::Colour::InformationTitle.Blue, 255);
+			engine->g->fillrect((engine->GetWidth() / 2) - 101, (engine->GetHeight() / 2) - 26, 202, 52, 0, 0, 0, 210);
+			engine->g->drawrect((engine->GetWidth() / 2) - 100, (engine->GetHeight() / 2) - 25, 200, 50, 255, 255, 255, 180);
+			engine->g->drawtext((engine->GetWidth() / 2) - (Graphics::textwidth("Loading save...") / 2), (engine->GetHeight() / 2) - 5, "Loading save...", style::Colour::InformationTitle.Red, style::Colour::InformationTitle.Green, style::Colour::InformationTitle.Blue, 255);
 
 #ifdef OGLI
 			blit();
@@ -831,26 +831,26 @@ int main(int argc, char * argv[])
 #endif
 				int saveId = saveIdPart.ToNumber<int>();
 
-				SaveInfo * newSave = Client::Ref().GetSave(saveId, 0);
+				SaveInfo* newSave = Client::Ref().GetSave(saveId, 0);
 				if (!newSave)
 					throw std::runtime_error("Could not load save info");
 				std::vector<unsigned char> saveData = Client::Ref().GetSaveData(saveId, 0);
 				if (!saveData.size())
 					throw std::runtime_error(("Could not load save\n" + Client::Ref().GetLastError()).ToUtf8());
-				GameSave * newGameSave = new GameSave(saveData);
+				GameSave* newGameSave = new GameSave(saveData);
 				newSave->SetGameSave(newGameSave);
 
 				gameController->LoadSave(newSave);
 				delete newSave;
 			}
-			catch (std::exception & e)
+			catch (std::exception& e)
 			{
 				new ErrorMessage("Error", ByteString(e.what()).FromUtf8());
 			}
 		}
 
 #else // FONTEDITOR
-		if(argc <= 1)
+		if (argc <= 1)
 			throw std::runtime_error("Not enough arguments");
 		engine->ShowWindow(new FontEditor(argv[1]));
 #endif
@@ -860,8 +860,8 @@ int main(int argc, char * argv[])
 		SaveWindowPosition();
 
 #if !defined(DEBUG) && !defined(_DEBUG)
-	}
-	catch(std::exception& e)
+		}
+	catch (std::exception& e)
 	{
 		BlueScreen(ByteString(e.what()).FromUtf8());
 	}
@@ -873,6 +873,6 @@ int main(int argc, char * argv[])
 	delete ui::Engine::Ref().g;
 	Client::Ref().Shutdown();
 	return 0;
-}
+	}
 
 #endif

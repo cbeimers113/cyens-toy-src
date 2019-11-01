@@ -37,8 +37,8 @@ private:
 	std::vector<Notification*> notifications;
 	//int clipboardSize;
 	//unsigned char * clipboardData;
-	GameSave * clipboard;
-	GameSave * placeSave;
+	GameSave* clipboard;
+	GameSave* placeSave;
 	std::deque<String> consoleLog;
 	std::vector<GameView*> observers;
 	std::vector<Tool*> toolList;
@@ -48,23 +48,23 @@ private:
 	//Tools that are present in elementTools, but don't have an associated menu and need to be freed manually
 	std::vector<Tool*> extraElementTools;
 
-	Simulation * sim;
-	Renderer * ren;
+	Simulation* sim;
+	Renderer* ren;
 	std::vector<Menu*> menuList;
 	std::vector<QuickOption*> quickOptions;
 	int activeMenu;
 	int currentBrush;
-	std::vector<Brush *> brushList;
-	SaveInfo * currentSave;
-	SaveFile * currentFile;
-	Tool * lastTool;
-	Tool ** activeTools;
-	Tool * decoToolset[4];
-	Tool * regularToolset[4];
+	std::vector<Brush*> brushList;
+	SaveInfo* currentSave;
+	SaveFile* currentFile;
+	Tool* lastTool;
+	Tool** activeTools;
+	Tool* decoToolset[4];
+	Tool* regularToolset[4];
 	User currentUser;
 	float toolStrength;
 	std::deque<Snapshot*> history;
-	Snapshot *redoHistory;
+	Snapshot* redoHistory;
 	unsigned int historyPosition;
 	unsigned int undoHistoryLimit;
 	bool mouseClickRequired;
@@ -130,41 +130,41 @@ public:
 
 	void BuildMenus();
 	void BuildFavoritesMenu();
-	void BuildQuickOptionMenu(GameController * controller);
+	void BuildQuickOptionMenu(GameController* controller);
 
 	std::deque<Snapshot*> GetHistory();
 	unsigned int GetHistoryPosition();
 	void SetHistory(std::deque<Snapshot*> newHistory);
 	void SetHistoryPosition(unsigned int newHistoryPosition);
-	Snapshot * GetRedoHistory();
-	void SetRedoHistory(Snapshot * redo);
+	Snapshot* GetRedoHistory();
+	void SetRedoHistory(Snapshot* redo);
 	unsigned int GetUndoHistoryLimit();
 	void SetUndoHistoryLimit(unsigned int undoHistoryLimit_);
 
 	void UpdateQuickOptions();
 
-	Tool * GetActiveTool(int selection);
-	void SetActiveTool(int selection, Tool * tool);
+	Tool* GetActiveTool(int selection);
+	void SetActiveTool(int selection, Tool* tool);
 	void SetToolStrength(float value);
 	float GetToolStrength();
-	Tool * GetLastTool();
-	void SetLastTool(Tool * newTool);
-	Tool *GetToolFromIdentifier(ByteString const &identifier);
-	Tool * GetElementTool(int elementID);
+	Tool* GetLastTool();
+	void SetLastTool(Tool* newTool);
+	Tool* GetToolFromIdentifier(ByteString const& identifier);
+	Tool* GetElementTool(int elementID);
 	std::vector<Tool*> GetToolList();
 	std::vector<Tool*> GetUnlistedTools();
 
-	Brush * GetBrush();
+	Brush* GetBrush();
 	std::vector<Brush*> GetBrushList();
 	int GetBrushID();
 	void SetBrushID(int i);
 
 	void SetVote(int direction);
-	SaveInfo * GetSave();
-	SaveFile * GetSaveFile();
-	void SetSave(SaveInfo * newSave, bool invertIncludePressure);
-	void SetSaveFile(SaveFile * newSave, bool invertIncludePressure);
-	void AddObserver(GameView * observer);
+	SaveInfo* GetSave();
+	SaveFile* GetSaveFile();
+	void SetSave(SaveInfo* newSave, bool invertIncludePressure);
+	void SetSaveFile(SaveFile* newSave, bool invertIncludePressure);
+	void AddObserver(GameView* observer);
 
 	bool GetPaused();
 	void SetPaused(bool pauseState);
@@ -178,6 +178,8 @@ public:
 	void SetTimeDilationEnable(bool timeDilationEnabled);
 	bool GetCompressibleGasesEnable();
 	void SetCompressibleGasesEnable(bool compressibleGasesEnabled);
+	bool GetDrawQuantumFields();
+	void SetDrawQuantumFields(bool drawQuantumFields);
 	bool GetNewtonianGrvity();
 	void SetNewtonianGravity(bool newtonainGravity);
 	bool GetGravityGrid();
@@ -190,8 +192,8 @@ public:
 	void FrameStep(int frames);
 	User GetUser();
 	void SetUser(User user);
-	Simulation * GetSimulation();
-	Renderer * GetRenderer();
+	Simulation* GetSimulation();
+	Renderer* GetRenderer();
 	void SetZoomEnabled(bool enabled);
 	bool GetZoomEnabled();
 	void SetZoomSize(int size);
@@ -204,20 +206,20 @@ public:
 	ui::Point AdjustZoomCoords(ui::Point position);
 	void SetZoomWindowPosition(ui::Point position);
 	ui::Point GetZoomWindowPosition();
-	void SetClipboard(GameSave * save);
-	void SetPlaceSave(GameSave * save);
+	void SetClipboard(GameSave* save);
+	void SetPlaceSave(GameSave* save);
 	void Log(String message, bool printToFile);
 	std::deque<String> GetLog();
-	GameSave * GetClipboard();
-	GameSave * GetPlaceSave();
+	GameSave* GetClipboard();
+	GameSave* GetPlaceSave();
 	bool GetMouseClickRequired();
 	void SetMouseClickRequired(bool mouseClickRequired);
 	bool GetIncludePressure();
 	void SetIncludePressure(bool includePressure);
 
 	std::vector<Notification*> GetNotifications();
-	void AddNotification(Notification * notification);
-	void RemoveNotification(Notification * notification);
+	void AddNotification(Notification* notification);
+	void RemoveNotification(Notification* notification);
 };
 
 #endif // GAMEMODEL_H

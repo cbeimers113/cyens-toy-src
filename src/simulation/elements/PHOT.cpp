@@ -17,7 +17,7 @@ Element_PHOT::Element_PHOT()
 	Collision = -0.99f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -58,8 +58,8 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 	if (parts[i].temp > 506)
 		if (RNG::Ref().chance(1, 10))
 			Element_FIRE::update(UPDATE_FUNC_SUBCALL_ARGS);
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (rx = -1; rx < 2; rx++)
+		for (ry = -1; ry < 2; ry++)
 			if (BOUNDS_CHECK) {
 				r = pmap[y + ry][x + rx];
 				if (!r)
@@ -70,23 +70,23 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 					{
 						parts[i].vx *= 0.90;
 						parts[i].vy *= 0.90;
-						sim->create_part(ID(r), x+rx, y+ry, PT_PHOT);
+						sim->create_part(ID(r), x + rx, y + ry, PT_PHOT);
 						rrr = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
 						if (TYP(r) == PT_ISOZ)
 							rr = RNG::Ref().between(128, 255) / 127.0f;
 						else
 							rr = RNG::Ref().between(128, 355) / 127.0f;
-						parts[ID(r)].vx = rr*cosf(rrr);
-						parts[ID(r)].vy = rr*sinf(rrr);
-						sim->pv[y/CELL][x/CELL] -= 15.0f * CFDS;
+						parts[ID(r)].vx = rr * cosf(rrr);
+						parts[ID(r)].vy = rr * sinf(rrr);
+						sim->pv[y / CELL][x / CELL] -= 15.0f * CFDS;
 					}
 				}
 				else if ((TYP(r) == PT_QRTZ || TYP(r) == PT_PQRT) && !ry && !rx)//if on QRTZ
 				{
 					float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
-					parts[i].vx = 3.0f*cosf(a);
-					parts[i].vy = 3.0f*sinf(a);
-					if(parts[i].ctype == 0x3FFFFFFF)
+					parts[i].vx = 3.0f * cosf(a);
+					parts[i].vy = 3.0f * sinf(a);
+					if (parts[i].ctype == 0x3FFFFFFF)
 						parts[i].ctype = 0x1F << RNG::Ref().between(0, 25);
 					if (parts[i].life)
 						parts[i].life++; //Delay death
@@ -102,8 +102,8 @@ int Element_PHOT::update(UPDATE_FUNC_ARGS)
 				}
 				else if (TYP(r) == PT_FILT && parts[ID(r)].tmp == 9)
 				{
-					parts[i].vx += ((float)RNG::Ref().between(-500, 500))/1000.0f;
-					parts[i].vy += ((float)RNG::Ref().between(-500, 500))/1000.0f;
+					parts[i].vx += ((float)RNG::Ref().between(-500, 500)) / 1000.0f;
+					parts[i].vy += ((float)RNG::Ref().between(-500, 500)) / 1000.0f;
 				}
 				else if (TYP(r) == PT_FRMD) {
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_NCTD);
@@ -126,7 +126,7 @@ int Element_PHOT::graphics(GRAPHICS_FUNC_ARGS)
 		*colb += (cpart->ctype >> x) & 1;
 	}
 	for (x = 0; x < 12; x++)
-		*colg += (cpart->ctype >> (x + 9)) & 1;
+		* colg += (cpart->ctype >> (x + 9)) & 1;
 	x = 624 / (*colr + *colg + *colb + 1);
 	*colr *= x;
 	*colg *= x;

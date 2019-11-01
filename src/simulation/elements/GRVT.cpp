@@ -27,11 +27,11 @@ Element_GRVT::Element_GRVT()
 
 	Weight = -1;
 
-	Temperature = R_TEMP+273.15f;
+	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 61;
 	Description = "Gravitons. Create Newtonian Gravity.";
 
-	Properties = TYPE_ENERGY|PROP_LIFE_DEC|PROP_LIFE_KILL_DEC;
+	Properties = TYPE_ENERGY | PROP_LIFE_DEC | PROP_LIFE_KILL_DEC;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -55,7 +55,7 @@ int Element_GRVT::update(UPDATE_FUNC_ARGS)
 	if (parts[i].tmp <= -100)
 		parts[i].tmp = -100;
 
-	sim->gravmap[(y/CELL)*(XRES/CELL)+(x/CELL)] = 0.2f*parts[i].tmp;
+	sim->gravmap[(y / CELL) * (XRES / CELL) + (x / CELL)] = 0.2f * parts[i].tmp;
 	return 0;
 }
 
@@ -66,6 +66,8 @@ int Element_GRVT::graphics(GRAPHICS_FUNC_ARGS)
 	*firer = 0;
 	*fireg = 250;
 	*fireb = 170;
+
+	*cola = 125;
 
 	*pixel_mode |= FIRE_BLEND;
 	return 1;

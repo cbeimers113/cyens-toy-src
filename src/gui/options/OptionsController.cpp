@@ -5,7 +5,7 @@
 
 #include "Controller.h"
 
-OptionsController::OptionsController(GameModel * gModel_, ControllerCallback * callback_):
+OptionsController::OptionsController(GameModel* gModel_, ControllerCallback* callback_) :
 	gModel(gModel_),
 	callback(callback_),
 	HasExited(false)
@@ -47,6 +47,10 @@ void OptionsController::SetTimeDilation(bool state) {
 
 void OptionsController::SetCompressibleGases(bool state) {
 	model->SetCompressibleGases(state);
+}
+
+void OptionsController::SetDrawQuantumFields(bool state) {
+	model->SetDrawQuantumFields(state);
 }
 
 void OptionsController::SetGravityMode(int gravityMode)
@@ -99,7 +103,7 @@ void OptionsController::SetFastQuit(bool fastquit)
 	model->SetFastQuit(fastquit);
 }
 
-OptionsView * OptionsController::GetView()
+OptionsView* OptionsController::GetView()
 {
 	return view;
 }

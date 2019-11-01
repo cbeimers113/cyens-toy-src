@@ -1,6 +1,6 @@
 #include "CyensTools.h"
 
-void ClampOrganic(Particle *p)
+void ClampOrganic(Particle* p)
 {
 	int t = p->type;
 	if (t == PT_NCTD && p->life > 4)//this looks like outdated code to keep nucleotides in the proper 5 bases
@@ -42,7 +42,6 @@ void ClampOrganic(Particle *p)
 			p->ctype++;
 	}
 }
-
 
 //Tells an RNA or DNA strand bit how to move
 v2i getStrandOffset(int d) {
@@ -86,7 +85,7 @@ v2i getStrandOffset(int d) {
 
 //gets the cardinal direction opposite of the head of the strand's direction
 int getDir(float hvx, float hvy) {
-	if (sqrt(hvx*hvx + hvy * hvy) < 0.0625f)return DIR_S;
+	if (sqrt(hvx * hvx + hvy * hvy) < 0.0625f)return DIR_S;
 	float theta = atan2(hvy, hvx) * (180.0f / M_PI); //convert it to degrees for my sanity
 	return
 		isInRange(theta, 0, 15) ? DIR_W :
@@ -100,12 +99,40 @@ int getDir(float hvx, float hvy) {
 }
 
 //Gets the HUD name for waste particles
-char const*getWasteName(int w) {
+String getWasteName(int w) {
 	switch (w) {
 	case WSTE_SDM_ACETATE:
 		return "Sodium Acetate";
 	}
 	return "Chemical Waste";
+}
+
+//Format vector in component form as a string
+String vectorToString(v2i v) {
+	StringBuilder s;
+	s << "[" << v.x << ", " << v.y << "]";
+	return s.Build();
+}
+
+String vectorToString(v2f v) {
+	StringBuilder s;
+	s << Format::Precision(2) << "[" << v.x << ", " << v.y << "]";
+	return s.Build();
+}
+
+//returns the gluon's color charge as a string
+String getGluonCharge(char c) {
+	switch (c) {
+	case GLUON_BM:
+		return "Blue-antigreen";
+	case GLUON_GM:
+		return "Green-antigreen";
+	case GLUON_GY:
+		return "Green-antiblue";
+	case GLUON_RC:
+		return "Red-antired";
+	}
+	return "";
 }
 
 //Generates a random hydrocarbon type (alkane/ene/yne) with given number of carbons, returns number of hydrogens
@@ -117,6 +144,23 @@ int makeAlk(int c) {
 //Gets the bond location randomly for alkenes and alkynes
 int getBondLoc(int c) {
 	return (rand() % (c / 2)) + 1;
+}
+
+//what generation quark is it (only for graphics now)
+int quarkGen(int flavor) {
+	return flavor <= QARK_DOWN ? 1 : flavor <= QARK_STRANGE ? 2 : 3;
+}
+
+//keep in range (inclusive, inclusive)
+float clamp(float f, float min, float max) {
+	if (f < min)f = min;
+	if (f > max)f = max;
+	return f;
+}
+
+//vector magnitude
+float mag(v2f v) {
+	return sqrt(v.x * v.x + v.y * v.y);
 }
 
 bool isAlkane(int c, int h) {

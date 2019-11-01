@@ -8,12 +8,12 @@ class Simulation;
 class OptionsView;
 class OptionsModel
 {
-	GameModel * gModel;
-	Simulation * sim;
+	GameModel* gModel;
+	Simulation* sim;
 	std::vector<OptionsView*> observers;
 	void notifySettingsChanged();
 public:
-	OptionsModel(GameModel * gModel);
+	OptionsModel(GameModel* gModel);
 	void AddObserver(OptionsView* view);
 	bool GetHeatSimulation();
 	void SetHeatSimulation(bool state);
@@ -29,6 +29,8 @@ public:
 	void SetTimeDilation(bool state);
 	bool GetCompressibleGases();
 	void SetCompressibleGases(bool state);
+	bool GetDrawQuantumFields();
+	void SetDrawQuantumFields(bool state);
 	bool GetShowAvatars();
 	void SetShowAvatars(bool state);
 	int GetAirMode();

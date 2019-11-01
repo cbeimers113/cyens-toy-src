@@ -11,7 +11,7 @@
 #include "gui/interface/Engine.h"
 #include "gui/game/GameModel.h"
 
-OptionsModel::OptionsModel(GameModel * gModel_) {
+OptionsModel::OptionsModel(GameModel* gModel_) {
 	gModel = gModel_;
 	sim = gModel->GetSimulation();
 }
@@ -83,7 +83,7 @@ bool OptionsModel::GetTimeDilation() {
 }
 
 void OptionsModel::SetTimeDilation(bool state) {
-	sim->timeDilationEnabled = (state ? 1 : 0)&(sim->grav->IsEnabled() ? true : false);
+	sim->timeDilationEnabled = (state ? 1 : 0) & (sim->grav->IsEnabled() ? true : false);
 	notifySettingsChanged();
 }
 
@@ -93,6 +93,16 @@ bool OptionsModel::GetCompressibleGases() {
 
 void OptionsModel::SetCompressibleGases(bool state) {
 	sim->compressibleGasesEnabled = state ? 1 : 0;
+	notifySettingsChanged();
+}
+
+//only using conditional because everyone else used it...
+bool OptionsModel::GetDrawQuantumFields() {
+	return sim->drawQuantumFields ? true : false;
+}
+
+void OptionsModel::SetDrawQuantumFields(bool state) {
+	sim->drawQuantumFields = state ? 1 : 0;
 	notifySettingsChanged();
 }
 

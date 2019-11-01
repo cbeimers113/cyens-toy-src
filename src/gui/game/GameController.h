@@ -164,6 +164,7 @@ public:
 	//Cyens Toy
 	String hydrocarbonName(int t, int c, int h, int b, int a);
 	String nucleotideName(int l, int t);
+	String ElementFullName(int t);
 
 	void ResetAir();
 	void ResetSpark();
@@ -175,6 +176,7 @@ public:
 	void ToggleInfoscreen();
 	void ToggleTimeDilation();
 	void ToggleCompressibleGases();
+	void ToggleDrawQuantumFields();
 
 	bool LoadClipboard();
 	void LoadStamp(GameSave *stamp);

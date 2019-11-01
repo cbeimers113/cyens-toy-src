@@ -13,33 +13,34 @@ namespace ui
 
 class OptionsModel;
 class OptionsController;
-class OptionsView: public ui::Window
+class OptionsView : public ui::Window
 {
-	OptionsController * c;
-	ui::Checkbox * heatSimulation;
-	ui::Checkbox * ambientHeatSimulation;
-	ui::Checkbox * newtonianGravity;
-	ui::Checkbox * waterEqualisation;
-	ui::Checkbox * infoScreenOption;
-	ui::Checkbox * timeDilationSimulation;
-	ui::Checkbox * compressibleGasesSimulation;
-	ui::DropDown * airMode;
-	ui::DropDown * gravityMode;
-	ui::DropDown * edgeMode;
-	ui::DropDown * scale;
-	ui::Checkbox * resizable;
-	ui::Checkbox * fullscreen;
-	ui::Checkbox * altFullscreen;
-	ui::Checkbox * forceIntegerScaling;
-	ui::Checkbox * fastquit;
-	ui::Checkbox * showAvatars;
-	ui::Checkbox * mouseClickRequired;
-	ui::Checkbox * includePressure;
-	ui::ScrollPanel * scrollPanel;
+	OptionsController* c;
+	ui::Checkbox* heatSimulation;
+	ui::Checkbox* ambientHeatSimulation;
+	ui::Checkbox* newtonianGravity;
+	ui::Checkbox* waterEqualisation;
+	ui::Checkbox* infoScreenOption;
+	ui::Checkbox* timeDilationSimulation;
+	ui::Checkbox* compressibleGasesSimulation;
+	ui::Checkbox* drawQuantumFields;
+	ui::DropDown* airMode;
+	ui::DropDown* gravityMode;
+	ui::DropDown* edgeMode;
+	ui::DropDown* scale;
+	ui::Checkbox* resizable;
+	ui::Checkbox* fullscreen;
+	ui::Checkbox* altFullscreen;
+	ui::Checkbox* forceIntegerScaling;
+	ui::Checkbox* fastquit;
+	ui::Checkbox* showAvatars;
+	ui::Checkbox* mouseClickRequired;
+	ui::Checkbox* includePressure;
+	ui::ScrollPanel* scrollPanel;
 public:
 	OptionsView();
-	void NotifySettingsChanged(OptionsModel * sender);
-	void AttachController(OptionsController * c_);
+	void NotifySettingsChanged(OptionsModel* sender);
+	void AttachController(OptionsController* c_);
 	void OnDraw() override;
 	void OnTryExit(ExitMethod method) override;
 	virtual ~OptionsView();

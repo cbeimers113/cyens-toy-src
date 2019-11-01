@@ -1,4 +1,4 @@
-Cyens Toy 3.1.1
+Cyens Toy 3.2
 
 Get the latest version [here](https://tpt.io/.302980), as well as an up-to-date reference document for the mod 
 and links to contact and support firefreak11.

@@ -5,7 +5,7 @@ class GameController;
 class SandEffectOption : public QuickOption
 {
 public:
-	SandEffectOption(GameModel * m);
+	SandEffectOption(GameModel* m);
 	bool GetToggle() override;
 	void perform() override;
 };
@@ -13,7 +13,7 @@ public:
 class DrawGravOption : public QuickOption
 {
 public:
-	DrawGravOption(GameModel * m);
+	DrawGravOption(GameModel* m);
 	bool GetToggle() override;
 	void perform() override;
 };
@@ -21,7 +21,7 @@ public:
 class DecorationsOption : public QuickOption
 {
 public:
-	DecorationsOption(GameModel * m);
+	DecorationsOption(GameModel* m);
 	bool GetToggle() override;
 	void perform() override;
 };
@@ -29,7 +29,7 @@ public:
 class NGravityOption : public QuickOption
 {
 public:
-	NGravityOption(GameModel * m);
+	NGravityOption(GameModel* m);
 	bool GetToggle() override;
 	void perform() override;
 };
@@ -37,17 +37,40 @@ public:
 class AHeatOption : public QuickOption
 {
 public:
-	AHeatOption(GameModel * m);
+	AHeatOption(GameModel* m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class CGassesOption : public QuickOption
+{
+public:
+	CGassesOption(GameModel* m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class TDilationOption : public QuickOption
+{
+public:
+	TDilationOption(GameModel* m);
+	bool GetToggle() override;
+	void perform() override;
+};
+
+class DQFieldsOption :public QuickOption
+{
+public:
+	DQFieldsOption(GameModel* m);
 	bool GetToggle() override;
 	void perform() override;
 };
 
 class ConsoleShowOption : public QuickOption
 {
-	GameController * c;
+	GameController* c;
 public:
-	ConsoleShowOption(GameModel * m, GameController * c_);
+	ConsoleShowOption(GameModel* m, GameController* c_);
 	bool GetToggle() override;
 	void perform() override;
 };
-

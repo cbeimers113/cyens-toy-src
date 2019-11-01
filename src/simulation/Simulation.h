@@ -34,8 +34,8 @@ class Simulation
 {
 public:
 
-	Gravity * grav;
-	Air * air;
+	Gravity* grav;
+	Air* air;
 
 	std::vector<sign> signs;
 	Element elements[PT_NUM];
@@ -51,6 +51,11 @@ public:
 	int currentTick;
 	int replaceModeSelected;
 	int replaceModeFlags;
+
+	//Cyens Toy fields
+	v2f strongForce[YRES][XRES];
+	v2f weakForce[YRES][XRES];
+	v2f electromagForce[YRES][XRES];
 
 	char can_move[PT_NUM][PT_NUM];
 	int debug_currentParticle;
@@ -83,20 +88,20 @@ public:
 	unsigned char gol[YRES][XRES];
 	unsigned short gol2[YRES][XRES][9];
 	//Air sim
-	float (*vx)[XRES/CELL];
-	float (*vy)[XRES/CELL];
-	float (*pv)[XRES/CELL];
-	float (*hv)[XRES/CELL];
+	float(*vx)[XRES / CELL];
+	float(*vy)[XRES / CELL];
+	float(*pv)[XRES / CELL];
+	float(*hv)[XRES / CELL];
 	//Gravity sim
-	float *gravx;//gravx[(YRES/CELL) * (XRES/CELL)];
-	float *gravy;//gravy[(YRES/CELL) * (XRES/CELL)];
-	float *gravp;//gravp[(YRES/CELL) * (XRES/CELL)];
-	float *gravmap;//gravmap[(YRES/CELL) * (XRES/CELL)];
+	float* gravx;//gravx[(YRES/CELL) * (XRES/CELL)];
+	float* gravy;//gravy[(YRES/CELL) * (XRES/CELL)];
+	float* gravp;//gravp[(YRES/CELL) * (XRES/CELL)];
+	float* gravmap;//gravmap[(YRES/CELL) * (XRES/CELL)];
 	//Walls
-	unsigned char bmap[YRES/CELL][XRES/CELL];
-	unsigned char emap[YRES/CELL][XRES/CELL];
-	float fvx[YRES/CELL][XRES/CELL];
-	float fvy[YRES/CELL][XRES/CELL];
+	unsigned char bmap[YRES / CELL][XRES / CELL];
+	unsigned char emap[YRES / CELL][XRES / CELL];
+	float fvx[YRES / CELL][XRES / CELL];
+	float fvy[YRES / CELL][XRES / CELL];
 	//Particles
 	Particle parts[NPART];
 	int pmap[YRES][XRES];
@@ -116,25 +121,26 @@ public:
 	int infoScreenEnabled;
 	int timeDilationEnabled;
 	int compressibleGasesEnabled;
+	int drawQuantumFields;
 
-	int Load(GameSave * save, bool includePressure);
-	int Load(GameSave * save, bool includePressure, int x, int y);
-	GameSave * Save(bool includePressure);
-	GameSave * Save(bool includePressure, int x1, int y1, int x2, int y2);
-	void SaveSimOptions(GameSave * gameSave);
+	int Load(GameSave* save, bool includePressure);
+	int Load(GameSave* save, bool includePressure, int x, int y);
+	GameSave* Save(bool includePressure);
+	GameSave* Save(bool includePressure, int x1, int y1, int x2, int y2);
+	void SaveSimOptions(GameSave* gameSave);
 	SimulationSample GetSample(int x, int y);
 
-	Snapshot * CreateSnapshot();
-	void Restore(const Snapshot & snap);
+	Snapshot* CreateSnapshot();
+	void Restore(const Snapshot& snap);
 
 	int is_blocking(int t, int x, int y);
 	int is_boundary(int pt, int x, int y);
-	int find_next_boundary(int pt, int *x, int *y, int dm, int *em);
+	int find_next_boundary(int pt, int* x, int* y, int dm, int* em);
 	void photoelectric_effect(int nx, int ny);
 	unsigned direction_to_map(float dx, float dy, int t);
 	int do_move(int i, int x, int y, float nxf, float nyf);
 	int try_move(int i, int x, int y, int nx, int ny);
-	int eval_move(int pt, int nx, int ny, unsigned *rr);
+	int eval_move(int pt, int nx, int ny, unsigned* rr);
 	void init_can_move();
 	bool IsWallBlocking(int x, int y, int type);
 	bool IsValidElement(int type) {
@@ -153,13 +159,14 @@ public:
 	//int get_brush_flags();
 	int create_part(int p, int x, int y, int t, int v = -1);
 	void delete_part(int x, int y);
-	void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
+	void get_sign_pos(int i, int* x0, int* y0, int* w, int* h);
 	int is_wire(int x, int y);
 	int is_wire_off(int x, int y);
 	void set_emap(int x, int y);
 	int parts_avg(int ci, int ni, int t);
 	void create_arc(int sx, int sy, int dx, int dy, int midpoints, int variance, int type, int flags);
 	void UpdateParticles(int start, int end);
+	void UpdateCyensFields();
 	void SimulateGoL();
 	void RecalcFreeParticles(bool do_life_dec);
 	void CheckStacking();
@@ -172,42 +179,42 @@ public:
 
 	//Drawing Deco
 	void ApplyDecoration(int x, int y, int colR, int colG, int colB, int colA, int mode);
-	void ApplyDecorationPoint(int x, int y, int colR, int colG, int colB, int colA, int mode, Brush * cBrush = NULL);
-	void ApplyDecorationLine(int x1, int y1, int x2, int y2, int colR, int colG, int colB, int colA, int mode, Brush * cBrush = NULL);
+	void ApplyDecorationPoint(int x, int y, int colR, int colG, int colB, int colA, int mode, Brush* cBrush = NULL);
+	void ApplyDecorationLine(int x1, int y1, int x2, int y2, int colR, int colG, int colB, int colA, int mode, Brush* cBrush = NULL);
 	void ApplyDecorationBox(int x1, int y1, int x2, int y2, int colR, int colG, int colB, int colA, int mode);
-	bool ColorCompare(Renderer *ren, int x, int y, int replaceR, int replaceG, int replaceB);
-	void ApplyDecorationFill(Renderer *ren, int x, int y, int colR, int colG, int colB, int colA, int replaceR, int replaceG, int replaceB);
+	bool ColorCompare(Renderer* ren, int x, int y, int replaceR, int replaceG, int replaceB);
+	void ApplyDecorationFill(Renderer* ren, int x, int y, int colR, int colG, int colB, int colA, int replaceR, int replaceG, int replaceB);
 
 	//Drawing Tools like HEAT, AIR, and GRAV
 	int Tool(int x, int y, int tool, int brushX, int brushY, float strength = 1.0f);
-	int ToolBrush(int x, int y, int tool, Brush * cBrush, float strength = 1.0f);
-	void ToolLine(int x1, int y1, int x2, int y2, int tool, Brush * cBrush, float strength = 1.0f);
+	int ToolBrush(int x, int y, int tool, Brush* cBrush, float strength = 1.0f);
+	void ToolLine(int x1, int y1, int x2, int y2, int tool, Brush* cBrush, float strength = 1.0f);
 	void ToolBox(int x1, int y1, int x2, int y2, int tool, float strength = 1.0f);
 
 	//Drawing Walls
-	int CreateWalls(int x, int y, int rx, int ry, int wall, Brush * cBrush = NULL);
-	void CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall, Brush * cBrush = NULL);
+	int CreateWalls(int x, int y, int rx, int ry, int wall, Brush* cBrush = NULL);
+	void CreateWallLine(int x1, int y1, int x2, int y2, int rx, int ry, int wall, Brush* cBrush = NULL);
 	void CreateWallBox(int x1, int y1, int x2, int y2, int wall);
 	int FloodWalls(int x, int y, int wall, int bm);
 
 	//Drawing Particles
-	int CreateParts(int positionX, int positionY, int c, Brush * cBrush, int flags = -1);
+	int CreateParts(int positionX, int positionY, int c, Brush* cBrush, int flags = -1);
 	int CreateParts(int x, int y, int rx, int ry, int c, int flags = -1);
 	int CreatePartFlags(int x, int y, int c, int flags);
-	void CreateLine(int x1, int y1, int x2, int y2, int c, Brush * cBrush, int flags = -1);
+	void CreateLine(int x1, int y1, int x2, int y2, int c, Brush* cBrush, int flags = -1);
 	void CreateLine(int x1, int y1, int x2, int y2, int c);
 	void CreateBox(int x1, int y1, int x2, int y2, int c, int flags = -1);
 	int FloodParts(int x, int y, int c, int cm, int flags = -1);
 
-	void GetGravityField(int x, int y, float particleGrav, float newtonGrav, float & pGravX, float & pGravY);
+	void GetGravityField(int x, int y, float particleGrav, float newtonGrav, float& pGravX, float& pGravY);
 
 	int GetParticleType(ByteString type);
 
 	void orbitalparts_get(int block1, int block2, int resblock1[], int resblock2[]);
-	void orbitalparts_set(int *block1, int *block2, int resblock1[], int resblock2[]);
-	int get_wavelength_bin(int *wm);
-	int get_normal(int pt, int x, int y, float dx, float dy, float *nx, float *ny);
-	int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx, float *ny);
+	void orbitalparts_set(int* block1, int* block2, int resblock1[], int resblock2[]);
+	int get_wavelength_bin(int* wm);
+	int get_normal(int pt, int x, int y, float dx, float dy, float* nx, float* ny);
+	int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float* nx, float* ny);
 	void clear_sim();
 	Simulation();
 	~Simulation();
@@ -219,7 +226,8 @@ public:
 	static float remainder_p(float x, float y);
 
 	String ElementResolve(int type, int ctype);
-	String BasicParticleInfo(Particle const &sample_part);
+	String ElementFullName(int type);
+	String BasicParticleInfo(Particle const& sample_part);
 };
 
 #endif /* SIMULATION_H */

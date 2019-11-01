@@ -7,7 +7,7 @@
 
 using namespace ui;
 
-Panel::Panel(Point position, Point size):
+Panel::Panel(Point position, Point size) :
 	Component(position, size),
 	InnerSize(size),
 	ViewportPosition(0, 0),
@@ -21,8 +21,8 @@ Panel::Panel(Point position, Point size):
 	glGenTextures(1, &myVidTex);
 	glBindTexture(GL_TEXTURE_2D, myVidTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WINDOWW, WINDOWH, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	//FBO
 	glGenFramebuffers(1, &myVid);
@@ -35,13 +35,13 @@ Panel::Panel(Point position, Point size):
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, lastVid);
 #else
-	myVid = new pixel[WINDOWW*WINDOWH];
+	myVid = new pixel[WINDOWW * WINDOWH];
 #endif
 }
 
 Panel::~Panel()
 {
-	for(unsigned i = 0; i < children.size(); ++i)
+	for (unsigned i = 0; i < children.size(); ++i)
 	{
 		delete children[i];
 	}
@@ -86,7 +86,7 @@ void Panel::RemoveChild(Component* c)
 
 void Panel::RemoveChild(unsigned idx, bool freeMem)
 {
-	if(freeMem)
+	if (freeMem)
 		delete children[idx];
 
 	children.erase(children.begin() + idx);
@@ -104,9 +104,9 @@ void Panel::Draw(const Point& screenPos)
 	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 #else
-	pixel * lastVid = ui::Engine::Ref().g->vid;
+	pixel* lastVid = ui::Engine::Ref().g->vid;
 	ui::Engine::Ref().g->vid = myVid;
-	std::fill(myVid, myVid+(WINDOWW*WINDOWH), 0);
+	std::fill(myVid, myVid + (WINDOWW * WINDOWH), 0);
 #endif
 
 	// attempt to draw all children
@@ -119,7 +119,7 @@ void Panel::Draw(const Point& screenPos)
 			if (children[i]->Position.X + ViewportPosition.X + children[i]->Size.X >= 0 &&
 				children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y >= 0 &&
 				children[i]->Position.X + ViewportPosition.X < ui::Engine::Ref().GetWidth() &&
-				children[i]->Position.Y + ViewportPosition.Y < ui::Engine::Ref().GetHeight() )
+				children[i]->Position.Y + ViewportPosition.Y < ui::Engine::Ref().GetHeight())
 			{
 				Point scrpos = /*screenPos + */children[i]->Position + ViewportPosition;
 				children[i]->Draw(scrpos);
@@ -136,19 +136,19 @@ void Panel::Draw(const Point& screenPos)
 	int x = screenPos.X, y = screenPos.Y;
 	int h = Size.Y, w = Size.X;
 
-	double texX = double(Size.X)/WINDOWW, texY = 1, texYB = 1-(double(Size.Y)/WINDOWH);
+	double texX = double(Size.X) / WINDOWW, texY = 1, texYB = 1 - (double(Size.Y) / WINDOWH);
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
-    glTexCoord2d(0, texYB);
-    glVertex2f(x, y+h);
-    glTexCoord2d(texX, texYB);
-    glVertex2f(x+w, y+h);
-    glTexCoord2d(texX, texY);
-    glVertex2f(x+w, y);
-    glTexCoord2d(0, texY);
-    glVertex2f(x, y);
-    glEnd();
+	glTexCoord2d(0, texYB);
+	glVertex2f(x, y + h);
+	glTexCoord2d(texX, texYB);
+	glVertex2f(x + w, y + h);
+	glTexCoord2d(texX, texY);
+	glVertex2f(x + w, y);
+	glTexCoord2d(0, texY);
+	glVertex2f(x, y);
+	glEnd();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
@@ -158,7 +158,7 @@ void Panel::Draw(const Point& screenPos)
 	//dst=(pixel *)sdl_scrn->pixels+y*sdl_scrn->pitch/PIXELSIZE+x;
 	for (int row = 0; row < Size.Y; row++)
 	{
-		std::copy(myVid+(row*WINDOWW), myVid+(row*WINDOWW)+Size.X, lastVid+((screenPos.Y+row)*WINDOWW)+screenPos.X);
+		std::copy(myVid + (row * WINDOWW), myVid + (row * WINDOWW) + Size.X, lastVid + ((screenPos.Y + row) * WINDOWW) + screenPos.X);
 	}
 #endif
 }
@@ -169,7 +169,7 @@ void Panel::Tick(float dt)
 	XTick(dt);
 
 	// tick our children
-	for(unsigned i = 0; i < children.size(); ++i)
+	for (unsigned i = 0; i < children.size(); ++i)
 		children[i]->Tick(dt);
 }
 
@@ -188,16 +188,16 @@ void Panel::OnMouseClick(int localx, int localy, unsigned button)
 	bool childclicked = false;
 
 	//check if clicked a child
-	for(int i = children.size()-1; i >= 0 ; --i)
+	for (int i = children.size() - 1; i >= 0; --i)
 	{
 		//child must be enabled
-		if(children[i]->Enabled)
+		if (children[i]->Enabled)
 		{
 			//is mouse inside?
-			if( localx >= children[i]->Position.X + ViewportPosition.X &&
+			if (localx >= children[i]->Position.X + ViewportPosition.X &&
 				localy >= children[i]->Position.Y + ViewportPosition.Y &&
 				localx < children[i]->Position.X + ViewportPosition.X + children[i]->Size.X &&
-				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y )
+				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y)
 			{
 				childclicked = true;
 				GetParentWindow()->FocusComponent(children[i]);
@@ -208,7 +208,7 @@ void Panel::OnMouseClick(int localx, int localy, unsigned button)
 	}
 
 	//if a child wasn't clicked, send click to ourself
-	if(!childclicked)
+	if (!childclicked)
 	{
 		XOnMouseClick(localx, localy, button);
 		GetParentWindow()->FocusComponent(this);
@@ -220,7 +220,7 @@ void Panel::OnMouseDown(int x, int y, unsigned button)
 	XOnMouseDown(x, y, button);
 	for (size_t i = 0; i < children.size(); ++i)
 	{
-		if(children[i]->Enabled)
+		if (children[i]->Enabled)
 			children[i]->OnMouseDown(x, y, button);
 	}
 }
@@ -232,10 +232,10 @@ void Panel::OnMouseHover(int localx, int localy)
 	{
 		if (children[i]->Enabled)
 		{
-			if( localx >= children[i]->Position.X &&
+			if (localx >= children[i]->Position.X &&
 				localy >= children[i]->Position.Y &&
 				localx < children[i]->Position.X + children[i]->Size.X &&
-				localy < children[i]->Position.Y + children[i]->Size.Y )
+				localy < children[i]->Position.Y + children[i]->Size.Y)
 			{
 				children[i]->OnMouseHover(localx - children[i]->Position.X, localy - children[i]->Position.Y);
 				break;
@@ -252,7 +252,7 @@ void Panel::OnMouseMoved(int localx, int localy, int dx, int dy)
 	XOnMouseMoved(localx, localy, dx, dy);
 	for (size_t i = 0; i < children.size(); ++i)
 	{
-		if(children[i]->Enabled)
+		if (children[i]->Enabled)
 			children[i]->OnMouseMoved(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y, dx, dy);
 	}
 }
@@ -264,22 +264,22 @@ void Panel::OnMouseMovedInside(int localx, int localy, int dx, int dy)
 	{
 		if (children[i]->Enabled)
 		{
-			Point local	(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y)
-			, prevlocal (local.X - dx, local.Y - dy);
+			Point local(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y)
+				, prevlocal(local.X - dx, local.Y - dy);
 
 			// mouse currently inside?
-			if( local.X >= 0 &&
+			if (local.X >= 0 &&
 				local.Y >= 0 &&
 				local.X < children[i]->Size.X &&
-				local.Y < children[i]->Size.Y )
+				local.Y < children[i]->Size.Y)
 			{
 				children[i]->OnMouseMovedInside(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y, dx, dy);
 
 				// was the mouse outside?
-				if(!(prevlocal.X >= 0 &&
-					 prevlocal.Y >= 0 &&
-					 prevlocal.X < children[i]->Size.X &&
-					 prevlocal.Y < children[i]->Size.Y ) )
+				if (!(prevlocal.X >= 0 &&
+					prevlocal.Y >= 0 &&
+					prevlocal.X < children[i]->Size.X &&
+					prevlocal.Y < children[i]->Size.Y))
 				{
 					children[i]->OnMouseEnter(local.X, local.Y);
 				}
@@ -288,10 +288,10 @@ void Panel::OnMouseMovedInside(int localx, int localy, int dx, int dy)
 			else
 			{
 				// was the mouse inside?
-				if(	prevlocal.X >= 0 &&
+				if (prevlocal.X >= 0 &&
 					prevlocal.Y >= 0 &&
 					prevlocal.X < children[i]->Size.X &&
-					prevlocal.Y < children[i]->Size.Y )
+					prevlocal.Y < children[i]->Size.Y)
 				{
 					children[i]->OnMouseLeave(local.X, local.Y);
 				}
@@ -321,16 +321,16 @@ void Panel::OnMouseUnclick(int localx, int localy, unsigned button)
 	bool childunclicked = false;
 
 	//check if clicked a child
-	for(int i = children.size()-1; i >= 0 ; --i)
+	for (int i = children.size() - 1; i >= 0; --i)
 	{
 		//child must be unlocked
-		if(children[i]->Enabled)
+		if (children[i]->Enabled)
 		{
 			//is mouse inside?
-			if( localx >= children[i]->Position.X + ViewportPosition.X &&
+			if (localx >= children[i]->Position.X + ViewportPosition.X &&
 				localy >= children[i]->Position.Y + ViewportPosition.Y &&
 				localx < children[i]->Position.X + ViewportPosition.X + children[i]->Size.X &&
-				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y )
+				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y)
 			{
 				childunclicked = true;
 				children[i]->OnMouseUnclick(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y, button);
@@ -370,7 +370,7 @@ void Panel::OnMouseWheelInside(int localx, int localy, int d)
 {
 	XOnMouseWheelInside(localx, localy, d);
 	//check if clicked a child
-	for (int i = children.size()-1; i >= 0 ; --i)
+	for (int i = children.size() - 1; i >= 0; --i)
 	{
 		//child must be unlocked
 		if (children[i]->Enabled)
@@ -379,7 +379,7 @@ void Panel::OnMouseWheelInside(int localx, int localy, int d)
 			if (localx >= children[i]->Position.X + ViewportPosition.X &&
 				localy >= children[i]->Position.Y + ViewportPosition.Y &&
 				localx < children[i]->Position.X + ViewportPosition.X + children[i]->Size.X &&
-				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y )
+				localy < children[i]->Position.Y + ViewportPosition.Y + children[i]->Size.Y)
 			{
 				children[i]->OnMouseWheelInside(localx - children[i]->Position.X - ViewportPosition.X, localy - children[i]->Position.Y - ViewportPosition.Y, d);
 				break;
