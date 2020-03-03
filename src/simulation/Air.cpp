@@ -245,16 +245,20 @@ void Air::update_air(void)
 						stepX = (dx<0.0f) ? 1 : -1;
 						stepY = -dy/fabsf(dx);
 						stepLimit = (int)(fabsf(dx*advDistanceMult));
+						
+
 					}
 					else
 					{
 						stepY = (dy<0.0f) ? 1 : -1;
 						stepX = -dx/fabsf(dy);
 						stepLimit = (int)(fabsf(dy*advDistanceMult));
+						
+					
 					}
 					tx = x;
-					ty = y;
-					for (step=0; step<stepLimit; ++step)
+					ty = y;	
+						for (step=0; step<stepLimit; ++step)
 					{
 						tx += stepX;
 						ty += stepY;
@@ -270,6 +274,7 @@ void Air::update_air(void)
 						// No wall found
 						tx = x - dx*advDistanceMult;
 						ty = y - dy*advDistanceMult;
+						
 					}
 				}
 				i = (int)tx;
@@ -294,19 +299,19 @@ void Air::update_air(void)
 					dx += AIR_VADV*tx*ty*vx[j+1][i+1];
 					dy += AIR_VADV*tx*ty*vy[j+1][i+1];
 				}
-
+					
 				if (bmap[y][x] == WL_FAN)
 				{
 					dx += fvx[y][x];
 					dy += fvy[y][x];
 				}
 				// pressure/velocity caps
-				if (dp > 256.0f) dp = 256.0f;
-				if (dp < -256.0f) dp = -256.0f;
-				if (dx > 256.0f) dx = 256.0f;
-				if (dx < -256.0f) dx = -256.0f;
-				if (dy > 256.0f) dy = 256.0f;
-				if (dy < -256.0f) dy = -256.0f;
+				if (dp > 512.0f) dp = 512.0f;
+				if (dp < -512.0f) dp = -512.0f;
+				if (dx > 512.0f) dx = 512.0f;
+				if (dx < -512.0f) dx = -512.0f;
+				if (dy > 512.0f) dy = 512.0f;
+				if (dy < -512.0f) dy = -512.0f;
 
 
 				switch (airMode)
