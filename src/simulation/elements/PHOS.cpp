@@ -1,9 +1,13 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
+#include "../CyensTools.h"
 #include <stack>
 
-//#TPT-Directive ElementClass Element_PHOS PT_PHOS 218
-Element_PHOS::Element_PHOS() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_PHOS()
+{
 	Identifier = "DEFAULT_PT_PHOS";
 	Name = "PHOS";
 	FullName = "Phosphorus";
@@ -19,7 +23,7 @@ Element_PHOS::Element_PHOS() {
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 500;
@@ -29,7 +33,6 @@ Element_PHOS::Element_PHOS() {
 
 	Weight = 25;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 20;
 	Description = "Phosphorus. Turns from white to red over time. White phosphorus burns on contact with O2.";
 
@@ -44,12 +47,13 @@ Element_PHOS::Element_PHOS() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_PHOS::update;
-	Graphics = &Element_PHOS::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_PHOS static int update(UPDATE_FUNC_ARGS)
-int Element_PHOS::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS)
+{
 	if (parts[i].life <= 0)parts[i].tmp = PHOS_RED;
 	int s = 0;
 	int r;
@@ -59,7 +63,7 @@ int Element_PHOS::update(UPDATE_FUNC_ARGS) {
 			if (BOUNDS_CHECK) {
 				if (parts[i].tmp == PHOS_WHITE) {
 					r = pmap[y + ry][x + rx];
-					if (!r&&sim->photons[y + ry][x + rx]) {
+					if (!r && sim->photons[y + ry][x + rx]) {
 						r = sim->photons[y + ry][x + rx];
 						if (r) parts[i].life = 0;
 						else continue;
@@ -67,7 +71,7 @@ int Element_PHOS::update(UPDATE_FUNC_ARGS) {
 					if (TYP(r) == PT_O2) {
 						sim->part_change_type(i, x, y, PT_FIRE);
 					}
-					else if (TYP(r) == PT_NONE || sim->elements[TYP(r)].Properties&TYPE_GAS) {
+					else if (TYP(r) == PT_NONE || sim->elements[TYP(r)].Properties & TYPE_GAS) {
 						s++;
 					}
 				}
@@ -79,7 +83,7 @@ int Element_PHOS::update(UPDATE_FUNC_ARGS) {
 						oxygens.push(ID(r));
 					}
 				}
-				if (parts[i].tmp&&s == 3) {
+				if (parts[i].tmp && s == 3) {
 					sim->part_change_type(i, x, y, PT_PHPT);
 					while (!oxygens.empty()) {
 						sim->kill_part(oxygens.top());
@@ -92,8 +96,8 @@ int Element_PHOS::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_PHOS static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_PHOS::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS)
+{
 	bool r = cpart->tmp == PHOS_RED;
 
 	*colr = r ? 0xc2 : 0xfc;
@@ -104,4 +108,6 @@ int Element_PHOS::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_PHOS::~Element_PHOS() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = rand() % 1000 + 500;
+}

@@ -1,6 +1,10 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CRAY PT_CRAY 167
-Element_CRAY::Element_CRAY()
+
+static int update(UPDATE_FUNC_ARGS);
+static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS);
+static unsigned int wavelengthToDecoColour(int wavelength);
+
+void Element::Element_CRAY()
 {
 	Identifier = "DEFAULT_PT_CRAY";
 	Name = "CRAY";
@@ -27,7 +31,6 @@ Element_CRAY::Element_CRAY()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f +273.15f;
 	HeatConduct = 0;
 	Description = "Particle Ray Emitter. Creates a beam of particles set by its ctype, with a range set by tmp.";
 
@@ -42,12 +45,11 @@ Element_CRAY::Element_CRAY()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CRAY::update;
-	CtypeDraw = &Element_CRAY::ctypeDraw;
+	Update = &update;
+	CtypeDraw = &ctypeDraw;
 }
 
-//#TPT-Directive ElementHeader Element_CRAY static int update(UPDATE_FUNC_ARGS)
-int Element_CRAY::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int nxx, nyy, docontinue, nxi, nyi;
 	// set ctype to things that touch it if it doesn't have one already
@@ -109,7 +111,8 @@ int Element_CRAY::update(UPDATE_FUNC_ARGS)
 									colored = 0xFF000000;
 								else if (parts[ID(r)].tmp==0)
 								{
-									colored = wavelengthToDecoColour(Element_FILT::getWavelengths(&parts[ID(r)]));
+									int Element_FILT_getWavelengths(Particle* cpart);
+									colored = wavelengthToDecoColour(Element_FILT_getWavelengths(&parts[ID(r)]));
 								}
 								else if (colored==0xFF000000)
 									colored = 0;
@@ -131,8 +134,8 @@ int Element_CRAY::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-//#TPT-Directive ElementHeader Element_CRAY static unsigned int wavelengthToDecoColour(int wavelength)
-unsigned int Element_CRAY::wavelengthToDecoColour(int wavelength)
+
+static unsigned int wavelengthToDecoColour(int wavelength)
 {
 	int colr = 0, colg = 0, colb = 0, x;
 	for (x=0; x<12; x++) {
@@ -156,8 +159,7 @@ unsigned int Element_CRAY::wavelengthToDecoColour(int wavelength)
 	return (255<<24) | (colr<<16) | (colg<<8) | colb;
 }
 
-//#TPT-Directive ElementHeader Element_CRAY static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
-bool Element_CRAY::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
+static bool ctypeDraw(CTYPEDRAW_FUNC_ARGS)
 {
 	if (!Element::ctypeDrawVInCtype(CTYPEDRAW_FUNC_SUBCALL_ARGS))
 	{
@@ -167,8 +169,6 @@ bool Element_CRAY::ctypeDraw(CTYPEDRAW_FUNC_ARGS)
 	{
 		sim->parts[i].ctype |= PMAPID(30);
 	}
-	sim->parts[i].temp = sim->elements[t].Temperature;
+	sim->parts[i].temp = sim->elements[t].DefaultProperties.temp;
 	return true;
 }
-
-Element_CRAY::~Element_CRAY() {}

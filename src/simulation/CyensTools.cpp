@@ -1,5 +1,10 @@
 #include "CyensTools.h"
 
+// Use this to check if a newer version is available from thecyentist.io
+bool cyensUpdateAvailable() {
+	return false;
+}
+
 void ClampOrganic(Particle* p)
 {
 	int t = p->type;
@@ -45,7 +50,7 @@ void ClampOrganic(Particle* p)
 
 //Tells an RNA or DNA strand bit how to move
 v2i getStrandOffset(int d) {
-	int destX, destY;
+	int destX = 0, destY = 0;
 	switch (d) {
 	case DIR_N:
 		destX = 0;
@@ -86,7 +91,7 @@ v2i getStrandOffset(int d) {
 //gets the cardinal direction opposite of the head of the strand's direction
 int getDir(float hvx, float hvy) {
 	if (sqrt(hvx * hvx + hvy * hvy) < 0.0625f)return DIR_S;
-	float theta = atan2(hvy, hvx) * (180.0f / M_PI); //convert it to degrees for my sanity
+	float theta = atan2(hvy, hvx) * (180.0f / 3.1415926f); //convert it to degrees for my sanity
 	return
 		isInRange(theta, 0, 15) ? DIR_W :
 		isInRange(theta, 15, 75) ? DIR_SW :

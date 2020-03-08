@@ -46,6 +46,8 @@
 #include "client/http/Request.h"
 #include "client/http/RequestManager.h"
 
+#include "..//simulation/CyensTools.h"
+
 
 extern "C"
 {
@@ -110,8 +112,10 @@ void Client::Initialise(ByteString proxyString, bool disableNetwork)
 		update_finish();
 	}
 
+#ifndef NOHTTP
 	if (!disableNetwork)
 		http::RequestManager::Ref().Initialise(proxyString);
+#endif
 
 	//Read stamps library
 	std::ifstream stampsLib;
@@ -349,7 +353,7 @@ bool Client::DoInstallation()
 	const char *protocolfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
-"Name=Powder Toy\n"
+"Name=Cyens Toy\n"
 "Comment=Physics sandbox game\n"
 "MimeType=x-scheme-handler/ptsave;\n"
 "NoDisplay=true\n"
@@ -366,7 +370,7 @@ bool Client::DoInstallation()
 	const char *desktopopenfiledata_tmp =
 "[Desktop Entry]\n"
 "Type=Application\n"
-"Name=Powder Toy\n"
+"Name=Cyens Toy\n"
 "Comment=Physics sandbox game\n"
 "MimeType=application/vnd.powdertoy.save;\n"
 "NoDisplay=true\n"
@@ -385,7 +389,7 @@ bool Client::DoInstallation()
 "[Desktop Entry]\n"
 "Version=1.0\n"
 "Encoding=UTF-8\n"
-"Name=Powder Toy\n"
+"Name=Cyens Toy\n"
 "Type=Application\n"
 "Comment=Physics sandbox game\n"
 "Categories=Game;Simulation\n"
@@ -811,6 +815,7 @@ bool Client::CheckUpdate(http::Request *updateRequest, bool checkSession)
 						updateInfo = UpdateInfo(snapshotSnapshot, snapshotFile, snapshotChangelog, UpdateInfo::Snapshot);
 					}
 #endif
+					updateAvailable = cyensUpdateAvailable();
 
 					if(updateAvailable)
 					{
@@ -923,8 +928,10 @@ void Client::Shutdown()
 	{
 		alternateVersionCheckRequest->Cancel();
 	}
-	
+
+#ifndef NOHTTP
 	http::RequestManager::Ref().Shutdown();
+#endif
 
 	//Save config
 	WritePrefs();

@@ -1,8 +1,11 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
+#include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_WBSN PT_WBSN 227
-Element_WBSN::Element_WBSN()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_WBSN()
 {
 	Identifier = "DEFAULT_PT_WBSN";
 	Name = "WBSN";
@@ -29,7 +32,6 @@ Element_WBSN::Element_WBSN()
 
 	Weight = -1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 20;
 	Description = "W bosons. Positive and negative carriers of the weak force.";
 
@@ -44,20 +46,20 @@ Element_WBSN::Element_WBSN()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_WBSN::update;
-	Graphics = &Element_WBSN::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_WBSN static int update(UPDATE_FUNC_ARGS)
-int Element_WBSN::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
-	
+	// update code here
+
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_WBSN static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_WBSN::graphics(GRAPHICS_FUNC_ARGS) {
-
+static int graphics(GRAPHICS_FUNC_ARGS)
+{
 	*cola = *colr = *colg = *colb = 0;
 	*firea = 0x12;
 	*firer = 0x33;
@@ -68,4 +70,10 @@ int Element_WBSN::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_WBSN::~Element_WBSN() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	float a = RNG::Ref().between(0, 35) * 0.17453f;
+	sim->parts[i].life = RNG::Ref().between(1, 5);
+	sim->parts[i].tmp = RNG::Ref().between(0, 1);
+	sim->parts[i].vx = 10.0f * cosf(a);
+	sim->parts[i].vy = 10.0f * sinf(a);
+}

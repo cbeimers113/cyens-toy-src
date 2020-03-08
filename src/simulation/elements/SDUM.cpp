@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_SDUM PT_SDUM 187
-Element_SDUM::Element_SDUM()
+
+void Element::Element_SDUM()
 {
 	Identifier = "DEFAULT_PT_SDUM";
 	Name = "SDUM";
@@ -17,7 +17,7 @@ Element_SDUM::Element_SDUM()
 	Collision = -0.1f;
 	Gravity = 0.3f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 100;
@@ -27,7 +27,6 @@ Element_SDUM::Element_SDUM()
 
 	Weight = 75;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 110;
 	Description = "Sodium, an alkali metal like rubidium.";
 
@@ -41,8 +40,4 @@ Element_SDUM::Element_SDUM()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_SDUM::~Element_SDUM() {}

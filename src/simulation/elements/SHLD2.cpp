@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_SHLD2 PT_SHLD2 120
-Element_SHLD2::Element_SHLD2()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_SHLD2()
 {
 	Identifier = "DEFAULT_PT_SHLD2";
 	Name = "SHD2";
@@ -27,7 +29,6 @@ Element_SHLD2::Element_SHLD2()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 0;
 	Description = "Shield lvl 2.";
 
@@ -42,11 +43,10 @@ Element_SHLD2::Element_SHLD2()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_SHLD2::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_SHLD2 static int update(UPDATE_FUNC_ARGS)
-int Element_SHLD2::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, nnx, nny, rx, ry, np;
 	for (rx=-1; rx<2; rx++)
@@ -86,7 +86,3 @@ int Element_SHLD2::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 }
-
-
-
-Element_SHLD2::~Element_SHLD2() {}

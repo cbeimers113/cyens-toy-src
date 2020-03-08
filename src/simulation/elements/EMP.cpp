@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 #include "Probability.h"
 
-//#TPT-Directive ElementClass Element_EMP PT_EMP 134
-Element_EMP::Element_EMP()
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_EMP()
 {
 	Identifier = "DEFAULT_PT_EMP";
 	Name = "EMP";
@@ -29,7 +30,6 @@ Element_EMP::Element_EMP()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 121;
 	Description = "Electromagnetic pulse. Breaks activated electronics.";
 
@@ -44,8 +44,7 @@ Element_EMP::Element_EMP()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = NULL;
-	Graphics = &Element_EMP::graphics;
+	Graphics = &graphics;
 }
 
 class DeltaTempGenerator
@@ -72,8 +71,7 @@ public:
 	}
 };
 
-//#TPT-Directive ElementHeader Element_EMP static int Trigger(Simulation *sim, int triggerCount)
-int Element_EMP::Trigger(Simulation *sim, int triggerCount)
+void Element_EMP_Trigger(Simulation *sim, int triggerCount)
 {
 	/* Known differences from original one-particle-at-a-time version:
 	 * - SPRK that disappears during a frame (such as SPRK with life==0 on that frame) will not cause destruction around it.
@@ -207,13 +205,9 @@ int Element_EMP::Trigger(Simulation *sim, int triggerCount)
 					}
 		}
 	}
-	return 0;
 }
 
-
-//#TPT-Directive ElementHeader Element_EMP static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_EMP::graphics(GRAPHICS_FUNC_ARGS)
-
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->life)
 	{
@@ -223,6 +217,3 @@ int Element_EMP::graphics(GRAPHICS_FUNC_ARGS)
 	}
 	return 0;
 }
-
-
-Element_EMP::~Element_EMP() {}

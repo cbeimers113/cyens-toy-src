@@ -1,12 +1,15 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_DNA PT_DNA 217
-Element_DNA::Element_DNA()
+
+int Element_RNA_update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_DNA()
 {
 	Identifier = "DEFAULT_PT_DNA";
 	Name = "DNA";
 	FullName = "DNA";
 	Colour = PIXPACK(0xD4FFFF);
-	MenuVisible = 1;
+	MenuVisible = 0;
 	MenuSection = SC_BIOLOGY;
 	Enabled = 1;
 
@@ -17,7 +20,7 @@ Element_DNA::Element_DNA()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +30,6 @@ Element_DNA::Element_DNA()
 
 	Weight = 0;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 70;
 	Description = "Deoxyribonucleic acid, the biological code of life.";
 
@@ -42,7 +44,10 @@ Element_DNA::Element_DNA()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_RNA::update;
+	Update = &Element_RNA_update;
+	Create = &create;
 }
 
-Element_DNA::~Element_DNA() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].sHeadIndex = -1;
+}

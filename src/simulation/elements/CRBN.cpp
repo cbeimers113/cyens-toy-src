@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_CRBN PT_CRBN 189
-Element_CRBN::Element_CRBN()
+static int update(UPDATE_FUNC_ARGS);
+static bool compareRecipes(int rFound[9], int rSource[9], int tMatch, int tProd);
+
+void Element::Element_CRBN()
 {
 	Identifier = "DEFAULT_PT_CRBN";
 	Name = "CRBN";
@@ -19,7 +21,7 @@ Element_CRBN::Element_CRBN()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -29,7 +31,6 @@ Element_CRBN::Element_CRBN()
 
 	Weight = 85;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 70;
 	Description = "Carbon, essential to organic compounds and life.";
 
@@ -44,13 +45,10 @@ Element_CRBN::Element_CRBN()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CRBN::update;
+	Update = &update;
 }
 
-Element_CRBN::~Element_CRBN() {}
-
-//#TPT-Directive ElementHeader Element_CRBN static int update(UPDATE_FUNC_ARGS)
-int Element_CRBN::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	bool harden = sim->pv[y / CELL][x / CELL] >= 200.0f;
 
@@ -111,22 +109,22 @@ int Element_CRBN::update(UPDATE_FUNC_ARGS)
 			}
 
 	if (harden) {
-		if (Element_CRBN::compareRecipes(recipe, GRPH180, PT_CRBN, PT_INST)) {
+		if (compareRecipes(recipe, GRPH180, PT_CRBN, PT_INST)) {
 			sim->part_change_type(ID(pmap[y][x - 1]), x - 1, y, PT_INST);
 			sim->part_change_type(ID(pmap[y][x + 1]), x + 1, y, PT_INST);
 			sim->part_change_type(i, x, y, PT_INST);
 		}
-		else if (Element_CRBN::compareRecipes(recipe, GRPH45, PT_CRBN, PT_INST)) {
+		else if (compareRecipes(recipe, GRPH45, PT_CRBN, PT_INST)) {
 			sim->part_change_type(ID(pmap[y - 1][x - 1]), x - 1, y - 1, PT_INST);
 			sim->part_change_type(ID(pmap[y + 1][x + 1]), x + 1, y + 1, PT_INST);
 			sim->part_change_type(i, x, y, PT_INST);
 		}
-		else if (Element_CRBN::compareRecipes(recipe, GRPH90, PT_CRBN, PT_INST)) {
+		else if (compareRecipes(recipe, GRPH90, PT_CRBN, PT_INST)) {
 			sim->part_change_type(ID(pmap[y - 1][x]), x, y - 1, PT_INST);
 			sim->part_change_type(ID(pmap[y + 1][x]), x, y + 1, PT_INST);
 			sim->part_change_type(i, x, y, PT_INST);
 		}
-		else if (Element_CRBN::compareRecipes(recipe, GRPH135, PT_CRBN, PT_INST)) {
+		else if (compareRecipes(recipe, GRPH135, PT_CRBN, PT_INST)) {
 			sim->part_change_type(ID(pmap[y + 1][x - 1]), x - 1, y + 1, PT_INST);
 			sim->part_change_type(ID(pmap[y - 1][x + 1]), x + 1, y - 1, PT_INST);
 			sim->part_change_type(i, x, y, PT_INST);
@@ -143,9 +141,7 @@ int Element_CRBN::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//tMatch is the centre element
-//#TPT-Directive ElementHeader Element_CRBN static bool compareRecipes(int rFound[9], int rSource[9], int tMatch, int tProd)
-bool Element_CRBN::compareRecipes(int rFound[9], int rSource[9], int tMatch, int tProd) {
+static bool compareRecipes(int rFound[9], int rSource[9], int tMatch, int tProd) {
 	if (rSource[4] != tMatch)return false;
 	for (int i = 0; i < 9; i++) {
 		if ((rSource[i] == -1) != ((rFound[i] == tMatch || rFound[i] == tProd)))

@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_RBAC PT_RBAC 196
-Element_RBAC::Element_RBAC()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_RBAC()
 {
 	Identifier = "DEFAULT_PT_RBAC";
 	Name = "RBAC";
@@ -17,7 +20,7 @@ Element_RBAC::Element_RBAC()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.0f;
-	HotAir = 0.0f	* CFDS;
+	HotAir = 0.0f * CFDS;
 	Falldown = 2;
 
 	Flammable = 25;
@@ -27,7 +30,6 @@ Element_RBAC::Element_RBAC()
 
 	Weight = 40;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 42;
 	Description = "Rubbing alcohol. Kills viruses.";
 
@@ -41,8 +43,4 @@ Element_RBAC::Element_RBAC()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_RBAC::~Element_RBAC() {}

@@ -5,9 +5,9 @@
 
 #include "Controller.h"
 
-OptionsController::OptionsController(GameModel* gModel_, ControllerCallback* callback_) :
+OptionsController::OptionsController(GameModel* gModel_, std::function<void()> onDone_) :
 	gModel(gModel_),
-	callback(callback_),
+	onDone(onDone_),
 	HasExited(false)
 {
 	view = new OptionsView();
@@ -32,25 +32,24 @@ void OptionsController::SetNewtonianGravity(bool state)
 	model->SetNewtonianGravity(state);
 }
 
+void OptionsController::SetTimeDilation(bool timeDilation)
+{
+	model->SetTimeDilation(timeDilation);
+}
+
+void OptionsController::SetCompressibleGases(bool compressibleGases)
+{
+	model->SetCompressibleGases(compressibleGases);
+}
+
+void OptionsController::SetDrawQuantumFields(bool drawQuantumFields)
+{
+	model->SetDrawQuantumFields(drawQuantumFields);
+}
+
 void OptionsController::SetWaterEqualisation(bool state)
 {
 	model->SetWaterEqualisation(state);
-}
-
-void OptionsController::SetInfoScreen(bool state) {
-	model->SetInfoScreen(state);
-}
-
-void OptionsController::SetTimeDilation(bool state) {
-	model->SetTimeDilation(state);
-}
-
-void OptionsController::SetCompressibleGases(bool state) {
-	model->SetCompressibleGases(state);
-}
-
-void OptionsController::SetDrawQuantumFields(bool state) {
-	model->SetDrawQuantumFields(state);
 }
 
 void OptionsController::SetGravityMode(int gravityMode)
@@ -103,6 +102,11 @@ void OptionsController::SetFastQuit(bool fastquit)
 	model->SetFastQuit(fastquit);
 }
 
+void OptionsController::SetDecoSpace(int decoSpace)
+{
+	model->SetDecoSpace(decoSpace);
+}
+
 OptionsView* OptionsController::GetView()
 {
 	return view;
@@ -118,12 +122,17 @@ void OptionsController::SetIncludePressure(bool includePressure)
 	model->SetIncludePressure(includePressure);
 }
 
+void OptionsController::SetPerfectCircle(bool perfectCircle)
+{
+	model->SetPerfectCircle(perfectCircle);
+}
+
 void OptionsController::Exit()
 {
 	view->CloseActiveWindow();
 
-	if (callback)
-		callback->ControllerExit();
+	if (onDone)
+		onDone();
 	HasExited = true;
 }
 
@@ -133,6 +142,5 @@ OptionsController::~OptionsController()
 	view->CloseActiveWindow();
 	delete model;
 	delete view;
-	delete callback;
 }
 

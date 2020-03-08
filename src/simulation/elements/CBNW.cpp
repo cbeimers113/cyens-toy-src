@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CBNW PT_CBNW 82
-Element_CBNW::Element_CBNW()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_CBNW()
 {
 	Identifier = "DEFAULT_PT_CBNW";
 	Name = "BUBW";
@@ -27,7 +30,7 @@ Element_CBNW::Element_CBNW()
 
 	Weight = 30;
 
-	Temperature = R_TEMP-2.0f	+273.15f;
+	DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
 	HeatConduct = 29;
 	Description = "Carbonated water. Slowly releases CO2.";
 
@@ -42,12 +45,11 @@ Element_CBNW::Element_CBNW()
 	HighTemperature = 373.0f;
 	HighTemperatureTransition = PT_WTRV;
 
-	Update = &Element_CBNW::update;
-	Graphics = &Element_CBNW::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_CBNW static int update(UPDATE_FUNC_ARGS)
-int Element_CBNW::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	if (sim->pv[y/CELL][x/CELL]<=3)
@@ -135,10 +137,7 @@ int Element_CBNW::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
-//#TPT-Directive ElementHeader Element_CBNW static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_CBNW::graphics(GRAPHICS_FUNC_ARGS)
-
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int z = cpart->tmp2 - 20;//speckles!
 	*colr += z * 1;
@@ -146,6 +145,3 @@ int Element_CBNW::graphics(GRAPHICS_FUNC_ARGS)
 	*colb += z * 8;
 	return 0;
 }
-
-
-Element_CBNW::~Element_CBNW() {}

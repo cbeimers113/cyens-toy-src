@@ -5,7 +5,6 @@
 #include <utility>
 
 #include "client/ClientListener.h"
-#include "../../simulation/CyensTools.h"
 
 #include "gui/interface/Point.h"
 #include "gui/interface/Colour.h"
@@ -39,31 +38,26 @@ private:
 	bool firstTick;
 	int foundSignID;
 
-	PreviewController * activePreview;
-	GameView * gameView;
-	GameModel * gameModel;
-	SearchController * search;
-	RenderController * renderOptions;
-	LoginController * loginWindow;
-	ConsoleController * console;
-	TagsController * tagsWindow;
-	LocalBrowserController * localBrowser;
-	OptionsController * options;
-	CommandInterface * commandInterface;
+	PreviewController* activePreview;
+	GameView* gameView;
+	GameModel* gameModel;
+	SearchController* search;
+	RenderController* renderOptions;
+	LoginController* loginWindow;
+	ConsoleController* console;
+	TagsController* tagsWindow;
+	LocalBrowserController* localBrowser;
+	OptionsController* options;
+	CommandInterface* commandInterface;
 	std::vector<DebugInfo*> debugInfo;
 	unsigned int debugFlags;
+
+	void OpenSaveDone();
 public:
 	bool HasDone;
-	class SearchCallback;
-	class SSaveCallback;
-	class TagsCallback;
-	class StampsCallback;
-	class OptionsCallback;
-	class SaveOpenCallback;
-	friend class SaveOpenCallback;
 	GameController();
 	~GameController();
-	GameView * GetView();
+	GameView* GetView();
 	int GetSignAt(int x, int y);
 	String GetSignText(int signID);
 	std::pair<int, sign::Type> GetSignSplit(int signID);
@@ -116,17 +110,17 @@ public:
 	std::vector<Menu*> GetMenuList();
 	int GetNumMenus(bool onlyEnabled);
 	void RebuildFavoritesMenu();
-	Tool * GetActiveTool(int selection);
-	void SetActiveTool(int toolSelection, Tool * tool);
+	Tool* GetActiveTool(int selection);
+	void SetActiveTool(int toolSelection, Tool* tool);
 	void SetActiveTool(int toolSelection, ByteString identifier);
-	void SetLastTool(Tool * tool);
+	void SetLastTool(Tool* tool);
 	int GetReplaceModeFlags();
 	void SetReplaceModeFlags(int flags);
 	void SetActiveColourPreset(int preset);
 	void SetColour(ui::Colour colour);
 	void SetToolStrength(float value);
-	void LoadSaveFile(SaveFile * file);
-	void LoadSave(SaveInfo * save);
+	void LoadSaveFile(SaveFile* file);
+	void LoadSave(SaveInfo* save);
 	void OpenSearch(String searchText);
 	void OpenLogin();
 	void OpenProfile();
@@ -156,7 +150,7 @@ public:
 	ui::Point PointTranslate(ui::Point point);
 	ui::Point NormaliseBlockCoord(ui::Point point);
 	String ElementResolve(int type, int ctype);
-	String BasicParticleInfo(Particle const &sample_part);
+	String BasicParticleInfo(Particle const& sample_part);
 	bool IsValidElement(int type);
 	String WallName(int type);
 	int Record(bool record);
@@ -173,19 +167,20 @@ public:
 	void ToggleAHeat();
 	bool GetAHeatEnable();
 	void ToggleNewtonianGravity();
-	void ToggleInfoscreen();
+
+	//Cyens Toy options
 	void ToggleTimeDilation();
 	void ToggleCompressibleGases();
 	void ToggleDrawQuantumFields();
 
 	bool LoadClipboard();
-	void LoadStamp(GameSave *stamp);
+	void LoadStamp(GameSave* stamp);
 
-	void RemoveNotification(Notification * notification);
+	void RemoveNotification(Notification* notification);
 
-	void NotifyUpdateAvailable(Client * sender) override;
-	void NotifyAuthUserChanged(Client * sender) override;
-	void NotifyNewNotification(Client * sender, std::pair<String, ByteString> notification) override;
+	void NotifyUpdateAvailable(Client* sender) override;
+	void NotifyAuthUserChanged(Client* sender) override;
+	void NotifyNewNotification(Client* sender, std::pair<String, ByteString> notification) override;
 	void RunUpdater();
 	bool GetMouseClickRequired();
 };

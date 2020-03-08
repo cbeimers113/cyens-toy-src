@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_WTRV PT_WTRV 23
-Element_WTRV::Element_WTRV()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_WTRV()
 {
 	Identifier = "DEFAULT_PT_WTRV";
 	Name = "WTRV";
@@ -17,7 +19,7 @@ Element_WTRV::Element_WTRV()
 	Collision = -0.1f;
 	Gravity = -0.1f;
 	Diffusion = 0.75f;
-	HotAir = 0.0003f	* CFDS;
+	HotAir = 0.0003f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,7 @@ Element_WTRV::Element_WTRV()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 100.0f + 273.15f;
+	DefaultProperties.temp = R_TEMP + 100.0f + 273.15f;
 	HeatConduct = 48;
 	Description = "Steam. Produced from hot water.";
 
@@ -42,11 +44,10 @@ Element_WTRV::Element_WTRV()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_WTRV::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_WTRV static int update(UPDATE_FUNC_ARGS)
-int Element_WTRV::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -56,7 +57,7 @@ int Element_WTRV::update(UPDATE_FUNC_ARGS)
 				r = pmap[y + ry][x + rx];
 				if (!r)
 					continue;
-				if ((TYP(r)==PT_RBDM||TYP(r)==PT_LRBD) && !sim->legacy_enable && parts[i].temp>(273.15f+12.0f) && RNG::Ref().chance(1, 100))
+				if ((TYP(r) == PT_RBDM || TYP(r) == PT_LRBD) && !sim->legacy_enable && parts[i].temp > (273.15f + 12.0f) && RNG::Ref().chance(1, 100))
 				{
 					sim->part_change_type(i, x, y, PT_FIRE);
 					parts[i].life = 4;
@@ -71,6 +72,3 @@ int Element_WTRV::update(UPDATE_FUNC_ARGS)
 		parts[i].temp -= parts[i].temp / 1000;
 	return 0;
 }
-
-
-Element_WTRV::~Element_WTRV() {}

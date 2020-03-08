@@ -1,8 +1,12 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
+#include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_WSTE PT_WSTE 222
-Element_WSTE::Element_WSTE() {
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_WSTE()
+{
 	Identifier = "DEFAULT_PT_WSTE";
 	Name = "WSTE";
 	FullName = "Chemical Waste";
@@ -18,7 +22,7 @@ Element_WSTE::Element_WSTE() {
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -28,7 +32,6 @@ Element_WSTE::Element_WSTE() {
 
 	Weight = 35;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 29;
 	Description = "Chemical waste.";
 
@@ -43,12 +46,20 @@ Element_WSTE::Element_WSTE() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = NULL;
-	Graphics = &Element_WSTE::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_WSTE static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_WSTE::graphics(GRAPHICS_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
+	//Solves weird bug where WSTE was getting created as a nonexisting subtype and still survived 
+	if (parts[i].tmp2 < WSTE_SDM_ACETATE || parts[i].tmp2 > WSTE_TRSDM_PHOSPHATE)
+		sim->kill_part(i);
+	return 0;
+}
+
+static int graphics(GRAPHICS_FUNC_ARGS)
+{
 	switch (cpart->tmp2) {
 	case WSTE_SDM_ACETATE:
 		*colr = 0xf7;
@@ -71,4 +82,6 @@ int Element_WSTE::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_WSTE::~Element_WSTE() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].tmp2 = -1;
+}

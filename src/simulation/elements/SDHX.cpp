@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_SDHX PT_SDHX 204
-Element_SDHX::Element_SDHX()
+
+void Element::Element_SDHX()
 {
 	Identifier = "DEFAULT_PT_SDHX";
 	Name = "SDHX";
@@ -17,7 +17,7 @@ Element_SDHX::Element_SDHX()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 100;
@@ -27,7 +27,6 @@ Element_SDHX::Element_SDHX()
 
 	Weight = 35;
 
-	Temperature = R_TEMP - 2.0f + 273.15f;
 	HeatConduct = 29;
 	Description = "Sodium hydroxide. Neutralizes acids.";
 
@@ -41,8 +40,4 @@ Element_SDHX::Element_SDHX()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_SDHX::~Element_SDHX() {}

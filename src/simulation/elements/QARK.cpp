@@ -1,8 +1,11 @@
 #include "simulation/ElementCommon.h"
 #include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_QARK PT_QARK 225
-Element_QARK::Element_QARK()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_QARK()
 {
 	Identifier = "DEFAULT_PT_QARK";
 	Name = "QARK";
@@ -29,9 +32,9 @@ Element_QARK::Element_QARK()
 
 	Weight = -1;
 
-	Temperature = R_TEMP + 273.15f;
+	DefaultProperties.temp = R_TEMP + 273.15f + 128.0f;
 	HeatConduct = 20;
-	Description = "Quarks. The fundamental building blocks of the nuclei of atoms. Currently doesn't bond.";
+	Description = "Quarks. The fundamental building blocks of the nuclei of atoms.";
 
 	Properties = TYPE_ENERGY | PROP_LIFE_DEC;
 
@@ -44,12 +47,12 @@ Element_QARK::Element_QARK()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_QARK::update;
-	Graphics = &Element_QARK::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_QARK static int update(UPDATE_FUNC_ARGS)
-int Element_QARK::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].life <= 0) {
 		parts[i].life = RNG::Ref().between(1, 5);
@@ -116,8 +119,7 @@ int Element_QARK::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_QARK static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_QARK::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int c = 125;
 	int t = cpart->tmp2;
@@ -130,4 +132,14 @@ int Element_QARK::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_QARK::~Element_QARK() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	float a = RNG::Ref().between(0, 35) * 0.17453f;
+	sim->parts[i].tmp = RNG::Ref().between(0, 5); //flavour
+	sim->parts[i].tmp2 = RNG::Ref().between(0, 2); //colour charge
+	sim->parts[i].vx = 6.0f * cosf(a);
+	sim->parts[i].vy = 6.0f * sinf(a);
+	sim->parts[i].life = 600 -
+		((sim->parts[i].tmp == QARK_BOTTOM || sim->parts[i].tmp == QARK_TOP) ? 500 :
+		(sim->parts[i].tmp == QARK_STRANGE || sim->parts[i].tmp == QARK_CHARM) ? 300 :
+			0) - RNG::Ref().between(0, 25);
+}

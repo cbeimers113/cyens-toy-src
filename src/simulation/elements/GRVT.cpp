@@ -1,6 +1,10 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_GRVT PT_GRVT 177
-Element_GRVT::Element_GRVT()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_GRVT()
 {
 	Identifier = "DEFAULT_PT_GRVT";
 	Name = "GRVT";
@@ -27,7 +31,6 @@ Element_GRVT::Element_GRVT()
 
 	Weight = -1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 61;
 	Description = "Gravitons. Create Newtonian Gravity.";
 
@@ -42,12 +45,14 @@ Element_GRVT::Element_GRVT()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_GRVT::update;
-	Graphics = &Element_GRVT::graphics;
+	DefaultProperties.tmp = 7;
+
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_GRVT static int update(UPDATE_FUNC_ARGS)
-int Element_GRVT::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	//at higher tmps they just go completely insane
 	if (parts[i].tmp >= 100)
@@ -59,18 +64,21 @@ int Element_GRVT::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_GRVT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_GRVT::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	*firea = 5;
 	*firer = 0;
 	*fireg = 250;
 	*fireb = 170;
 
-	*cola = 125;
-
 	*pixel_mode |= FIRE_BLEND;
 	return 1;
 }
 
-Element_GRVT::~Element_GRVT() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	float a = RNG::Ref().between(0, 359) * 3.14159f / 180.0f;
+	sim->parts[i].life = 250 + RNG::Ref().between(0, 199);
+	sim->parts[i].vx = 2.0f * cosf(a);
+	sim->parts[i].vy = 2.0f * sinf(a);
+}

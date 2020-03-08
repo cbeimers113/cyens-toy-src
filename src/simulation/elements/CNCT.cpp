@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CNCT PT_CNCT 24
-Element_CNCT::Element_CNCT()
+
+void Element::Element_CNCT()
 {
 	Identifier = "DEFAULT_PT_CNCT";
 	Name = "CNCT";
@@ -17,7 +17,7 @@ Element_CNCT::Element_CNCT()
 	Collision = -0.1f;
 	Gravity = 0.3f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -27,11 +27,10 @@ Element_CNCT::Element_CNCT()
 
 	Weight = 55;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 100;
 	Description = "Concrete, stronger than stone.";
 
-	Properties = TYPE_PART|PROP_HOT_GLOW;
+	Properties = TYPE_PART | PROP_HOT_GLOW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -41,8 +40,4 @@ Element_CNCT::Element_CNCT()
 	LowTemperatureTransition = NT;
 	HighTemperature = 1123.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = NULL;
 }
-
-Element_CNCT::~Element_CNCT() {}

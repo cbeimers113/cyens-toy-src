@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_OXIM PT_OXIM 200
-Element_OXIM::Element_OXIM()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_OXIM()
 {
 	Identifier = "DEFAULT_PT_OXIM";
 	Name = "OXIM";
@@ -17,7 +19,7 @@ Element_OXIM::Element_OXIM()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_OXIM::Element_OXIM()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "An oxime compound.";
 
@@ -42,13 +43,10 @@ Element_OXIM::Element_OXIM()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_OXIM::update;
+	Update = &update;
 }
 
-Element_OXIM::~Element_OXIM() {}
-
-//#TPT-Directive ElementHeader Element_OXIM static int update(UPDATE_FUNC_ARGS)
-int Element_OXIM::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)

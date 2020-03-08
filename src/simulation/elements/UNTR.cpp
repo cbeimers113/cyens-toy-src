@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_UNTR PT_UNTR 211
-Element_UNTR::Element_UNTR()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_UNTR()
 {
 	Identifier = "DEFAULT_PT_UNTR";
 	Name = "UNTR";
@@ -17,7 +19,7 @@ Element_UNTR::Element_UNTR()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 10;
@@ -27,7 +29,6 @@ Element_UNTR::Element_UNTR()
 
 	Weight = 21;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 70;
 	Description = "Urea nitrate explosive.";
 
@@ -42,26 +43,15 @@ Element_UNTR::Element_UNTR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_UNTR::update;
+	Update = &update;
 }
 
-Element_UNTR::~Element_UNTR() {}
-
-//#TPT-Directive ElementHeader Element_UNTR static int update(UPDATE_FUNC_ARGS)
-int Element_UNTR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
-	if (parts[i].temp < 436.15f)return 0;
-	int r, rx, ry;
-	for (rx = -1; rx < 2; rx++)
-		for (ry = -1; ry < 2; ry++)
-			if (BOUNDS_CHECK)
-			{
-				r = pmap[y + ry][x + rx];
-				if (TYP(r) != PT_NONE)continue;
-				sim->part_change_type(ID(r), x + rx, y + ry, rand() % 10 < 7 ? PT_NITR : PT_BANG);
-				sim->pv[y / CELL][x / CELL] += 15.0f;
-			}
-	sim->part_change_type(i, x, y, PT_FIRE);
-	parts[i].dcolour = 0x00ff00;
+	if (parts[i].temp < 436.15f) return 0;
+
+	sim->part_change_type(i, x, y, parts[i].temp >= 673.15f ? PT_NITR : PT_SMKE);
+	sim->pv[y / CELL][x / CELL] += 5.0f;
+
 	return 0;
 }

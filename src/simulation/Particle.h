@@ -35,6 +35,7 @@ struct Particle
 	unsigned int dcolour;
 	v2f vector2f;
 	v2i vector2i;
+	unsigned int isotope;
 	/** Returns a list of properties, their type and offset within the structure that can be changed
 	 by higher-level processes referring to them by name such as Lua or the property tool **/
 	static std::vector<StructProperty> const& GetProperties();

@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ACET PT_ACET 209
-Element_ACET::Element_ACET()
+
+void Element::Element_ACET()
 {
 	Identifier = "DEFAULT_PT_ACET";
 	Name = "ACET";
@@ -17,7 +17,7 @@ Element_ACET::Element_ACET()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_ACET::Element_ACET()
 
 	Weight = 35;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Acetone. An ingredient in soap.";
 
@@ -41,8 +40,5 @@ Element_ACET::Element_ACET()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
 
-Element_ACET::~Element_ACET() {}

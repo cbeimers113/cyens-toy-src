@@ -1,6 +1,10 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_WAX PT_WAX 33
-Element_WAX::Element_WAX()
+#include "../CyensTools.h"
+
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_WAX()
 {
 	Identifier = "DEFAULT_PT_WAX";
 	Name = "WAX";
@@ -17,7 +21,7 @@ Element_WAX::Element_WAX()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 25;
@@ -27,7 +31,6 @@ Element_WAX::Element_WAX()
 
 	Weight = 100;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 44;
 	Description = "Hydrocarbon wax. Melts into DESL or MWAX.";
 
@@ -42,17 +45,17 @@ Element_WAX::Element_WAX()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_WAX::update;
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_WAX static int update(UPDATE_FUNC_ARGS)
-int Element_WAX::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	//WAX is a low to medium carbon solid, it should not have any more than 19 carbons.
 	if (parts[i].life > 19)sim->part_change_type(i, x, y, PT_PRFN);
 
 	int t = parts[i].temp - sim->pv[y / CELL][x / CELL];	//Pressure affects state transitions
 	//Melting
-	if ((parts[i].life < 5 && t >= (-200 + 273.15)) || (parts[i].life >= 5 && parts[i].life < 12 && t >= (16.5f*parts[i].life - 200 + 273.15)) || (parts[i].life >= 12 && t > (14.3f*sqrt(parts[i].life - 12)) + 273.15))
+	if ((parts[i].life < 5 && t >= (-200 + 273.15)) || (parts[i].life >= 5 && parts[i].life < 12 && t >= (16.5f * parts[i].life - 200 + 273.15)) || (parts[i].life >= 12 && t > (14.3f * sqrt(parts[i].life - 12)) + 273.15))
 	{
 		if (parts[i].life < 8)//Low carbon melting
 			sim->part_change_type(i, x, y, PT_MWAX);
@@ -63,4 +66,9 @@ int Element_WAX::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_WAX::~Element_WAX() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	//Spawns with carbons (15-19)
+	sim->parts[i].life = rand() % 5 + 15;
+	sim->parts[i].tmp = makeAlk(sim->parts[i].life);
+	if (sim->parts[i].tmp < 2 * sim->parts[i].life + 2)sim->parts[i].tmp2 = getBondLoc(sim->parts[i].life);
+}

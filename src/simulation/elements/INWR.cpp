@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_INWR PT_INWR 62
-Element_INWR::Element_INWR()
+
+void Element::Element_INWR()
 {
 	Identifier = "DEFAULT_PT_INWR";
 	Name = "INWR";
@@ -27,7 +27,6 @@ Element_INWR::Element_INWR()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
 	Description = "Insulated Wire. Doesn't conduct to metal or semiconductors.";
 
@@ -41,8 +40,4 @@ Element_INWR::Element_INWR()
 	LowTemperatureTransition = NT;
 	HighTemperature = 1687.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = NULL;
 }
-
-Element_INWR::~Element_INWR() {}

@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_DRIC PT_DRIC 81
-Element_DRIC::Element_DRIC()
+
+void Element::Element_DRIC()
 {
 	Identifier = "DEFAULT_PT_DRIC";
 	Name = "DRIC";
@@ -27,7 +27,7 @@ Element_DRIC::Element_DRIC()
 
 	Weight = 100;
 
-	Temperature = 172.65f;
+	DefaultProperties.temp = 172.65f;
 	HeatConduct = 2;
 	Description = "Dry Ice, formed when CO2 is cooled.";
 
@@ -41,8 +41,4 @@ Element_DRIC::Element_DRIC()
 	LowTemperatureTransition = NT;
 	HighTemperature = 195.65f;
 	HighTemperatureTransition = PT_CO2;
-
-	Update = NULL;
 }
-
-Element_DRIC::~Element_DRIC() {}

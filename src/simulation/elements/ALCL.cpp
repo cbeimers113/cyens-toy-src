@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ALCL PT_ALCL 192
-Element_ALCL::Element_ALCL()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_ALCL()
 {
 	Identifier = "DEFAULT_PT_ALCL";
 	Name = "ALCL";
@@ -17,7 +19,7 @@ Element_ALCL::Element_ALCL()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.0f;
-	HotAir = 0.0f	* CFDS;
+	HotAir = 0.0f * CFDS;
 	Falldown = 2;
 
 	Flammable = 50;
@@ -27,7 +29,6 @@ Element_ALCL::Element_ALCL()
 
 	Weight = 15;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 42;
 	Description = "Organic alcohol.";
 
@@ -42,11 +43,11 @@ Element_ALCL::Element_ALCL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ALCL::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_ALCL static int update(UPDATE_FUNC_ARGS)
-int Element_ALCL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS)
+{
 	//ALCL is an organic liquid, it should not have any more than 60 carbons. (Should move all these to CyensToys.cpp)
 	if (parts[i].life > 60)parts[i].life = 60;
 
@@ -71,4 +72,3 @@ int Element_ALCL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_ALCL::~Element_ALCL() {}

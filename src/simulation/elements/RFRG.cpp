@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_RFRG PT_RFRG 183
-Element_RFRG::Element_RFRG()
+
+int Element_RFRG_update(UPDATE_FUNC_ARGS);
+
+void Element::Element_RFRG()
 {
 	Identifier = "DEFAULT_PT_RFRG";
 	Name = "RFRG";
@@ -27,7 +29,6 @@ Element_RFRG::Element_RFRG()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 3;
 	Description = "Refrigerant. Heats up and liquefies under pressure.";
 
@@ -42,11 +43,10 @@ Element_RFRG::Element_RFRG()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_RFRG::update;
+	Update = &Element_RFRG_update;
 }
 
-//#TPT-Directive ElementHeader Element_RFRG static int update(UPDATE_FUNC_ARGS)
-int Element_RFRG::update(UPDATE_FUNC_ARGS)
+int Element_RFRG_update(UPDATE_FUNC_ARGS)
 {
 	float new_pressure = sim->pv[y/CELL][x/CELL];
 	float *old_pressure = (float *)&parts[i].tmp;
@@ -64,6 +64,3 @@ int Element_RFRG::update(UPDATE_FUNC_ARGS)
 	*old_pressure = new_pressure;
 	return 0;
 }
-
-
-Element_RFRG::~Element_RFRG() {}

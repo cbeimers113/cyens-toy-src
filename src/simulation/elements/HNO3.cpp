@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_HNO3 PT_HNO3 201
-Element_HNO3::Element_HNO3()
+
+int Element_ACID_update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_HNO3()
 {
 	Identifier = "DEFAULT_PT_HNO3";
 	Name = "HNO3";
@@ -17,7 +20,7 @@ Element_HNO3::Element_HNO3()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +30,6 @@ Element_HNO3::Element_HNO3()
 
 	Weight = 30;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Nitric Acid (HNO3), used to manufacture explosives and oxidize rocket fuel.";
 
@@ -42,7 +44,11 @@ Element_HNO3::Element_HNO3()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ACID::update;
+	Update = &Element_ACID_update;
+	Create = &create;
 }
 
-Element_HNO3::~Element_HNO3() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = 75;
+	sim->parts[i].tmp2 = 500;
+}

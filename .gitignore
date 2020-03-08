@@ -8,7 +8,6 @@
 *.la
 *~
 *.pref
-*.lua
 *.sh
 stdout.txt
 stderr.txt
@@ -16,8 +15,8 @@ build*/*
 stamps/*
 Saves/*
 scripts/*
-generated/*
 includes/*
+generated/*
 recordings/
 font/*
 generate
@@ -56,6 +55,8 @@ Makefile.me
 *.layout
 *.config
 *.creator*
+*.cflags
+*.cxxflags
 *.files
 *.includes
 config.log

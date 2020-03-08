@@ -69,6 +69,7 @@ private:
 	unsigned int undoHistoryLimit;
 	bool mouseClickRequired;
 	bool includePressure;
+	bool perfectCircle = true;
 
 	size_t activeColourPreset;
 	std::vector<ui::Colour> colourPresets;
@@ -76,6 +77,7 @@ private:
 	ui::Colour colour;
 
 	int edgeMode;
+	int decoSpace;
 
 	String infoTip;
 	String toolTip;
@@ -109,6 +111,8 @@ public:
 
 	void SetEdgeMode(int edgeMode);
 	int GetEdgeMode();
+	void SetDecoSpace(int decoSpace);
+	int GetDecoSpace();
 
 	void SetActiveColourPreset(size_t preset);
 	size_t GetActiveColourPreset();
@@ -130,6 +134,7 @@ public:
 
 	void BuildMenus();
 	void BuildFavoritesMenu();
+	void BuildBrushList();
 	void BuildQuickOptionMenu(GameController* controller);
 
 	std::deque<Snapshot*> GetHistory();
@@ -172,16 +177,17 @@ public:
 	void SetDecoration(bool decorationState);
 	bool GetAHeatEnable();
 	void SetAHeatEnable(bool aHeat);
-	bool GetInfoscreenEnable();
-	void SetInfoscreenEnable(bool infoScreenEnabled);
-	bool GetTimeDilationEnable();
-	void SetTimeDilationEnable(bool timeDilationEnabled);
-	bool GetCompressibleGasesEnable();
-	void SetCompressibleGasesEnable(bool compressibleGasesEnabled);
-	bool GetDrawQuantumFields();
-	void SetDrawQuantumFields(bool drawQuantumFields);
 	bool GetNewtonianGrvity();
 	void SetNewtonianGravity(bool newtonainGravity);
+
+	//Cyens Toy options
+	bool GetTimeDilationEnable();
+	void SetTimeDilationEnable(bool timeDilation);
+	bool GetCompressibleGasesEnable();
+	void SetCompressibleGasesEnable(bool compressibleGases);
+	bool GetDrawQuantumFieldsEnable();
+	void SetDrawQuantumFieldsEnable(bool drawQuantumFields);
+
 	bool GetGravityGrid();
 	void ShowGravityGrid(bool showGrid);
 	void ClearSimulation();
@@ -216,6 +222,7 @@ public:
 	void SetMouseClickRequired(bool mouseClickRequired);
 	bool GetIncludePressure();
 	void SetIncludePressure(bool includePressure);
+	void SetPerfectCircle(bool perfectCircle);
 
 	std::vector<Notification*> GetNotifications();
 	void AddNotification(Notification* notification);

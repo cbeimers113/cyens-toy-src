@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys
 import re
-import os
 
 if len(sys.argv) != 2:
 	name = input('element name: ')
@@ -9,28 +8,39 @@ else:
 	name = sys.argv[1]
 
 if re.search('[^A-Z0-9-]', name):
-	sys.exit('element names should only contain uppercase letters, digits and hyphens (you can change the Name property of the element to whatever later though, which is what shows up in menus)')
+	print('element names should only contain uppercase letters, digits and hyphens (you can change the Name property of the element to whatever later though, which is what shows up in menus)')
+	input('Press [Enter] to close.')
+	sys.exit(1)
 
 path = 'src/simulation/elements/' + name + '.cpp'
 
-if os.path.isfile(path):
-	sys.exit('element already exists')
+def get_elements():
+	elements = dict()
+	with open('src/simulation/ElementNumbers.h', 'r') as numbers:
+		for nm, pt in re.findall('ELEMENT_DEFINE\\s*\\(\\s*(\\S+)\\s*,\\s*(\\d+)\\s*\\)', numbers.read()):
+			elements[nm] = int(pt)
+	return elements
 
-with open("generator.py") as f:
-	exec(compile(f.read(), "generator.py", 'exec'))
-
+elements = get_elements()
+if name in elements:
+	print('element already exists')
+	input('Press [Enter] to close.')
+	sys.exit(1)
+	
 max_id = 0
-with open('generated/ElementClasses.h', 'r') as classes:
-	for pt in re.findall('#define PT_\\S+ (\\d+)', classes.read()):
-		pt_id = int(pt)
-		if max_id < pt_id:
-			max_id = pt_id
+for nm, pt in elements.items():
+	pt_id = int(pt)
+	if max_id < pt_id:
+		max_id = pt_id
+new_id = max_id + 1
 
 with open(path, 'w') as elem:
 	elem.write(r"""#include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_{0} PT_{0} {1}
-Element_{0}::Element_{0}()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_{0}()
 {{
 	Identifier = "DEFAULT_PT_{0}";
 	Name = "{0}";
@@ -41,20 +51,18 @@ Element_{0}::Element_{0}()
 
 	// element properties here
 
-	Update = &Element_{0}::update;
-	Graphics = &Element_{0}::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }}
 
-//#TPT-Directive ElementHeader Element_{0} static int update(UPDATE_FUNC_ARGS)
-int Element_{0}::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {{
 	// update code here
 
 	return 0;
 }}
 
-//#TPT-Directive ElementHeader Element_{0} static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_{0}::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {{
 	// graphics code here
 	// return 1 if nothing dymanic happens here
@@ -62,9 +70,21 @@ int Element_{0}::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }}
 
-Element_{0}::~Element_{0}() {{}}
-""".format(name, str(max_id + 1)))
+""".format(name))
 	elem.close()
 
-with open("generator.py") as f:
-	exec(compile(f.read(), "generator.py", 'exec'))
+print('element file \'{0}\' successfully created '.format(path))
+
+lines = []
+
+with open('src/simulation/ElementNumbers.h', 'r') as numbers:
+    line = numbers.readline()
+    while line:
+        lines.append(line)
+        line = numbers.readline()
+
+with open('src/simulation/ElementNumbers.h', 'w') as numbers:
+    for line in lines:
+        numbers.write(line)
+        if str(max_id) in line:
+            numbers.write('ELEMENT_DEFINE({0}, {1});\n'.format(name, str(new_id)))

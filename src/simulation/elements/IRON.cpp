@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_IRON PT_IRON 76
-Element_IRON::Element_IRON()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_IRON()
 {
 	Identifier = "DEFAULT_PT_IRON";
 	Name = "IRON";
@@ -17,7 +19,7 @@ Element_IRON::Element_IRON()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,11 +29,10 @@ Element_IRON::Element_IRON()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f +273.15f;
 	HeatConduct = 251;
 	Description = "Rusts with salt, can be used for electrolysis of WATR.";
 
-	Properties = TYPE_SOLID|PROP_CONDUCTS|PROP_LIFE_DEC|PROP_HOT_GLOW;
+	Properties = TYPE_SOLID | PROP_CONDUCTS | PROP_LIFE_DEC | PROP_HOT_GLOW;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -42,20 +43,19 @@ Element_IRON::Element_IRON()
 	HighTemperature = 1687.0f;
 	HighTemperatureTransition = PT_LAVA;
 
-	Update = &Element_IRON::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_IRON static int update(UPDATE_FUNC_ARGS)
-int Element_IRON::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	if (parts[i].life)
 		return 0;
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (rx = -1; rx < 2; rx++)
+		for (ry = -1; ry < 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				r = pmap[y + ry][x + rx];
 				switch TYP(r)
 				{
 				case PT_SALT:
@@ -82,10 +82,7 @@ int Element_IRON::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 succ:
-	sim->part_change_type(i,x,y,PT_BMTL);
+	sim->part_change_type(i, x, y, PT_BMTL);
 	parts[i].tmp = RNG::Ref().between(20, 29);
 	return 0;
 }
-
-
-Element_IRON::~Element_IRON() {}

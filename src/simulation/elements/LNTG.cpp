@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_LNTG PT_LNTG 37
-Element_LNTG::Element_LNTG()
+
+void Element::Element_LNTG()
 {
 	Identifier = "DEFAULT_PT_LNTG";
 	Name = "LN2";
@@ -27,7 +27,7 @@ Element_LNTG::Element_LNTG()
 
 	Weight = 30;
 
-	Temperature = 70.15f;
+	DefaultProperties.temp = 70.15f;
 	HeatConduct = 70;
 	Description = "Liquid Nitrogen. Very cold, evaporates whenever it touches anything warmer.";
 
@@ -41,8 +41,4 @@ Element_LNTG::Element_LNTG()
 	LowTemperatureTransition = PT_NICE;
 	HighTemperature = 77.0f;
 	HighTemperatureTransition = PT_N2;
-
-	Update = NULL;
 }
-
-Element_LNTG::~Element_LNTG() {}

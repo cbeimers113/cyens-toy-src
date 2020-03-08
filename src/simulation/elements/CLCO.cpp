@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CLCO PT_CLCO 212
-Element_CLCO::Element_CLCO()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_CLCO()
 {
 	Identifier = "DEFAULT_PT_CLCO";
 	Name = "CLCO";
@@ -17,7 +19,7 @@ Element_CLCO::Element_CLCO()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_CLCO::Element_CLCO()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Chlorocarbon compound.";
 
@@ -42,13 +43,10 @@ Element_CLCO::Element_CLCO()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CLCO::update;
+	Update = &update;
 }
 
-Element_CLCO::~Element_CLCO() {}
-
-//#TPT-Directive ElementHeader Element_CLCO static int update(UPDATE_FUNC_ARGS)
-int Element_CLCO::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -68,3 +66,4 @@ int Element_CLCO::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 }
+

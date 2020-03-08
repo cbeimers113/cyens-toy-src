@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_HXDE PT_HXDE 191
-Element_HXDE::Element_HXDE()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_HXDE()
 {
 	Identifier = "DEFAULT_PT_HXDE";
 	Name = "OH-";
@@ -17,7 +19,7 @@ Element_HXDE::Element_HXDE()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_HXDE::Element_HXDE()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "The hydroxide ion. Also represents the hydroxyl functional group, useful in organic compounds.";
 
@@ -42,13 +43,10 @@ Element_HXDE::Element_HXDE()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_HXDE::update;
+	Update = &update;
 }
 
-Element_HXDE::~Element_HXDE() {}
-
-//#TPT-Directive ElementHeader Element_HXDE static int update(UPDATE_FUNC_ARGS)
-int Element_HXDE::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -88,3 +86,4 @@ int Element_HXDE::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 }
+

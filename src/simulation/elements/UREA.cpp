@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_UREA PT_UREA 210
-Element_UREA::Element_UREA()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_UREA()
 {
 	Identifier = "DEFAULT_PT_UREA";
 	Name = "UREA";
@@ -17,7 +19,7 @@ Element_UREA::Element_UREA()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.0f;
-	HotAir = 0.0f	* CFDS;
+	HotAir = 0.0f * CFDS;
 	Falldown = 2;
 
 	Flammable = 25;
@@ -27,7 +29,6 @@ Element_UREA::Element_UREA()
 
 	Weight = 40;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 42;
 	Description = "Urea. An ingredient of liquid waste and some explosives.";
 
@@ -42,13 +43,10 @@ Element_UREA::Element_UREA()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_UREA::update;
+	Update = &update;
 }
 
-Element_UREA::~Element_UREA() {}
-
-//#TPT-Directive ElementHeader Element_UREA static int update(UPDATE_FUNC_ARGS)
-int Element_UREA::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)

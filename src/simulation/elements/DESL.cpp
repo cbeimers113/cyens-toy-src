@@ -1,6 +1,10 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_DESL PT_DESL 58
-Element_DESL::Element_DESL()
+#include "../CyensTools.h"
+
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_DESL()
 {
 	Identifier = "DEFAULT_PT_DESL";
 	Name = "DESL";
@@ -17,17 +21,16 @@ Element_DESL::Element_DESL()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.0f;
-	HotAir = 0.0f	* CFDS;
+	HotAir = 0.0f * CFDS;
 	Falldown = 2;
 
-	Flammable = 50;
+	Flammable = 2;
 	Explosive = 0;
 	Meltable = 0;
 	Hardness = 5;
 
 	Weight = 15;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 42;
 	Description = "Liquid diesel.";
 
@@ -42,18 +45,18 @@ Element_DESL::Element_DESL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_DESL::update;
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_DESL static int update(UPDATE_FUNC_ARGS)
-int Element_DESL::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	//DESL is a medium carbon liquid, it should not have any more than 19 carbons or any less than 8.
 	if (parts[i].life < 8)sim->part_change_type(i, x, y, PT_MWAX);
 	else if (parts[i].life > 19)sim->part_change_type(i, x, y, PT_OIL);
 
 	int t = parts[i].temp - sim->pv[y / CELL][x / CELL];	//Pressure affects state transitions
 	//Freezing into WAX
-	if (t <= (14.3f  * sqrt((parts[i].life - 12))) + 273.15)
+	if (t <= (14.3f * sqrt((parts[i].life - 12))) + 273.15)
 		sim->part_change_type(i, x, y, PT_WAX);
 	//Boiling into GAS
 	if (t > (4 * sqrt(500 * (parts[i].life - 4))) + 273.15)
@@ -62,4 +65,9 @@ int Element_DESL::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_DESL::~Element_DESL() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	//Spawns with carbons (8-14)
+	sim->parts[i].life = rand() % 7 + 8;
+	sim->parts[i].tmp = makeAlk(sim->parts[i].life);
+	if (sim->parts[i].tmp < 2 * sim->parts[i].life + 2)sim->parts[i].tmp2 = getBondLoc(sim->parts[i].life);
+}

@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ISCY PT_ISCY 214
-Element_ISCY::Element_ISCY()
+
+void Element::Element_ISCY()
 {
 	Identifier = "DEFAULT_PT_ISCY";
 	Name = "ISCY";
@@ -17,7 +17,7 @@ Element_ISCY::Element_ISCY()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_ISCY::Element_ISCY()
 
 	Weight = 30;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Isocyanide, hydrolyses to formamide in the presence of aqueous acid.";
 
@@ -41,8 +40,4 @@ Element_ISCY::Element_ISCY()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_ISCY::~Element_ISCY() {}

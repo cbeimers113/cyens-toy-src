@@ -1,10 +1,13 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
-//#TPT-Directive ElementClass Element_ACID PT_ACID 21
-Element_ACID::Element_ACID()
+#include "../CyensTools.h"
+
+int Element_ACID_update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ACID()
 {
 	Identifier = "DEFAULT_PT_ACID";
-	Name = "HCL";
+	Name = "HCl";
 	FullName = "Hydrochloric Acid";
 	Colour = PIXPACK(0xED55FF);
 	MenuVisible = 1;
@@ -18,7 +21,7 @@ Element_ACID::Element_ACID()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 40;
@@ -29,7 +32,6 @@ Element_ACID::Element_ACID()
 
 	Weight = 10;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 34;
 	Description = "Hydrochloric acid. Dissolves almost everything.";
 
@@ -44,12 +46,13 @@ Element_ACID::Element_ACID()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ACID::update;
-	Graphics = &Element_ACID::graphics;
+	DefaultProperties.life = 75;
+
+	Update = &Element_ACID_update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ACID static int update(UPDATE_FUNC_ARGS)
-int Element_ACID::update(UPDATE_FUNC_ARGS)
+int Element_ACID_update(UPDATE_FUNC_ARGS)
 {
 	int dissolve = 1;
 	switch (parts[i].type) {
@@ -85,8 +88,10 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 					sim->part_change_type(i, x, y, PT_FRMD);
 					sim->kill_part(ID(r));
 				}
-				else if (parts[i].type == PT_ACTA && hasWater)
+				else if (parts[i].type == PT_ACTA && hasWater) {
 					sim->part_change_type(i, x, y, PT_VNGR);
+					sim->kill_part(ID(r));
+				}
 				if (rt == PT_PLEX || rt == PT_NITR || rt == PT_GUNP || rt == PT_RBDM || rt == PT_LRBD)
 				{
 					sim->part_change_type(i, x, y, PT_FIRE);
@@ -106,13 +111,13 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 					else
 						sim->part_change_type(ID(r), x + rx, y + ry, rt == PT_CBNW ? PT_CO2 : PT_SALT);
 				}
-				if ((rand() % dissolve == 0) && (sim->elements[parts[ID(r)].type].Properties&TYPE_SOLID || sim->elements[parts[ID(r)].type].Properties&TYPE_PART))
+				if ((rand() % dissolve == 0) && (sim->elements[parts[ID(r)].type].Properties & TYPE_SOLID || sim->elements[parts[ID(r)].type].Properties & TYPE_PART))
 				{
 					if (rt != PT_CLNE && rt != PT_PCLN && parts[i].life >= 50 && RNG::Ref().chance(sim->elements[rt].Hardness, 1000.0))
 					{
-						if (parts[i].life&&sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS)//GLAS protects stuff from acid
+						if (parts[i].life && sim->parts_avg(i, ID(r), PT_GLAS) != PT_GLAS)//GLAS protects stuff from acid
 						{
-							float newtemp = ((60.0f - (float)sim->elements[rt].Hardness))*7.0f;
+							float newtemp = ((60.0f - (float)sim->elements[rt].Hardness)) * 7.0f;
 							if (newtemp < 0) {
 								newtemp = 0;
 							}
@@ -151,9 +156,7 @@ int Element_ACID::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
-//#TPT-Directive ElementHeader Element_ACID static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ACID::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int s = cpart->life;
 	if (s > 75) s = 75; //These two should not be here.
@@ -166,5 +169,3 @@ int Element_ACID::graphics(GRAPHICS_FUNC_ARGS)
 	*pixel_mode |= PMODE_BLUR;
 	return 0;
 }
-
-Element_ACID::~Element_ACID() {}

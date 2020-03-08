@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_FMLD PT_FMLD 205
-Element_FMLD::Element_FMLD()
+
+void Element::Element_FMLD()
 {
 	Identifier = "DEFAULT_PT_FMLD";
 	Name = "FMLD";
@@ -17,7 +17,7 @@ Element_FMLD::Element_FMLD()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_FMLD::Element_FMLD()
 
 	Weight = 40;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Formaldehyde, can oxidize into formamide.";
 
@@ -41,8 +40,5 @@ Element_FMLD::Element_FMLD()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
 
-Element_FMLD::~Element_FMLD() {}

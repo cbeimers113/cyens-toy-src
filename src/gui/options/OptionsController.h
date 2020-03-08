@@ -1,27 +1,24 @@
 #ifndef OPTIONSCONTROLLER_H_
 #define OPTIONSCONTROLLER_H_
 
-class ControllerCallback;
+#include <functional>
+
 class GameModel;
 class OptionsModel;
 class OptionsView;
 class OptionsController
 {
-	GameModel* gModel;
-	OptionsView* view;
-	OptionsModel* model;
-	ControllerCallback* callback;
+	GameModel * gModel;
+	OptionsView * view;
+	OptionsModel * model;
+	std::function<void ()> onDone;
 public:
 	bool HasExited;
-	OptionsController(GameModel* gModel_, ControllerCallback* callback_);
+	OptionsController(GameModel * gModel_, std::function<void ()> onDone = nullptr);
 	void SetHeatSimulation(bool state);
 	void SetAmbientHeatSimulation(bool state);
 	void SetNewtonianGravity(bool state);
 	void SetWaterEqualisation(bool state);
-	void SetInfoScreen(bool state);
-	void SetTimeDilation(bool state);
-	void SetCompressibleGases(bool state);
-	void SetDrawQuantumFields(bool state);
 	void SetGravityMode(int gravityMode);
 	void SetAirMode(int airMode);
 	void SetEdgeMode(int edgeMode);
@@ -31,12 +28,19 @@ public:
 	void SetScale(int scale);
 	void SetResizable(bool resizable);
 	void SetFastQuit(bool fastquit);
+	void SetDecoSpace(int decoSpace);
 	void SetShowAvatars(bool showAvatars);
 	void SetMouseClickrequired(bool mouseClickRequired);
 	void SetIncludePressure(bool includePressure);
+	void SetPerfectCircle(bool perfectCircle);
 
+	//Cyens Toy Options
+	void SetTimeDilation(bool timeDilation);
+	void SetCompressibleGases(bool compressibleGases);
+	void SetDrawQuantumFields(bool drawQuantumFields);
+	
 	void Exit();
-	OptionsView* GetView();
+	OptionsView * GetView();
 	virtual ~OptionsController();
 };
 

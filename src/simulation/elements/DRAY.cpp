@@ -1,9 +1,11 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_DRAY PT_DRAY 178
-Element_DRAY::Element_DRAY()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_DRAY()
 {
 	Identifier = "DEFAULT_PT_DRAY";
-	Name = "DRAY"; 
+	Name = "DRAY";
 	FullName = "Duplicator Ray";
 	Colour = PIXPACK(0xFFAA22);
 	MenuVisible = 1;
@@ -17,7 +19,7 @@ Element_DRAY::Element_DRAY()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_DRAY::Element_DRAY()
 
 	Weight = 100;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 0;
 	Description = "Duplicator ray. Replicates a line of particles in front of it.";
 
@@ -42,19 +43,18 @@ Element_DRAY::Element_DRAY()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_DRAY::update;
-	Graphics = nullptr;
+	Update = &update;
+	Graphics = nullptr; // is this needed?
 	CtypeDraw = &Element::ctypeDrawVInCtype;
 }
 
 //should probably be in Simulation.h
-bool InBounds(int x, int y)
+static bool InBounds(int x, int y)
 {
-	return (x>=0 && y>=0 && x<XRES && y<YRES);
+	return (x >= 0 && y >= 0 && x < XRES && y < YRES);
 }
 
-//#TPT-Directive ElementHeader Element_DRAY static int update(UPDATE_FUNC_ARGS)
-int Element_DRAY::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int ctype = TYP(parts[i].ctype), ctypeExtra = ID(parts[i].ctype), copyLength = parts[i].tmp, copySpaces = parts[i].tmp2;
 	if (copySpaces < 0)
@@ -69,7 +69,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 			for (int ry = -1; ry <= 1; ry++)
 				if (BOUNDS_CHECK && (rx || ry))
 				{
-					int r = pmap[y+ry][x+rx];
+					int r = pmap[y + ry][x + rx];
 					if (TYP(r) == PT_SPRK && parts[ID(r)].life == 3) //spark found, start creating
 					{
 						bool overwrite = parts[ID(r)].ctype == PT_PSCN;
@@ -82,7 +82,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 						//figure out where the copying will start/end
 						bool foundParticle = false;
 						bool isEnergy = false;
-						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; ; xCurrent+=xStep, yCurrent+=yStep)
+						for (int xStep = rx * -1, yStep = ry * -1, xCurrent = x + xStep, yCurrent = y + yStep; ; xCurrent += xStep, yCurrent += yStep)
 						{
 							int rr;
 							// haven't found a particle yet, keep looking for one
@@ -100,7 +100,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 									foundParticle = true;
 							}
 							// now that it knows what kind of particle it is copying, do some extra stuff here so we can determine when to stop
-							if ((ctype && sim->elements[ctype].Properties&TYPE_ENERGY) || isEnergy)
+							if ((ctype && sim->elements[ctype].Properties & TYPE_ENERGY) || isEnergy)
 								rr = sim->photons[yCurrent][xCurrent];
 							else
 								rr = pmap[yCurrent][xCurrent];
@@ -110,11 +110,11 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 							//  2: if .tmp is set, stop when the length limit reaches 0
 							//  3. Stop when we are out of bounds
 							if ((!localCopyLength && TYP(rr) == ctype && (ctype != PT_LIFE || parts[ID(rr)].ctype == ctypeExtra))
-									|| !(--partsRemaining && InBounds(xCurrent+xStep, yCurrent+yStep)))
+								|| !(--partsRemaining && InBounds(xCurrent + xStep, yCurrent + yStep)))
 							{
 								localCopyLength -= partsRemaining;
-								xCopyTo = xCurrent + xStep*copySpaces;
-								yCopyTo = yCurrent + yStep*copySpaces;
+								xCopyTo = xCurrent + xStep * copySpaces;
+								yCopyTo = yCurrent + yStep * copySpaces;
 								break;
 							}
 						}
@@ -122,7 +122,7 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 						// now, actually copy the particles
 						partsRemaining = localCopyLength + 1;
 						int type, p;
-						for (int xStep = rx*-1, yStep = ry*-1, xCurrent = x+xStep, yCurrent = y+yStep; InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent+=xStep, yCurrent+=yStep, xCopyTo+=xStep, yCopyTo+=yStep)
+						for (int xStep = rx * -1, yStep = ry * -1, xCurrent = x + xStep, yCurrent = y + yStep; InBounds(xCopyTo, yCopyTo) && --partsRemaining; xCurrent += xStep, yCurrent += yStep, xCopyTo += xStep, yCopyTo += yStep)
 						{
 							// get particle to copy
 							if (isEnergy)
@@ -169,5 +169,3 @@ int Element_DRAY::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
-Element_DRAY::~Element_DRAY() {}

@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ACEL PT_ACEL 137
-Element_ACEL::Element_ACEL()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_ACEL()
 {
 	Identifier = "DEFAULT_PT_ACEL";
 	Name = "ACEL";
@@ -27,7 +30,6 @@ Element_ACEL::Element_ACEL()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
 	Description = "Accelerator, speeds up nearby elements.";
 
@@ -42,12 +44,11 @@ Element_ACEL::Element_ACEL()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ACEL::update;
-	Graphics = &Element_ACEL::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_ACEL static int update(UPDATE_FUNC_ARGS)
-int Element_ACEL::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	float multiplier;
@@ -80,16 +81,9 @@ int Element_ACEL::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
-
-//#TPT-Directive ElementHeader Element_ACEL static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_ACEL::graphics(GRAPHICS_FUNC_ARGS)
-
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	if(cpart->tmp)
 		*pixel_mode |= PMODE_GLOW;
 	return 0;
 }
-
-
-Element_ACEL::~Element_ACEL() {}

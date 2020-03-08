@@ -12,7 +12,7 @@
 
 //VersionInfoStart
 #ifndef SAVE_VERSION
-#define SAVE_VERSION 94
+#define SAVE_VERSION 4
 #endif
 
 #ifndef MINOR_VERSION
@@ -20,7 +20,7 @@
 #endif
 
 #ifndef BUILD_NUM
-#define BUILD_NUM 343
+#define BUILD_NUM 95.0
 #endif
 
 #ifndef SNAPSHOT_ID
@@ -35,8 +35,8 @@
 #endif
 
 #if defined(SNAPSHOT) || defined(DEBUG)
-#define FUTURE_SAVE_VERSION 94
-#define FUTURE_MINOR_VERSION 1
+#define FUTURE_SAVE_VERSION 95
+#define FUTURE_MINOR_VERSION 0
 #endif
 //VersionInfoEnd
 

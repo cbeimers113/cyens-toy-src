@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
 
-//#TPT-Directive ElementClass Element_ACTA PT_ACTA 194
-Element_ACTA::Element_ACTA()
+int Element_ACID_update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_ACTA()
 {
 	Identifier = "DEFAULT_PT_ACTA";
 	Name = "ACTA";
@@ -19,7 +20,7 @@ Element_ACTA::Element_ACTA()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -29,7 +30,6 @@ Element_ACTA::Element_ACTA()
 
 	Weight = 20;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 25;
 	Description = "Acetic acid, mix with water to make vinegar.";
 
@@ -44,7 +44,11 @@ Element_ACTA::Element_ACTA()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ACID::update;
+	Update = &Element_ACID_update;
+	Create = &create;
 }
 
-Element_ACTA::~Element_ACTA() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = 75;
+	sim->parts[i].tmp2 = 500;
+}

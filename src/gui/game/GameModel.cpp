@@ -3,7 +3,7 @@
 #include "GameView.h"
 #include "GameController.h"
 
-#include "ToolClasses.h"
+#include "simulation/ToolClasses.h"
 #include "EllipseBrush.h"
 #include "TriangleBrush.h"
 #include "BitmapBrush.h"
@@ -26,7 +26,7 @@
 #include "simulation/Snapshot.h"
 #include "simulation/Gravity.h"
 #include "simulation/ElementGraphics.h"
-#include "ElementClasses.h"
+#include "simulation/ElementClasses.h"
 
 #include "gui/game/DecorationTool.h"
 #include "gui/interface/Engine.h"
@@ -47,7 +47,8 @@ GameModel::GameModel() :
 	activeColourPreset(0),
 	colourSelector(false),
 	colour(255, 0, 0, 255),
-	edgeMode(0)
+	edgeMode(0),
+	decoSpace(0)
 {
 	sim = new Simulation();
 	ren = new Renderer(ui::Engine::Ref().g, sim);
@@ -92,6 +93,8 @@ GameModel::GameModel() :
 	//Load config into simulation
 	edgeMode = Client::Ref().GetPrefInteger("Simulation.EdgeMode", 0);
 	sim->SetEdgeMode(edgeMode);
+	decoSpace = Client::Ref().GetPrefInteger("Simulation.DecoSpace", 0);
+	sim->SetDecoSpace(decoSpace);
 	int ngrav_enable = Client::Ref().GetPrefInteger("Simulation.NewtonianGravity", 0);
 	if (ngrav_enable)
 		sim->grav->start_grav_async();
@@ -108,29 +111,8 @@ GameModel::GameModel() :
 
 	BuildMenus();
 
-	//Set default brush palette
-	brushList.push_back(new EllipseBrush(ui::Point(4, 4)));
-	brushList.push_back(new Brush(ui::Point(4, 4)));
-	brushList.push_back(new TriangleBrush(ui::Point(4, 4)));
-
-	//Load more from brushes folder
-	std::vector<ByteString> brushFiles = Client::Ref().DirectorySearch(BRUSH_DIR, "", ".ptb");
-	for (size_t i = 0; i < brushFiles.size(); i++)
-	{
-		std::vector<unsigned char> brushData = Client::Ref().ReadFile(brushFiles[i]);
-		if (!brushData.size())
-		{
-			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Could not open" << std::endl;
-			continue;
-		}
-		size_t dimension = std::sqrt((float)brushData.size());
-		if (dimension * dimension != brushData.size())
-		{
-			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Invalid bitmap size" << std::endl;
-			continue;
-		}
-		brushList.push_back(new BitmapBrush(brushData, ui::Point(dimension, dimension)));
-	}
+	perfectCircle = Client::Ref().GetPrefBool("PerfectCircleBrush", true);
+	BuildBrushList();
 
 	//Set default decoration colour
 	unsigned char colourR = std::min(Client::Ref().GetPrefInteger("Decoration.Red", 200), 255);
@@ -177,6 +159,7 @@ GameModel::~GameModel()
 	Client::Ref().SetPref("Simulation.NewtonianGravity", sim->grav->IsEnabled());
 	Client::Ref().SetPref("Simulation.AmbientHeat", sim->aheat_enable);
 	Client::Ref().SetPref("Simulation.PrettyPowder", sim->pretty_powder);
+	Client::Ref().SetPref("Simulation.DecoSpace", sim->deco_space);
 
 	Client::Ref().SetPref("Decoration.Red", (int)colour.Red);
 	Client::Ref().SetPref("Decoration.Green", (int)colour.Green);
@@ -237,9 +220,9 @@ void GameModel::BuildQuickOptionMenu(GameController* controller)
 	quickOptions.push_back(new DecorationsOption(this));
 	quickOptions.push_back(new NGravityOption(this));
 	quickOptions.push_back(new AHeatOption(this));
-	quickOptions.push_back(new CGassesOption(this));
-	quickOptions.push_back(new TDilationOption(this));
-	quickOptions.push_back(new DQFieldsOption(this));
+	quickOptions.push_back(new TimeDilationOption(this));
+	quickOptions.push_back(new CompressibleGasesOption(this));
+	quickOptions.push_back(new QuantumFieldsOption(this));
 	quickOptions.push_back(new ConsoleShowOption(this, controller));
 
 	notifyQuickOptionsChanged();
@@ -338,8 +321,15 @@ void GameModel::BuildMenus()
 	//Build menu for tools
 	for (size_t i = 0; i < sim->tools.size(); i++)
 	{
-		Tool* tempTool;
-		tempTool = new Tool(i, sim->tools[i]->Name, sim->tools[i]->Description, PIXR(sim->tools[i]->Colour), PIXG(sim->tools[i]->Colour), PIXB(sim->tools[i]->Colour), sim->tools[i]->Identifier);
+		Tool* tempTool = new Tool(
+			i,
+			sim->tools[i].Name,
+			sim->tools[i].Description,
+			PIXR(sim->tools[i].Colour),
+			PIXG(sim->tools[i].Colour),
+			PIXB(sim->tools[i].Colour),
+			sim->tools[i].Identifier
+		);
 		menuList[SC_TOOL]->AddTool(tempTool);
 	}
 	//Add special sign and prop tools
@@ -402,6 +392,7 @@ void GameModel::BuildMenus()
 void GameModel::BuildFavoritesMenu()
 {
 	menuList[SC_FAVORITES]->ClearTools();
+
 	std::vector<ByteString> favList = Favorite::Ref().GetFavoritesList();
 	for (size_t i = 0; i < favList.size(); i++)
 	{
@@ -417,6 +408,45 @@ void GameModel::BuildFavoritesMenu()
 	notifyToolListChanged();
 	notifyActiveToolsChanged();
 	notifyLastToolChanged();
+}
+
+void GameModel::BuildBrushList()
+{
+	bool hasStoredRadius = false;
+	ui::Point radius = ui::Point(0, 0);
+	if (brushList.size())
+	{
+		radius = brushList[currentBrush]->GetRadius();
+		hasStoredRadius = true;
+	}
+	brushList.clear();
+
+	brushList.push_back(new EllipseBrush(ui::Point(4, 4), perfectCircle));
+	brushList.push_back(new Brush(ui::Point(4, 4)));
+	brushList.push_back(new TriangleBrush(ui::Point(4, 4)));
+
+	//Load more from brushes folder
+	std::vector<ByteString> brushFiles = Client::Ref().DirectorySearch(BRUSH_DIR, "", ".ptb");
+	for (size_t i = 0; i < brushFiles.size(); i++)
+	{
+		std::vector<unsigned char> brushData = Client::Ref().ReadFile(brushFiles[i]);
+		if (!brushData.size())
+		{
+			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Could not open" << std::endl;
+			continue;
+		}
+		size_t dimension = std::sqrt((float)brushData.size());
+		if (dimension * dimension != brushData.size())
+		{
+			std::cout << "Brushes: Skipping " << brushFiles[i] << ". Invalid bitmap size" << std::endl;
+			continue;
+		}
+		brushList.push_back(new BitmapBrush(brushData, ui::Point(dimension, dimension)));
+	}
+
+	if (hasStoredRadius && (size_t)currentBrush < brushList.size())
+		brushList[currentBrush]->SetRadius(radius);
+	notifyBrushChanged();
 }
 
 Tool* GameModel::GetToolFromIdentifier(ByteString const& identifier)
@@ -450,6 +480,17 @@ void GameModel::SetEdgeMode(int edgeMode)
 int GameModel::GetEdgeMode()
 {
 	return this->edgeMode;
+}
+
+void GameModel::SetDecoSpace(int decoSpace)
+{
+	sim->SetDecoSpace(decoSpace);
+	this->decoSpace = sim->deco_space;
+}
+
+int GameModel::GetDecoSpace()
+{
+	return this->decoSpace;
 }
 
 std::deque<Snapshot*> GameModel::GetHistory()
@@ -660,7 +701,6 @@ void GameModel::SetSave(SaveInfo* newSave, bool invertIncludePressure)
 		sim->legacy_enable = saveData->legacyEnable;
 		sim->water_equal_test = saveData->waterEEnabled;
 		sim->aheat_enable = saveData->aheatEnable;
-
 		if (saveData->gravityEnable)
 			sim->grav->start_grav_async();
 		else
@@ -981,62 +1021,6 @@ bool GameModel::GetAHeatEnable()
 	return sim->aheat_enable;
 }
 
-void GameModel::SetInfoscreenEnable(bool infoScreenEnabled)
-{
-	sim->infoScreenEnabled = infoScreenEnabled;
-	UpdateQuickOptions();
-}
-
-bool GameModel::GetInfoscreenEnable()
-{
-	return sim->infoScreenEnabled;
-}
-
-void GameModel::SetTimeDilationEnable(bool timeDilationEnabled)
-{
-	timeDilationEnabled &= sim->grav->IsEnabled() == 1;
-	sim->timeDilationEnabled = timeDilationEnabled;
-	UpdateQuickOptions();
-	if (timeDilationEnabled)
-		SetInfoTip("Time Dilation: On");
-	else
-		SetInfoTip("Time Dilation: Off");
-}
-
-bool GameModel::GetTimeDilationEnable()
-{
-	return sim->timeDilationEnabled;
-}
-
-void GameModel::SetCompressibleGasesEnable(bool compressibleGasesEnabled)
-{
-	sim->compressibleGasesEnabled = compressibleGasesEnabled;
-	UpdateQuickOptions();
-	if (compressibleGasesEnabled)
-		SetInfoTip("Compressible Gases: On");
-	else
-		SetInfoTip("Compressible Gases: Off");
-}
-
-bool GameModel::GetDrawQuantumFields() {
-	return sim->drawQuantumFields;
-}
-
-void GameModel::SetDrawQuantumFields(bool drawQuantumFields) {
-	sim->drawQuantumFields = drawQuantumFields;
-	UpdateQuickOptions();
-	if (drawQuantumFields)
-		SetInfoTip("Drawing Quantum Fields");
-	else
-		SetInfoTip("Not Drawing Quantum Fields");
-}
-
-bool GameModel::GetCompressibleGasesEnable()
-{
-	return sim->compressibleGasesEnabled;
-}
-
-
 void GameModel::SetNewtonianGravity(bool newtonainGravity)
 {
 	if (newtonainGravity)
@@ -1048,7 +1032,6 @@ void GameModel::SetNewtonianGravity(bool newtonainGravity)
 	{
 		sim->grav->stop_grav_async();
 		SetInfoTip("Newtonian Gravity: Off");
-		sim->timeDilationEnabled = false;
 	}
 	UpdateQuickOptions();
 }
@@ -1056,6 +1039,57 @@ void GameModel::SetNewtonianGravity(bool newtonainGravity)
 bool GameModel::GetNewtonianGrvity()
 {
 	return sim->grav->IsEnabled();
+}
+
+void GameModel::SetTimeDilationEnable(bool timeDilation)
+{
+	sim->timeDilationEnabled = timeDilation;
+
+	if (timeDilation)
+		SetInfoTip("Time Dilation: On");
+	else
+		SetInfoTip("Time Dilation: Off");
+
+	UpdateQuickOptions();
+}
+
+bool GameModel::GetTimeDilationEnable()
+{
+	return sim->timeDilationEnabled;
+}
+
+void GameModel::SetCompressibleGasesEnable(bool compressibleGases)
+{
+	sim->compressibleGasesEnabled = compressibleGases;
+
+	if (compressibleGases)
+		SetInfoTip("Compressible Gases: On");
+	else
+		SetInfoTip("Compressible Gases: Off");
+
+	UpdateQuickOptions();
+}
+
+bool GameModel::GetCompressibleGasesEnable()
+{
+	return sim->compressibleGasesEnabled;
+}
+
+void GameModel::SetDrawQuantumFieldsEnable(bool drawQuantumFields)
+{
+	sim->drawQuantumFields = drawQuantumFields;
+
+	if (drawQuantumFields)
+		SetInfoTip("Drawing Quantum Fields");
+	else
+		SetInfoTip("Not Drawing Quantum Fields");
+
+	UpdateQuickOptions();
+}
+
+bool GameModel::GetDrawQuantumFieldsEnable()
+{
+	return sim->drawQuantumFields;
 }
 
 void GameModel::ShowGravityGrid(bool showGrid)
@@ -1366,9 +1400,9 @@ bool GameModel::GetMouseClickRequired()
 	return mouseClickRequired;
 }
 
-void GameModel::SetMouseClickRequired(bool mouseClickRequired_)
+void GameModel::SetMouseClickRequired(bool mouseClickRequired)
 {
-	mouseClickRequired = mouseClickRequired_;
+	this->mouseClickRequired = mouseClickRequired;
 }
 
 bool GameModel::GetIncludePressure()
@@ -1376,7 +1410,16 @@ bool GameModel::GetIncludePressure()
 	return includePressure;
 }
 
-void GameModel::SetIncludePressure(bool includePressure_)
+void GameModel::SetIncludePressure(bool includePressure)
 {
-	includePressure = includePressure_;
+	this->includePressure = includePressure;
+}
+
+void GameModel::SetPerfectCircle(bool perfectCircle)
+{
+	if (perfectCircle != this->perfectCircle)
+	{
+		this->perfectCircle = perfectCircle;
+		BuildBrushList();
+	}
 }

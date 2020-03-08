@@ -7,25 +7,25 @@
 #define SC_WALL 0
 #define SC_ELEC 1
 #define SC_POWERED 2
-#define SC_SENSOR 3
-#define SC_FORCE 4
-#define SC_EXPLOSIVE 5
-#define SC_GAS 6
-#define SC_LIQUID 7
-#define SC_POWDERS 8
-#define SC_SOLIDS 9
-#define SC_NUCLEAR 10
-#define SC_ORGANIC 11
-#define SC_BIOLOGY 12
-#define SC_QUANTUM 13
-#define SC_SPECIAL 14
-#define SC_LIFE 15
-#define SC_TOOL 16
-#define SC_FAVORITES 17
-#define SC_DECO 18
-#define SC_CRACKER 19
-#define SC_CRACKER2 20
-#define SC_TOTAL 19
+// #define SC_SENSOR 3
+// #define SC_FORCE 4
+#define SC_EXPLOSIVE 3
+#define SC_GAS 4
+#define SC_LIQUID 5
+#define SC_POWDERS 6
+#define SC_SOLIDS 7
+#define SC_NUCLEAR 8
+#define SC_ORGANIC 9
+#define SC_BIOLOGY 10
+#define SC_QUANTUM 11
+#define SC_SPECIAL 12
+#define SC_LIFE 13
+#define SC_TOOL 14
+#define SC_FAVORITES 15
+#define SC_DECO 16
+#define SC_CRACKER 17
+#define SC_CRACKER2 18
+#define SC_TOTAL 17
 
 #define O_WL_WALLELEC	122
 #define O_WL_EWALL		123

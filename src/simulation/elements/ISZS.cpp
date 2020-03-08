@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ISZS PT_ISZS 108
-Element_ISZS::Element_ISZS()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_ISZS()
 {
 	Identifier = "DEFAULT_PT_ISZS";
 	Name = "ISZS";
@@ -27,7 +29,7 @@ Element_ISZS::Element_ISZS()
 
 	Weight = 100;
 
-	Temperature = 140.00f;
+	DefaultProperties.temp = 140.00f;
 	HeatConduct = 251;
 	Description = "Solid form of ISOZ, slowly decays into PHOT.";
 
@@ -42,12 +44,11 @@ Element_ISZS::Element_ISZS()
 	HighTemperature = 300.0f;
 	HighTemperatureTransition = PT_ISOZ;
 
-	Update = &Element_ISZS::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_ISZS static int update(UPDATE_FUNC_ARGS)
-int Element_ISZS::update(UPDATE_FUNC_ARGS)
- { // for both ISZS and ISOZ
+static int update(UPDATE_FUNC_ARGS)
+{
 	float rr, rrr;
 	if (RNG::Ref().chance(1, 200) && RNG::Ref().chance(-4.0f * sim->pv[y/CELL][x/CELL], 1000))
 	{
@@ -59,6 +60,3 @@ int Element_ISZS::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
-
-Element_ISZS::~Element_ISZS() {}

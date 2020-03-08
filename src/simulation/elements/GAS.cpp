@@ -1,7 +1,10 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
-//#TPT-Directive ElementClass Element_GAS PT_GAS 10
-Element_GAS::Element_GAS()
+#include "../CyensTools.h"
+
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_GAS()
 {
 	Identifier = "DEFAULT_PT_GAS";
 	Name = "HCBN";
@@ -18,7 +21,7 @@ Element_GAS::Element_GAS()
 	Collision = -0.1f;
 	Gravity = 0.0f;
 	Diffusion = 0.75f;
-	HotAir = 0.001f	* CFDS;
+	HotAir = 0.001f * CFDS;
 	Falldown = 0;
 
 	Flammable = 600;
@@ -28,7 +31,6 @@ Element_GAS::Element_GAS()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 2.0f + 273.15f;
 	HeatConduct = 42;
 	Description = "Hydrocarbon gas. Diffuses quickly and is flammable.";
 
@@ -43,11 +45,11 @@ Element_GAS::Element_GAS()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_GAS::update;
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_GAS static int update(UPDATE_FUNC_ARGS)
-int Element_GAS::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS) {
 	//life=num carbons
 	//tmp=num hydrogens
 	//tmp2=location of double/triple bond if alkene/alkyne (tmp<2*life+2)
@@ -78,7 +80,7 @@ int Element_GAS::update(UPDATE_FUNC_ARGS) {
 				if (parts[i].temp >= -100 * log(parts[i].life) + 673.15f || TYP(r) == PT_FIRE || TYP(r) == PT_PLSM || TYP(r) == PT_LAVA) {
 					for (int yy = -3; yy <= 3; yy++)
 						for (int xx = -3; xx <= 3; xx++)
-							if (xx*xx + yy * yy <= 9) {
+							if (xx * xx + yy * yy <= 9) {
 								sim->create_part(-1, x + xx, y + yy, PT_FIRE);
 								sim->pv[y / CELL][x / CELL] = parts[i].life > 45 ? 5 : 50.0f - parts[i].life;
 								sim->part_change_type(i, x, y, PT_CO2);
@@ -113,4 +115,15 @@ int Element_GAS::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_GAS::~Element_GAS() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	//Spawns with carbons (1-4)
+	sim->parts[i].life = rand() % 4 + 1;
+	if (sim->parts[i].life == 1) { //Creation of methane, can only be CH4 as a pure hydrocarbon
+		sim->parts[i].tmp = 4;
+		sim->parts[i].tmp2 = 0;
+	}
+	else { //Creating any other type of hydrocarbon
+		sim->parts[i].tmp = makeAlk(sim->parts[i].life);
+		if (sim->parts[i].tmp < 2 * sim->parts[i].life + 2)sim->parts[i].tmp2 = getBondLoc(sim->parts[i].life);
+	}
+}

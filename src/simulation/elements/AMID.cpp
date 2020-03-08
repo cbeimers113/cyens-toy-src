@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_AMID PT_AMID 208
-Element_AMID::Element_AMID()
+
+void Element::Element_AMID()
 {
 	Identifier = "DEFAULT_PT_AMID";
 	Name = "AMID";
@@ -17,7 +17,7 @@ Element_AMID::Element_AMID()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_AMID::Element_AMID()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Amide compound.";
 
@@ -41,8 +40,4 @@ Element_AMID::Element_AMID()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_AMID::~Element_AMID() {}

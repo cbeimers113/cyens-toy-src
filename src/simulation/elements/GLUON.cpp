@@ -1,8 +1,10 @@
-﻿#include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
+#include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_GLUON PT_GLUON 226
-Element_GLUON::Element_GLUON()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_GLUON()
 {
 	Identifier = "DEFAULT_PT_GLUON";
 	Name = "g-ON";
@@ -29,7 +31,6 @@ Element_GLUON::Element_GLUON()
 
 	Weight = -1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 20;
 	Description = "Gluons. The carrier of the strong force.";
 
@@ -44,12 +45,12 @@ Element_GLUON::Element_GLUON()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_GLUON::update;
-	Graphics = &Element_GLUON::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_GLUON static int update(UPDATE_FUNC_ARGS)
-int Element_GLUON::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int xx = RNG::Ref().between(-1, 1);
 	int yy = RNG::Ref().between(-1, 1);
@@ -57,8 +58,8 @@ int Element_GLUON::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_GLUON static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_GLUON::graphics(GRAPHICS_FUNC_ARGS) {
+static int graphics(GRAPHICS_FUNC_ARGS)
+{
 	*cola = *colr = *colg = *colb = 0;
 	*firea = 0x12;
 	*firer = 0x23;
@@ -69,4 +70,10 @@ int Element_GLUON::graphics(GRAPHICS_FUNC_ARGS) {
 	return 0;
 }
 
-Element_GLUON::~Element_GLUON() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	float a = RNG::Ref().between(0, 35) * 0.17453f;
+	sim->parts[i].life = RNG::Ref().between(5, 10);
+	sim->parts[i].tmp = RNG::Ref().between(0, 3);
+	sim->parts[i].vx = 10.0f * cosf(a);
+	sim->parts[i].vy = 10.0f * sinf(a);
+}

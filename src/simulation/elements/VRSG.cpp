@@ -1,10 +1,13 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_VRSG PT_VRSG 176
-Element_VRSG::Element_VRSG()
+
+int Element_VIRS_update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_VRSG()
 {
 	Identifier = "DEFAULT_PT_VRSG";
 	Name = "VRSG";
-	FullName = "Gasseous Virus";
+	FullName = "Gas Virus";
 	Colour = PIXPACK(0xFE68FE);
 	MenuVisible = 0;
 	MenuSection = SC_GAS;
@@ -27,7 +30,7 @@ Element_VRSG::Element_VRSG()
 
 	Weight = 1;
 
-	Temperature = 522.0f + 273.15f;
+	DefaultProperties.temp = 522.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Gas Virus. Turns everything it touches into virus.";
 
@@ -42,13 +45,13 @@ Element_VRSG::Element_VRSG()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_VIRS::update;
-	Graphics = &Element_VRSG::graphics;
+	DefaultProperties.pavg[1] = 250;
+
+	Update = &Element_VIRS_update;
+	Graphics = &graphics;
 }
 
-
-//#TPT-Directive ElementHeader Element_VRSG static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_VRSG::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	*pixel_mode &= ~PMODE;
 	*pixel_mode |= FIRE_BLEND;
@@ -59,5 +62,3 @@ int Element_VRSG::graphics(GRAPHICS_FUNC_ARGS)
 	*pixel_mode |= NO_DECO;
 	return 1;
 }
-
-Element_VRSG::~Element_VRSG() {}

@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_FRZW PT_FRZW 101
-Element_FRZW::Element_FRZW()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_FRZW()
 {
 	Identifier = "DEFAULT_PT_FRZW";
 	Name = "FRZW";
@@ -27,7 +29,7 @@ Element_FRZW::Element_FRZW()
 
 	Weight = 30;
 
-	Temperature = 120.0f;
+	DefaultProperties.temp = 120.0f;
 	HeatConduct = 29;
 	Description = "Freeze water. Hybrid liquid formed when Freeze powder melts.";
 
@@ -42,11 +44,12 @@ Element_FRZW::Element_FRZW()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FRZW::update;
+	DefaultProperties.life = 100;
+
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_FRZW static int update(UPDATE_FUNC_ARGS)
-int Element_FRZW::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx=-1; rx<2; rx++)
@@ -69,6 +72,3 @@ int Element_FRZW::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
-
-Element_FRZW::~Element_FRZW() {}

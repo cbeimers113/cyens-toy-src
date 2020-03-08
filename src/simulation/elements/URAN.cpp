@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_URAN PT_URAN 32
-Element_URAN::Element_URAN()
+
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_URAN()
 {
 	Identifier = "DEFAULT_PT_URAN";
 	Name = "URAN";
@@ -17,7 +20,7 @@ Element_URAN::Element_URAN()
 	Collision = 0.0f;
 	Gravity = 0.4f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -28,7 +31,7 @@ Element_URAN::Element_URAN()
 
 	Weight = 90;
 
-	Temperature = R_TEMP + 30.0f + 273.15f;
+	DefaultProperties.temp = R_TEMP + 30.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Uranium. Heavy particles. Generates heat under pressure.";
 
@@ -43,27 +46,25 @@ Element_URAN::Element_URAN()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_URAN::update;
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_URAN static int update(UPDATE_FUNC_ARGS)
-int Element_URAN::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
-	if (sim->pv[y / CELL][x / CELL] > 0.0f)
+	if (!sim->legacy_enable && sim->pv[y / CELL][x / CELL] > 0.0f)
 	{
-		if (!sim->legacy_enable) {
-			if (parts[i].temp == MIN_TEMP)
-			{
-				parts[i].temp += .01f;
-			}
-			else
-			{
-				parts[i].temp = restrict_flt((parts[i].temp*(1 + (sim->pv[y / CELL][x / CELL] / 2000))) + MIN_TEMP, MIN_TEMP, MAX_TEMP);
-			}
+		if (parts[i].temp == MIN_TEMP)
+		{
+			parts[i].temp += .01f;
+		}
+		else
+		{
+			parts[i].temp = restrict_flt((parts[i].temp * (1 + (sim->pv[y / CELL][x / CELL] / 2000))) + MIN_TEMP, MIN_TEMP, MAX_TEMP);
 		}
 
 		//Fission
-		if (sim->pv[y / CELL][x / CELL] >= 100.0f&&parts[i].temp >= 700.0f) {
+		if (sim->pv[y / CELL][x / CELL] >= 100.0f && parts[i].temp >= 700.0f) {
 			sim->part_change_type(i, x, y, PT_CRBN);
 			for (int yy = -2; yy <= 2; yy++)
 				for (int xx = -2; xx <= 2; xx++) {
@@ -76,5 +77,12 @@ int Element_URAN::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
+static void create(ELEMENT_CREATE_FUNC_ARGS)
+{
+	float rand = RNG::Ref().between(0, 100);
 
-Element_URAN::~Element_URAN() {}
+	if (rand < 95)
+		sim->parts[i].isotope = 238;
+	else
+		sim->parts[i].isotope = 235;
+}

@@ -174,7 +174,8 @@ void PreviewModel::OnSaveReady()
 	try
 	{
 		GameSave *gameSave = new GameSave(*saveData);
-		if (gameSave->fromNewerVersion)
+		//Cyens Toy: ignore "newer" saves since our build numbers are on different systems and fromNewerVersion will always be true
+		if (false && gameSave->fromNewerVersion)
 			new ErrorMessage("This save is from a newer version", "Please update TPT in game or at https://powdertoy.co.uk");
 		saveInfo->SetGameSave(gameSave);
 	}

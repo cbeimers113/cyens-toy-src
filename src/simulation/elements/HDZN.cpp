@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_HDZN PT_HDZN 203
-Element_HDZN::Element_HDZN()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_HDZN()
 {
 	Identifier = "DEFAULT_PT_HDZN";
 	Name = "HDZN";
@@ -17,7 +19,7 @@ Element_HDZN::Element_HDZN()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_HDZN::Element_HDZN()
 
 	Weight = 35;
 
-	Temperature = R_TEMP - 2.0f + 273.15f;
 	HeatConduct = 29;
 	Description = "Hydrazine rocket fuel.";
 
@@ -42,11 +43,10 @@ Element_HDZN::Element_HDZN()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_HDZN::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_HDZN static int update(UPDATE_FUNC_ARGS)
-int Element_HDZN::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	bool hasHNO3 = false;
 	int r, rx, ry;
@@ -72,19 +72,18 @@ int Element_HDZN::update(UPDATE_FUNC_ARGS)
 						if (sim->elements[TYP(pmap[(int)yy][x + xx])].Properties & TYPE_SOLID)break;
 						sim->create_part(-1, x + xx, yy, PT_SMKE);
 					}
-					for (int xx = 0; xx >= -parts[i].vx*s / 2; xx--) {
+					for (int xx = 0; xx >= -parts[i].vx * s / 2; xx--) {
 						float yy = y + m * xx;
 						if (sim->elements[TYP(pmap[(int)yy][x + xx])].Properties & TYPE_SOLID)break;
 						sim->create_part(-1, x + xx, yy, PT_SMKE);
 					}
 				}
 			}
-	if (hasHNO3&&parts[i].temp >= 310.15f) {
+
+	if (hasHNO3 && parts[i].temp >= 310.15f) {
 		sim->pv[y / CELL][x / CELL] += 10.0f;
 		sim->part_change_type(ID(r), x + rx, y + ry, PT_O2);
 		sim->part_change_type(i, x, y, PT_FIRE);
 	}
 	return 0;
 }
-
-Element_HDZN::~Element_HDZN() {}

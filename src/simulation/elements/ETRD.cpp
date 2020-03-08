@@ -1,8 +1,10 @@
 #include <algorithm>
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_ETRD PT_ETRD 50
-Element_ETRD::Element_ETRD()
+static void initDeltaPos();
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS);
+
+void Element::Element_ETRD()
 {
 	Identifier = "DEFAULT_PT_ETRD";
 	Name = "ETRD";
@@ -29,7 +31,6 @@ Element_ETRD::Element_ETRD()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 251;
 	Description = "Electrode. Creates a surface that allows Plasma arcs. (Use sparingly)";
 
@@ -44,9 +45,20 @@ Element_ETRD::Element_ETRD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = NULL;
+	ChangeType = &changeType;
 
-	Element_ETRD::initDeltaPos();
+	initDeltaPos();
+}
+
+static void changeType(ELEMENT_CHANGETYPE_FUNC_ARGS)
+{
+	if (sim->etrd_count_valid)
+	{
+		if (from == PT_ETRD && sim->parts[i].life == 0)
+			sim->etrd_life0_count--;
+		if (to == PT_ETRD && sim->parts[i].life == 0)
+			sim->etrd_life0_count++;
+	}
 }
 
 class ETRD_deltaWithLength
@@ -66,13 +78,7 @@ public:
 const int maxLength = 12;
 std::vector<ETRD_deltaWithLength> deltaPos;
 
-bool compareFunc(const ETRD_deltaWithLength &a, const ETRD_deltaWithLength &b)
-{
-	return a.length < b.length;
-}
-
-//#TPT-Directive ElementHeader Element_ETRD static void initDeltaPos()
-void Element_ETRD::initDeltaPos()
+static void initDeltaPos()
 {
 	deltaPos.clear();
 	for (int ry = -maxLength; ry <= maxLength; ry++)
@@ -82,11 +88,12 @@ void Element_ETRD::initDeltaPos()
 			if (std::abs(d.X) + std::abs(d.Y) <= maxLength)
 				deltaPos.push_back(ETRD_deltaWithLength(d, std::abs(d.X) + std::abs(d.Y)));
 		}
-	std::stable_sort(deltaPos.begin(), deltaPos.end(), compareFunc);
+	std::stable_sort(deltaPos.begin(), deltaPos.end(), [](const ETRD_deltaWithLength &a, const ETRD_deltaWithLength &b) {
+		return a.length < b.length;
+	});
 }
 
-//#TPT-Directive ElementHeader Element_ETRD static int nearestSparkablePart(Simulation *sim, int targetId)
-int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
+int Element_ETRD_nearestSparkablePart(Simulation *sim, int targetId)
 {
 	if (!sim->elementCount[PT_ETRD])
 		return -1;
@@ -169,5 +176,3 @@ int Element_ETRD::nearestSparkablePart(Simulation *sim, int targetId)
 	}
 	return foundI;
 }
-
-Element_ETRD::~Element_ETRD() {}

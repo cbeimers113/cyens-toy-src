@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CAUS PT_CAUS 86
-Element_CAUS::Element_CAUS()
+
+static int update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_CAUS()
 {
 	Identifier = "DEFAULT_PT_CAUS";
 	Name = "CL2";
@@ -17,7 +20,7 @@ Element_CAUS::Element_CAUS()
 	Collision = -0.1f;
 	Gravity = 0.0f;
 	Diffusion = 1.50f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,9 +30,8 @@ Element_CAUS::Element_CAUS()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 70;
-	Description = "Chlorine Gas.";
+	Description = "Chlorine gas.";
 
 	Properties = TYPE_GAS | PROP_DEADLY;
 
@@ -42,11 +44,13 @@ Element_CAUS::Element_CAUS()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CAUS::update;
+	DefaultProperties.life = 75;
+
+	Update = &update;
+	Create = &create;
 }
 
-//#TPT-Directive ElementHeader Element_CAUS static int update(UPDATE_FUNC_ARGS)
-int Element_CAUS::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	for (int rx = -2; rx <= 2; rx++)
 		for (int ry = -2; ry <= 2; ry++)
@@ -97,5 +101,7 @@ int Element_CAUS::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-
-Element_CAUS::~Element_CAUS() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = 75;
+	sim->parts[i].tmp2 = 500;
+}

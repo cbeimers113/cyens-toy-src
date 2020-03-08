@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_VNGR PT_VNGR 195
-Element_VNGR::Element_VNGR()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_VNGR()
 {
 	Identifier = "DEFAULT_PT_VNGR";
 	Name = "VNGR";
@@ -17,7 +19,7 @@ Element_VNGR::Element_VNGR()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_VNGR::Element_VNGR()
 
 	Weight = 40;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Vinegar. Will be useful for electrochemistry.";
 
@@ -42,17 +43,20 @@ Element_VNGR::Element_VNGR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_VNGR::update;
+	Update = &update;
 }
 
-Element_VNGR::~Element_VNGR() {}
-
-//#TPT-Directive ElementHeader Element_VNGR static int update(UPDATE_FUNC_ARGS)
-int Element_VNGR::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].temp > 100.0f + 273.15f) {
-		sim->create_part(-1, x + rand() % 3 - 1, y + rand() % 3 - 1, PT_WTRV);
 		sim->part_change_type(i, x, y, PT_ACTA);
+		for (int yy = -1; yy <= 1; yy++) // A way to make sure the wtrv gets spawned, not the most efficient
+			for (int xx = -1; xx <= 1; xx++)
+				if (x + xx >= 0 && x + xx < XRES && y + yy >= 0 && y + yy < YRES && !sim->pmap[y + yy][x + xx]) {
+					sim->create_part(-1, x + xx, y + yy, PT_WTRV);
+					return 0;
+				}
 	}
 	return 0;
 }
+

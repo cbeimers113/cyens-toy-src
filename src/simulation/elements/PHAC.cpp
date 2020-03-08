@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
 
-//#TPT-Directive ElementClass Element_PHAC PT_PHAC 221
-Element_PHAC::Element_PHAC() {
+int Element_ACID_update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_PHAC()
+{
 	Identifier = "DEFAULT_PT_PHAC";
 	Name = "PHAC";
 	FullName = "Phosphoric Acid";
@@ -18,7 +20,7 @@ Element_PHAC::Element_PHAC() {
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -28,7 +30,6 @@ Element_PHAC::Element_PHAC() {
 
 	Weight = 10;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 34;
 	Description = "Phosphoric acid. A weak acid.";
 
@@ -43,7 +44,11 @@ Element_PHAC::Element_PHAC() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ACID::update;
+	Update = &Element_ACID_update;
+	Create = &create;
 }
 
-Element_PHAC::~Element_PHAC() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = 75;
+	sim->parts[i].tmp2 = 500;
+}

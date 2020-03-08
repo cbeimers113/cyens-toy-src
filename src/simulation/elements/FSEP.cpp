@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_FSEP PT_FSEP 71
-Element_FSEP::Element_FSEP()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_FSEP()
 {
 	Identifier = "DEFAULT_PT_FSEP";
 	Name = "FSEP";
@@ -27,7 +29,6 @@ Element_FSEP::Element_FSEP()
 
 	Weight = 70;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 70;
 	Description = "Fuse Powder. Burns slowly like FUSE.";
 
@@ -42,11 +43,12 @@ Element_FSEP::Element_FSEP()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_FSEP::update;
+	DefaultProperties.life = 50;
+
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_FSEP static int update(UPDATE_FUNC_ARGS)
-int Element_FSEP::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	if (parts[i].life<=0) {
@@ -79,6 +81,3 @@ int Element_FSEP::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
-
-
-Element_FSEP::~Element_FSEP() {}

@@ -58,6 +58,39 @@ void OptionsModel::SetNewtonianGravity(bool state)
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetTimeDilation()
+{
+	return sim->timeDilationEnabled;
+}
+
+void OptionsModel::SetTimeDilation(bool state)
+{
+	sim->timeDilationEnabled = state;
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetCompressibleGases()
+{
+	return sim->compressibleGasesEnabled;
+}
+
+void OptionsModel::SetCompressibleGases(bool state)
+{
+	sim->compressibleGasesEnabled = state;
+	notifySettingsChanged();
+}
+
+bool OptionsModel::GetDrawQuantumFields()
+{
+	return sim->drawQuantumFields;
+}
+
+void OptionsModel::SetDrawQuantumFields(bool state)
+{
+	sim->drawQuantumFields = state;
+	notifySettingsChanged();
+}
+
 bool OptionsModel::GetWaterEqualisation()
 {
 	return sim->water_equal_test ? true : false;
@@ -66,43 +99,6 @@ bool OptionsModel::GetWaterEqualisation()
 void OptionsModel::SetWaterEqualisation(bool state)
 {
 	sim->water_equal_test = state ? 1 : 0;
-	notifySettingsChanged();
-}
-
-bool OptionsModel::GetInfoScreen() {
-	return sim->infoScreenEnabled ? true : false;
-}
-
-void OptionsModel::SetInfoScreen(bool state) {
-	sim->infoScreenEnabled = state ? 1 : 0;
-	notifySettingsChanged();
-}
-
-bool OptionsModel::GetTimeDilation() {
-	return sim->timeDilationEnabled ? true : false;
-}
-
-void OptionsModel::SetTimeDilation(bool state) {
-	sim->timeDilationEnabled = (state ? 1 : 0) & (sim->grav->IsEnabled() ? true : false);
-	notifySettingsChanged();
-}
-
-bool OptionsModel::GetCompressibleGases() {
-	return sim->compressibleGasesEnabled ? true : false;
-}
-
-void OptionsModel::SetCompressibleGases(bool state) {
-	sim->compressibleGasesEnabled = state ? 1 : 0;
-	notifySettingsChanged();
-}
-
-//only using conditional because everyone else used it...
-bool OptionsModel::GetDrawQuantumFields() {
-	return sim->drawQuantumFields ? true : false;
-}
-
-void OptionsModel::SetDrawQuantumFields(bool state) {
-	sim->drawQuantumFields = state ? 1 : 0;
 	notifySettingsChanged();
 }
 
@@ -206,6 +202,16 @@ void OptionsModel::SetFastQuit(bool fastquit)
 	notifySettingsChanged();
 }
 
+int OptionsModel::GetDecoSpace()
+{
+	return gModel->GetDecoSpace();
+}
+void OptionsModel::SetDecoSpace(int decoSpace)
+{
+	gModel->SetDecoSpace(decoSpace);
+	notifySettingsChanged();
+}
+
 bool OptionsModel::GetShowAvatars()
 {
 	return Client::Ref().GetPrefBool("ShowAvatars", true);
@@ -241,6 +247,18 @@ void OptionsModel::SetIncludePressure(bool includePressure)
 	notifySettingsChanged();
 }
 
+bool OptionsModel::GetPerfectCircle()
+{
+	return Client::Ref().GetPrefBool("PerfectCircleBrush", true);
+}
+
+void OptionsModel::SetPerfectCircle(bool perfectCircle)
+{
+	Client::Ref().SetPref("PerfectCircleBrush", perfectCircle);
+	gModel->SetPerfectCircle(perfectCircle);
+	notifySettingsChanged();
+}
+
 void OptionsModel::notifySettingsChanged()
 {
 	for (size_t i = 0; i < observers.size(); i++)
@@ -248,8 +266,6 @@ void OptionsModel::notifySettingsChanged()
 		observers[i]->NotifySettingsChanged(this);
 	}
 }
-
-//Cyens Toy Options
 
 OptionsModel::~OptionsModel() {
 }

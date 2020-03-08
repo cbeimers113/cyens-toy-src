@@ -1,7 +1,8 @@
 #include <cmath>
 #include "Particle.h"
 #include "Simulation.h"
-#include "../../generated/ElementClasses.h"
+#include "..//Config.h"
+#include "ElementClasses.h"
 
 #define ADENINE 0
 #define GUANINE 1
@@ -55,6 +56,8 @@
 #define CCHARGE_B 2
 
 #define SF_MAX 10
+
+bool cyensUpdateAvailable();
 
 int makeAlk(int c);
 int getBondLoc(int c);

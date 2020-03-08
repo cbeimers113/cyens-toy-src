@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ICEI PT_ICEI 13
-Element_ICEI::Element_ICEI()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_ICEI()
 {
 	Identifier = "DEFAULT_PT_ICEI";
 	Name = "ICE";
@@ -17,7 +19,7 @@ Element_ICEI::Element_ICEI()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = -0.0003f* CFDS;
+	HotAir = -0.0003f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,11 +29,11 @@ Element_ICEI::Element_ICEI()
 
 	Weight = 100;
 
-	Temperature = R_TEMP-50.0f+273.15f;
+	DefaultProperties.temp = R_TEMP - 50.0f + 273.15f;
 	HeatConduct = 46;
 	Description = "Crushes under pressure. Cools down air.";
 
-	Properties = TYPE_SOLID|PROP_LIFE_DEC|PROP_NEUTPASS;
+	Properties = TYPE_SOLID | PROP_LIFE_DEC | PROP_NEUTPASS;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
@@ -42,41 +44,39 @@ Element_ICEI::Element_ICEI()
 	HighTemperature = 252.05f;
 	HighTemperatureTransition = ST;
 
-	Update = &Element_ICEI::update;
+	DefaultProperties.ctype = PT_WATR;
+
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_ICEI static int update(UPDATE_FUNC_ARGS)
-int Element_ICEI::update(UPDATE_FUNC_ARGS)
- { //currently used for snow as well
+static int update(UPDATE_FUNC_ARGS)
+{
 	int r, rx, ry;
-	if (parts[i].ctype==PT_FRZW)//get colder if it is from FRZW
+	if (parts[i].ctype == PT_FRZW)//get colder if it is from FRZW
 	{
-		parts[i].temp = restrict_flt(parts[i].temp-1.0f, MIN_TEMP, MAX_TEMP);
+		parts[i].temp = restrict_flt(parts[i].temp - 1.0f, MIN_TEMP, MAX_TEMP);
 	}
-	for (rx=-1; rx<2; rx++)
-		for (ry=-1; ry<2; ry++)
+	for (rx = -1; rx < 2; rx++)
+		for (ry = -1; ry < 2; ry++)
 			if (BOUNDS_CHECK && (rx || ry))
 			{
-				r = pmap[y+ry][x+rx];
+				r = pmap[y + ry][x + rx];
 				if (!r)
 					continue;
-				if (TYP(r)==PT_SALT || TYP(r)==PT_SLTW)
+				if (TYP(r) == PT_SALT || TYP(r) == PT_SLTW)
 				{
 					if (parts[i].temp > sim->elements[PT_SLTW].LowTemperature && RNG::Ref().chance(1, 200))
 					{
-						sim->part_change_type(i,x,y,PT_SLTW);
-						sim->part_change_type(ID(r),x+rx,y+ry,PT_SLTW);
+						sim->part_change_type(i, x, y, PT_SLTW);
+						sim->part_change_type(ID(r), x + rx, y + ry, PT_SLTW);
 						return 0;
 					}
 				}
-				else if ((TYP(r)==PT_FRZZ) && RNG::Ref().chance(1, 200))
+				else if ((TYP(r) == PT_FRZZ) && RNG::Ref().chance(1, 200))
 				{
-					sim->part_change_type(ID(r),x+rx,y+ry,PT_ICEI);
+					sim->part_change_type(ID(r), x + rx, y + ry, PT_ICEI);
 					parts[ID(r)].ctype = PT_FRZW;
 				}
 			}
 	return 0;
 }
-
-
-Element_ICEI::~Element_ICEI() {}

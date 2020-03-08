@@ -1,14 +1,16 @@
 #include "simulation/ElementCommon.h"
-#include "simulation/CyensTools.h"
+#include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_RNA PT_RNA 216
-Element_RNA::Element_RNA()
+int Element_RNA_update(UPDATE_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_RNA()
 {
 	Identifier = "DEFAULT_PT_RNA";
 	Name = "RNA";
 	FullName = "RNA";
 	Colour = PIXPACK(0xD4FF90);
-	MenuVisible = 1;
+	MenuVisible = 0;
 	MenuSection = SC_BIOLOGY;
 	Enabled = 1;
 
@@ -19,7 +21,7 @@ Element_RNA::Element_RNA()
 	Collision = 0.0f;
 	Gravity = 0.0f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -29,7 +31,6 @@ Element_RNA::Element_RNA()
 
 	Weight = 0;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 70;
 	Description = "Ribonucleic acid, the precursor to DNA.";
 
@@ -44,12 +45,12 @@ Element_RNA::Element_RNA()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_RNA::update;
+	Update = &Element_RNA_update;
+	Create = &create;
 }
 
-
-//#TPT-Directive ElementHeader Element_RNA static int update(UPDATE_FUNC_ARGS)
-int Element_RNA::update(UPDATE_FUNC_ARGS) {
+int Element_RNA_update(UPDATE_FUNC_ARGS)
+{
 	if (parts[i].tmp2 == -1) {
 		sim->kill_part(i);
 		return 0;
@@ -94,72 +95,6 @@ int Element_RNA::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-
-/*
-int Element_RNA::update(UPDATE_FUNC_ARGS)
-{
-	int emptyCount = 0;
-	int r, rx, ry;
-	for (rx = -1; rx < 2; rx++)
-		for (ry = -1; ry < 2; ry++)
-			if (BOUNDS_CHECK)
-			{
-				r = pmap[y + ry][x + rx];
-				if (i == ID(r))continue;
-				if (TYP(r) == PT_NONE)emptyCount++;
-				else if (TYP(r) == parts[i].type && parts[i].tmp == STRAND_DETACHED && parts[ID(r)].flags < 3) {
-					switch (parts[ID(r)].tmp) {
-					case STRAND_ATTACHED:
-						parts[i].tmp = STRAND_ATTACHED;
-						parts[i].sHeadIndex = parts[ID(r)].sHeadIndex;
-						parts[i].flags = ++parts[parts[i].sHeadIndex].flags;
-						break;
-					case STRAND_DETACHED:
-						parts[ID(r)].tmp = STRAND_HEAD;
-					case STRAND_HEAD:
-						parts[i].tmp = STRAND_ATTACHED;
-						parts[i].sHeadIndex = ID(r);
-						parts[i].flags = ++parts[ID(r)].flags;
-						break;
-					}
-				}
-			}
-	if (emptyCount == 8 && parts[i].tmp == STRAND_HEAD) {
-		parts[i].tmp = STRAND_DETACHED;
-		parts[i].tmp2 = 0;
-		parts[i].flags = 0;
-	}
-	else if (emptyCount == 8) {
-		if (++parts[i].tmp2 == 30) {
-			parts[parts[i].sHeadIndex].flags--;
-			parts[i].tmp = STRAND_DETACHED;
-			parts[i].sHeadIndex = -1;
-			parts[i].flags = 0;
-			parts[i].tmp2 = 0;
-		}
-	}
-	if (parts[i].tmp == STRAND_HEAD) {
-		parts[i].tmp2 = getDir(parts[i].vx, parts[i].vy);
-	}
-	if (parts[i].tmp == STRAND_ATTACHED && parts[i].sHeadIndex != -1) {
-		Particle head = parts[parts[i].sHeadIndex];
-		setStrandDest(parts, i);
-		v2i dest = parts[i].vector2i;
-		//parts[i].vx = head.vx * 0 + (((dest.x + head.x) - x) / abs(((dest.x + head.x) - x)))*.05f;
-		//parts[i].vy = head.vy * 0 + (((dest.y + head.y) - y) / abs(((dest.y + head.y) - y)))*.05f;
-		//parts[i].vx = head.vx;
-		//parts[i].vy = head.vy;
-		int xOffs = head.x + dest.x;
-		int yOffs = head.y + dest.y;
-		if (isInRange(xOffs, 0, XRES) && isInRange(yOffs, 0, YRES)) {
-			if (TYP(pmap[yOffs][xOffs]) == PT_NONE) {
-				parts[i].x = xOffs;
-				parts[i].y = yOffs;
-			}
-		}
-	}
-	return 0;
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].sHeadIndex = -1;
 }
-*/
-
-Element_RNA::~Element_RNA() {}

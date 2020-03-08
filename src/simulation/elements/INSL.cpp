@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_INSL PT_INSL 38
-Element_INSL::Element_INSL()
+
+void Element::Element_INSL()
 {
 	Identifier = "DEFAULT_PT_INSL";
 	Name = "AERO";
@@ -27,9 +27,8 @@ Element_INSL::Element_INSL()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 0;
-	Description = "Aerogel, does not conduct heat and blocks electricity.";
+	Description = "Aerogel. An insulator, does not conduct heat and blocks electricity.";
 
 	Properties = TYPE_SOLID;
 
@@ -41,8 +40,4 @@ Element_INSL::Element_INSL()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_INSL::~Element_INSL() {}

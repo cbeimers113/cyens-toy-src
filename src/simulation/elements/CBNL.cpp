@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CBNL PT_CBNL 198
-Element_CBNL::Element_CBNL()
+
+void Element::Element_CBNL()
 {
 	Identifier = "DEFAULT_PT_CBNL";
 	Name = "CBNL";
@@ -17,7 +17,7 @@ Element_CBNL::Element_CBNL()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_CBNL::Element_CBNL()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "The carbonyl functional group, useful in organic compounds.";
 
@@ -41,8 +40,4 @@ Element_CBNL::Element_CBNL()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_CBNL::~Element_CBNL() {}

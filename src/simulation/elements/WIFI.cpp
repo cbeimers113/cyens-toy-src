@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_WIFI PT_WIFI 124
-Element_WIFI::Element_WIFI()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_WIFI()
 {
 	Identifier = "DEFAULT_PT_WIFI";
 	Name = "WIFI";
@@ -27,27 +30,25 @@ Element_WIFI::Element_WIFI()
 
 	Weight = 100;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 0;
-	Description = "Wireless transceiver, transfers spark to any other wifi on the same temperature channel.";
+	Description = "Wireless transmitter, transfers spark to any other wifi on the same temperature channel.";
 
 	Properties = TYPE_SOLID;
 
 	LowPressure = IPL;
 	LowPressureTransition = NT;
-	HighPressure = IPH;
-	HighPressureTransition = NT;
+	HighPressure = 15.0f;
+	HighPressureTransition = PT_BRMT;
 	LowTemperature = ITL;
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_WIFI::update;
-	Graphics = &Element_WIFI::graphics;
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_WIFI static int update(UPDATE_FUNC_ARGS)
-int Element_WIFI::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	parts[i].tmp = (int)((parts[i].temp-73.15f)/100+1);
@@ -80,10 +81,9 @@ int Element_WIFI::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-#define FREQUENCY 0.0628f
+constexpr float FREQUENCY = 0.0628f;
 
-//#TPT-Directive ElementHeader Element_WIFI static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_WIFI::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int q = (int)((cpart->temp-73.15f)/100+1);
 	*colr = sin(FREQUENCY*q + 0) * 127 + 128;
@@ -92,6 +92,3 @@ int Element_WIFI::graphics(GRAPHICS_FUNC_ARGS)
 	*pixel_mode |= EFFECT_DBGLINES;
 	return 0;
 }
-
-
-Element_WIFI::~Element_WIFI() {}

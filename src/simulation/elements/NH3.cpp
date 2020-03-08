@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_NH3 PT_NH3 190
-Element_NH3::Element_NH3()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_NH3()
 {
 	Identifier = "DEFAULT_PT_NH3";
 	Name = "NH3";
@@ -17,7 +19,7 @@ Element_NH3::Element_NH3()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_NH3::Element_NH3()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Ammonia, useful organic compound.";
 
@@ -42,13 +43,10 @@ Element_NH3::Element_NH3()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_NH3::update;
+	Update = &update;
 }
 
-Element_NH3::~Element_NH3() {}
-
-//#TPT-Directive ElementHeader Element_NH3 static int update(UPDATE_FUNC_ARGS)
-int Element_NH3::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -69,5 +67,6 @@ int Element_NH3::update(UPDATE_FUNC_ARGS)
 					sim->part_change_type(ID(r), x + rx, y + ry, PT_H2);
 				}
 			}
+
 	return 0;
 }

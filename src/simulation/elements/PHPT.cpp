@@ -1,8 +1,10 @@
 #include "simulation/ElementCommon.h"
 #include <stack>
 
-//#TPT-Directive ElementClass Element_PHPT PT_PHPT 219
-Element_PHPT::Element_PHPT() {
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_PHPT()
+{
 	Identifier = "DEFAULT_PT_PHPT";
 	Name = "PO4";
 	FullName = "Phosphate Ion";
@@ -18,7 +20,7 @@ Element_PHPT::Element_PHPT() {
 	Collision = -0.1f;
 	Gravity = 0.0f;
 	Diffusion = 1.50f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -28,7 +30,6 @@ Element_PHPT::Element_PHPT() {
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 20;
 	Description = "Phosphate ion. Can form phosphoric acid and is involved in nucleotide synthesis.";
 
@@ -43,11 +44,11 @@ Element_PHPT::Element_PHPT() {
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_PHPT::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_PHPT static int update(UPDATE_FUNC_ARGS)
-int Element_PHPT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS)
+{
 	int rx, ry;
 	int r;
 	int h = 0;
@@ -72,4 +73,3 @@ int Element_PHPT::update(UPDATE_FUNC_ARGS) {
 	return 0;
 }
 
-Element_PHPT::~Element_PHPT() {}

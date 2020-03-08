@@ -1,8 +1,11 @@
 #include "simulation/ElementCommon.h"
 #include "../CyensTools.h"
 
-//#TPT-Directive ElementClass Element_NCTD PT_NCTD 215
-Element_NCTD::Element_NCTD()
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+static void create(ELEMENT_CREATE_FUNC_ARGS);
+
+void Element::Element_NCTD()
 {
 	Identifier = "DEFAULT_PT_NCTD";
 	Name = "NCTD";
@@ -19,7 +22,7 @@ Element_NCTD::Element_NCTD()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -29,7 +32,6 @@ Element_NCTD::Element_NCTD()
 
 	Weight = 5;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 70;
 	Description = "Nucleotide, the basic building block of DNA.";
 
@@ -44,13 +46,12 @@ Element_NCTD::Element_NCTD()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_NCTD::update;
-	Graphics = &Element_NCTD::graphics;
+	Update = &update;
+	Graphics = &graphics;
+	Create = &create;
 }
 
-
-//#TPT-Directive ElementHeader Element_NCTD static int update(UPDATE_FUNC_ARGS)
-int Element_NCTD::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -139,8 +140,7 @@ int Element_NCTD::update(UPDATE_FUNC_ARGS)
 	return 0;
 }
 
-//#TPT-Directive ElementHeader Element_NCTD static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_NCTD::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int l = 75 + 3 * cpart->life;
 
@@ -161,4 +161,7 @@ int Element_NCTD::graphics(GRAPHICS_FUNC_ARGS)
 	return 0;
 }
 
-Element_NCTD::~Element_NCTD() {}
+static void create(ELEMENT_CREATE_FUNC_ARGS) {
+	sim->parts[i].life = rand() % 100 < 5 ? 4 : rand() % 4;
+	sim->parts[i].tmp = NCTD_UNBONDED;
+}

@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_ANFO PT_ANFO 202
-Element_ANFO::Element_ANFO()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_ANFO()
 {
 	Identifier = "DEFAULT_PT_ANFO";
 	Name = "ANFO";
@@ -17,7 +19,7 @@ Element_ANFO::Element_ANFO()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 500;
@@ -27,7 +29,6 @@ Element_ANFO::Element_ANFO()
 
 	Weight = 50;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Ammonium Nitrate Fuel Oil (ANFO) explosive.";
 
@@ -42,13 +43,10 @@ Element_ANFO::Element_ANFO()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_ANFO::update;
+	Update = &update;
 }
 
-Element_ANFO::~Element_ANFO() {}
-
-//#TPT-Directive ElementHeader Element_ANFO static int update(UPDATE_FUNC_ARGS)
-int Element_ANFO::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	if (parts[i].temp > 300.0f) {
 		sim->pv[y / CELL][x / CELL] += 35.0f;
@@ -56,3 +54,4 @@ int Element_ANFO::update(UPDATE_FUNC_ARGS)
 	}
 	return 0;
 }
+

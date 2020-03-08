@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CCL2 PT_CCL2 213
-Element_CCL2::Element_CCL2()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_CCL2()
 {
 	Identifier = "DEFAULT_PT_CCL2";
 	Name = "CCL2";
@@ -17,7 +19,7 @@ Element_CCL2::Element_CCL2()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_CCL2::Element_CCL2()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Dichlorocarbene.";
 
@@ -42,13 +43,10 @@ Element_CCL2::Element_CCL2()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_CCL2::update;
+	Update = &update;
 }
 
-Element_CCL2::~Element_CCL2() {}
-
-//#TPT-Directive ElementHeader Element_CCL2 static int update(UPDATE_FUNC_ARGS)
-int Element_CCL2::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -68,3 +66,4 @@ int Element_CCL2::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 }
+

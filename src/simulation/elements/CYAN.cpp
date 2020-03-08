@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_CYAN PT_CYAN 199
-Element_CYAN::Element_CYAN()
+
+void Element::Element_CYAN()
 {
 	Identifier = "DEFAULT_PT_CYAN";
 	Name = "CYAN";
@@ -17,7 +17,7 @@ Element_CYAN::Element_CYAN()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_CYAN::Element_CYAN()
 
 	Weight = 30;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Cyanide, the deadly poison.";
 
@@ -41,8 +40,4 @@ Element_CYAN::Element_CYAN()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
-
-Element_CYAN::~Element_CYAN() {}

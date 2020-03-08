@@ -1,8 +1,9 @@
 #include "simulation/ElementCommon.h"
 #include "simulation/CyensTools.h"
 
-//#TPT-Directive ElementClass Element_SUGR PT_SUGR 220
-Element_SUGR::Element_SUGR()
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_SUGR()
 {
 	Identifier = "DEFAULT_PT_SUGR";
 	Name = "SUGR";
@@ -19,7 +20,7 @@ Element_SUGR::Element_SUGR()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -29,7 +30,6 @@ Element_SUGR::Element_SUGR()
 
 	Weight = 25;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 20;
 	Description = "Monosaccharide sugar.";
 
@@ -44,11 +44,11 @@ Element_SUGR::Element_SUGR()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_SUGR::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_SUGR static int update(UPDATE_FUNC_ARGS)
-int Element_SUGR::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS)
+{
 	if (parts[i].tmp == SUGR_GLUCOSE)return 0;
 	int r, rx, ry;
 	bool phosphate = false;
@@ -84,5 +84,3 @@ int Element_SUGR::update(UPDATE_FUNC_ARGS) {
 				}
 	return 0;
 }
-
-Element_SUGR::~Element_SUGR() {}

@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_SALT PT_SALT 26
-Element_SALT::Element_SALT()
+
+void Element::Element_SALT()
 {
 	Identifier = "DEFAULT_PT_SALT";
 	Name = "SALT";
@@ -27,9 +27,8 @@ Element_SALT::Element_SALT()
 
 	Weight = 75;
 
-	Temperature = R_TEMP+0.0f	+273.15f;
 	HeatConduct = 110;
-	Description = "Sodium chloride salt, dissolves in water.";
+	Description = "Salt, dissolves in water.";
 
 	Properties = TYPE_PART;
 
@@ -41,8 +40,4 @@ Element_SALT::Element_SALT()
 	LowTemperatureTransition = NT;
 	HighTemperature = 1173.0f;
 	HighTemperatureTransition = PT_LAVA;
-
-	Update = NULL;
 }
-
-Element_SALT::~Element_SALT() {}

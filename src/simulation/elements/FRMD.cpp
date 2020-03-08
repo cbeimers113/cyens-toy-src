@@ -1,6 +1,6 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_FRMD PT_FRMD 206
-Element_FRMD::Element_FRMD()
+
+void Element::Element_FRMD()
 {
 	Identifier = "DEFAULT_PT_FRMD";
 	Name = "FRMD";
@@ -17,7 +17,7 @@ Element_FRMD::Element_FRMD()
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 2;
 
 	Flammable = 0;
@@ -27,7 +27,6 @@ Element_FRMD::Element_FRMD()
 
 	Weight = 45;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Formamide, can form nucleotides.";
 
@@ -41,8 +40,5 @@ Element_FRMD::Element_FRMD()
 	LowTemperatureTransition = NT;
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
-
-	Update = NULL;
 }
 
-Element_FRMD::~Element_FRMD() {}

@@ -84,50 +84,50 @@ void AHeatOption::perform()
 }
 
 
-CGassesOption::CGassesOption(GameModel* m) :
-	QuickOption("O", "Compressible Gasses \bg(o)", m, Toggle)
+TimeDilationOption::TimeDilationOption(GameModel* m) :
+	QuickOption("T", "Time Dilation \bg(t)", m, Toggle)
 {
 
 }
-bool CGassesOption::GetToggle()
+bool TimeDilationOption::GetToggle()
+{
+	return m->GetTimeDilationEnable();
+}
+void TimeDilationOption::perform()
+{
+	m->SetTimeDilationEnable(!m->GetTimeDilationEnable());
+}
+
+
+CompressibleGasesOption::CompressibleGasesOption(GameModel* m) :
+	QuickOption("O", "Compressible Gases \bg(o)", m, Toggle)
+{
+
+}
+bool CompressibleGasesOption::GetToggle()
 {
 	return m->GetCompressibleGasesEnable();
 }
-void CGassesOption::perform()
+void CompressibleGasesOption::perform()
 {
 	m->SetCompressibleGasesEnable(!m->GetCompressibleGasesEnable());
 }
 
 
-TDilationOption::TDilationOption(GameModel* m) :
-	QuickOption("T", "Time Dilation \bg(t)", m, Toggle)
-{
-
-}
-bool TDilationOption::GetToggle()
-{
-	return m->GetTimeDilationEnable();
-}
-void TDilationOption::perform()
-{
-	bool ng = !m->GetTimeDilationEnable();
-	if (ng)m->SetNewtonianGravity(true);
-	m->SetTimeDilationEnable(ng);
-}
-
-DQFieldsOption::DQFieldsOption(GameModel* m) :
+QuantumFieldsOption::QuantumFieldsOption(GameModel* m) :
 	QuickOption("Q", "Draw Quantum Fields \bg(q)", m, Toggle)
 {
 
 }
-bool DQFieldsOption::GetToggle()
+bool QuantumFieldsOption::GetToggle()
 {
-	return m->GetDrawQuantumFields();
+	return m->GetDrawQuantumFieldsEnable();
 }
-void DQFieldsOption::perform()
+void QuantumFieldsOption::perform()
 {
-	m->SetDrawQuantumFields(!m->GetDrawQuantumFields());
+	m->SetDrawQuantumFieldsEnable(!m->GetDrawQuantumFieldsEnable());
 }
+
 
 ConsoleShowOption::ConsoleShowOption(GameModel* m, GameController* c_) :
 	QuickOption("C", "Show Console \bg(~)", m, Toggle)

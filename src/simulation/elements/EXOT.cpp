@@ -1,6 +1,9 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_EXOT PT_EXOT 145
-Element_EXOT::Element_EXOT()
+
+static int update(UPDATE_FUNC_ARGS);
+static int graphics(GRAPHICS_FUNC_ARGS);
+
+void Element::Element_EXOT()
 {
 	Identifier = "DEFAULT_PT_EXOT";
 	Name = "EXOT";
@@ -27,7 +30,7 @@ Element_EXOT::Element_EXOT()
 
 	Weight = 46;
 
-	Temperature = R_TEMP-2.0f	+273.15f;
+	DefaultProperties.temp = R_TEMP - 2.0f + 273.15f;
 	HeatConduct = 250;
 	Description = "Exotic matter. Explodes with excess exposure to electrons. Has many other odd reactions.";
 
@@ -42,12 +45,14 @@ Element_EXOT::Element_EXOT()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_EXOT::update;
-	Graphics = &Element_EXOT::graphics;
+	DefaultProperties.life = 1000;
+	DefaultProperties.tmp = 244;
+
+	Update = &update;
+	Graphics = &graphics;
 }
 
-//#TPT-Directive ElementHeader Element_EXOT static int update(UPDATE_FUNC_ARGS)
-int Element_EXOT::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rt, rx, ry, trade, tym;
 	for (rx=-2; rx<=2; rx++)
@@ -176,11 +181,9 @@ int Element_EXOT::update(UPDATE_FUNC_ARGS)
 		parts[i].tmp--;
 	}
 	return 0;
-
 }
 
-//#TPT-Directive ElementHeader Element_EXOT static int graphics(GRAPHICS_FUNC_ARGS)
-int Element_EXOT::graphics(GRAPHICS_FUNC_ARGS)
+static int graphics(GRAPHICS_FUNC_ARGS)
 {
 	int q = cpart->temp;
 	int b = cpart->tmp;
@@ -235,5 +238,3 @@ int Element_EXOT::graphics(GRAPHICS_FUNC_ARGS)
 	}
 	return 0;
 }
-
-Element_EXOT::~Element_EXOT() {}

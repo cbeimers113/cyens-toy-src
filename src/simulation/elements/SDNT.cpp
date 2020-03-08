@@ -1,7 +1,9 @@
 #include "simulation/ElementCommon.h"
 
-//#TPT-Directive ElementClass Element_SDNT PT_SDNT 223
-Element_SDNT::Element_SDNT() {
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_SDNT()
+{
 	Identifier = "DEFAULT_PT_SDNT";
 	Name = "SDNT";
 	FullName = "Sodium Nitrate";
@@ -17,7 +19,7 @@ Element_SDNT::Element_SDNT() {
 	Collision = 0.0f;
 	Gravity = 0.1f;
 	Diffusion = 0.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 1;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_SDNT::Element_SDNT() {
 
 	Weight = 25;
 
-	Temperature = R_TEMP + 273.15f;
 	HeatConduct = 30;
 	Description = "Sodium nitrate, a fertilizer.";
 
@@ -42,11 +43,11 @@ Element_SDNT::Element_SDNT() {
 	HighTemperature = 813.15f;
 	HighTemperatureTransition = PT_SMKE;
 
-	Update = &Element_SDNT::update;
+	Update = &update;
 }
 
-//#TPT-Directive ElementHeader Element_SDNT static int update(UPDATE_FUNC_ARGS)
-int Element_SDNT::update(UPDATE_FUNC_ARGS) {
+static int update(UPDATE_FUNC_ARGS)
+{
 	int r, rx, ry;
 	for (ry = -1; ry < 2; ry++)
 		for (rx = -1; rx < 2; rx++)
@@ -61,5 +62,3 @@ int Element_SDNT::update(UPDATE_FUNC_ARGS) {
 			}
 	return 0;
 }
-
-Element_SDNT::~Element_SDNT() {}

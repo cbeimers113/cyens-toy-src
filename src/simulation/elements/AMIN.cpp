@@ -1,6 +1,8 @@
 #include "simulation/ElementCommon.h"
-//#TPT-Directive ElementClass Element_AMIN PT_AMIN 207
-Element_AMIN::Element_AMIN()
+
+static int update(UPDATE_FUNC_ARGS);
+
+void Element::Element_AMIN()
 {
 	Identifier = "DEFAULT_PT_AMIN";
 	Name = "AMIN";
@@ -17,7 +19,7 @@ Element_AMIN::Element_AMIN()
 	Collision = -0.10f;
 	Gravity = 0.00f;
 	Diffusion = 3.00f;
-	HotAir = 0.000f	* CFDS;
+	HotAir = 0.000f * CFDS;
 	Falldown = 0;
 
 	Flammable = 0;
@@ -27,7 +29,6 @@ Element_AMIN::Element_AMIN()
 
 	Weight = 1;
 
-	Temperature = R_TEMP + 0.0f + 273.15f;
 	HeatConduct = 251;
 	Description = "Amine compound.";
 
@@ -42,13 +43,10 @@ Element_AMIN::Element_AMIN()
 	HighTemperature = ITH;
 	HighTemperatureTransition = NT;
 
-	Update = &Element_AMIN::update;
+	Update = &update;
 }
 
-Element_AMIN::~Element_AMIN() {}
-
-//#TPT-Directive ElementHeader Element_AMIN static int update(UPDATE_FUNC_ARGS)
-int Element_AMIN::update(UPDATE_FUNC_ARGS)
+static int update(UPDATE_FUNC_ARGS)
 {
 	int r, rx, ry;
 	for (rx = -1; rx < 2; rx++)
@@ -67,3 +65,4 @@ int Element_AMIN::update(UPDATE_FUNC_ARGS)
 			}
 	return 0;
 }
+
